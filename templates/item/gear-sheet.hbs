@@ -1,0 +1,110 @@
+<div class="gear-sheet">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" />
+    <input name="name" type="text" value="{{item.name}}" placeholder="Item Name" {{#unless editable}}disabled{{/unless}} />
+  </header>
+
+  <div class="form-grid">
+    <label>{{localize "D616.Sheet.Category"}}
+      <select name="system.category" {{#unless editable}}disabled{{/unless}}>
+        <option value="weaponMelee" {{#if (eq system.category "weaponMelee")}}selected{{/if}}>{{localize "D616.Category.weaponMelee"}}</option>
+        <option value="weaponRanged" {{#if (eq system.category "weaponRanged")}}selected{{/if}}>{{localize "D616.Category.weaponRanged"}}</option>
+        <option value="armor" {{#if (eq system.category "armor")}}selected{{/if}}>{{localize "D616.Category.armor"}}</option>
+        <option value="gadget" {{#if (eq system.category "gadget")}}selected{{/if}}>{{localize "D616.Category.gadget"}}</option>
+        <option value="consumable" {{#if (eq system.category "consumable")}}selected{{/if}}>{{localize "D616.Category.consumable"}}</option>
+        <option value="vehicle" {{#if (eq system.category "vehicle")}}selected{{/if}}>{{localize "D616.Category.vehicle"}}</option>
+        <option value="other" {{#if (eq system.category "other")}}selected{{/if}}>{{localize "D616.Category.other"}}</option>
+      </select>
+    </label>
+    <label>{{localize "D616.Sheet.Availability"}}
+      <input type="text" name="system.availability" value="{{system.availability}}" placeholder="Common, Restricted, Military, Prototype..." {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <label>{{localize "D616.Sheet.Range"}}
+      <input type="text" name="system.range" value="{{system.range}}" {{#unless editable}}disabled{{/unless}} />
+    </label>
+
+    <fieldset>
+      <legend>{{localize "D616.Sheet.Cost"}}</legend>
+      <label>Flat Focus
+        <input type="number" name="system.cost.flat" value="{{system.cost.flat}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.cost.scales" {{#if system.cost.scales}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.ScalingCost"}}
+      </label>
+      <label>{{localize "D616.Sheet.ScalingRatio"}}
+        <input type="number" name="system.cost.ratio" value="{{system.cost.ratio}}" min="1" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.ScalingMinimum"}}
+        <input type="number" name="system.cost.minimum" value="{{system.cost.minimum}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Attack Roll</legend>
+      <label class="checkbox">
+        <input type="checkbox" name="system.attack.enabled" {{#if system.attack.enabled}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        This item makes an attack roll (weapons)
+      </label>
+      <label>{{localize "D616.Sheet.AttackAbility"}}
+        <select name="system.attack.ability" {{#unless editable}}disabled{{/unless}}>
+          {{#each abilities}}
+          <option value="{{this}}" {{#if (eq ../system.attack.ability this)}}selected{{/if}}>{{localize (concat "D616.Ability." this)}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>{{localize "D616.Sheet.DefenseTargeted"}}
+        <select name="system.attack.defenseTarget" {{#unless editable}}disabled{{/unless}}>
+          {{#each abilities}}
+          <option value="{{this}}" {{#if (eq ../system.attack.defenseTarget this)}}selected{{/if}}>{{localize (concat "D616.Ability." this)}} Defense</option>
+          {{/each}}
+          <option value="flat" {{#if (eq system.attack.defenseTarget "flat")}}selected{{/if}}>Flat Target Number</option>
+        </select>
+      </label>
+      <label>{{localize "D616.Sheet.FlatDC"}}
+        <input type="number" name="system.attack.flatDC" value="{{system.attack.flatDC}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.attack.dealsDamage" {{#if system.attack.dealsDamage}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.DealsDamage"}}
+      </label>
+      <label>{{localize "D616.Sheet.WeaponDamageMultiplierBonus"}}
+        <input type="number" name="system.attack.damageMultiplierBonus" value="{{system.attack.damageMultiplierBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.FantasticEffect"}}
+        <input type="text" name="system.attack.fantasticEffect" value="{{system.attack.fantasticEffect}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{localize "D616.Sheet.PassiveBonus"}}</legend>
+      <label class="checkbox">
+        <input type="checkbox" name="system.passive.enabled" {{#if system.passive.enabled}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        Always-on passive bonus (armor, worn gadgets)
+      </label>
+      <label>{{localize "D616.Sheet.BonusAbility"}}
+        <select name="system.passive.ability" {{#unless editable}}disabled{{/unless}}>
+          {{#each abilities}}
+          <option value="{{this}}" {{#if (eq ../system.passive.ability this)}}selected{{/if}}>{{localize (concat "D616.Ability." this)}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>{{localize "D616.Sheet.DamageMultiplierBonus"}}
+        <input type="number" name="system.passive.damageMultiplierBonus" value="{{system.passive.damageMultiplierBonus}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.DamageModifierBonus"}}
+        <input type="number" name="system.passive.damageModifierBonus" value="{{system.passive.damageModifierBonus}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.NonAttackCheckBonus"}}
+        <input type="number" name="system.passive.nonAttackCheckBonus" value="{{system.passive.nonAttackCheckBonus}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.HealthDRBonus"}}
+        <input type="number" name="system.passive.healthDamageReductionBonus" value="{{system.passive.healthDamageReductionBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </fieldset>
+
+    <label class="full-width">{{localize "D616.Sheet.Effect"}}
+      <textarea name="system.effect" rows="6" {{#unless editable}}disabled{{/unless}}>{{system.effect}}</textarea>
+    </label>
+  </div>
+</div>

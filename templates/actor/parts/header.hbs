@@ -1,0 +1,59 @@
+<header class="sheet-header">
+  <div class="mm-hero-portrait-block">
+    <div class="mm-hero-portrait">
+      <img src="{{actor.img}}" data-action="editImage" title="{{actor.name}}" />
+    </div>
+    <div class="mm-rank-block">
+      <label class="mm-label">{{localize "D616.Sheet.Rank"}}</label>
+      <input type="number" name="system.rank" value="{{system.rank}}" min="1" max="6" {{#unless editable}}disabled{{/unless}} />
+    </div>
+    <div class="mm-karma-block">
+      <label class="mm-label">{{localize "D616.Sheet.Karma"}}</label>
+      <input type="number" name="system.karma.value" value="{{system.karma.value}}" {{#unless editable}}disabled{{/unless}} />
+      <span class="mm-karma-max">/ {{system.karma.max}}</span>
+    </div>
+  </div>
+
+  <div class="header-fields">
+    <div class="mm-styled-field -fill">
+      <label class="mm-styled-label"><span>{{localize "D616.Sheet.Codename"}}</span></label>
+      <div class="mm-styled-input">
+        <input name="name" type="text" value="{{actor.name}}" placeholder="Codename" {{#unless editable}}disabled{{/unless}} />
+      </div>
+    </div>
+
+    <div class="mm-stat-row">
+      <div class="mm-stat-block">
+        <label class="mm-label">{{localize "D616.Sheet.Health"}}</label>
+        <div class="mm-input">
+          <input type="number" name="system.health.value" value="{{system.health.value}}" {{#unless editable}}disabled{{/unless}} />
+          / {{system.health.max}}
+        </div>
+        <div class="mm-stat-corner-block">
+          <label class="mm-label">DR</label>
+          <div class="mm-input">
+            <input type="number" name="system.health.damageReduction" value="{{system.health.damageReduction}}" {{#unless editable}}disabled{{/unless}} />
+          </div>
+        </div>
+      </div>
+
+      <div class="mm-stat-block -focus">
+        <label class="mm-label">{{localize "D616.Sheet.Focus"}}</label>
+        <div class="mm-input">
+          <input type="number" name="system.focus.value" value="{{system.focus.value}}" {{#unless editable}}disabled{{/unless}} />
+          / {{system.focus.max}}
+        </div>
+      </div>
+
+      <div class="mm-stat-block">
+        <label class="mm-label">{{localize "D616.Sheet.Speed"}} / {{localize "D616.Sheet.Initiative"}}</label>
+        <div class="mm-input">
+          <span>{{system.speed}}</span>
+          <span>&middot;</span>
+          <span>{{initiativeDisplay}}</span>
+          <a data-action="rollInitiative" title="{{localize 'D616.Roll.Initiative'}}"><i class="fa-solid fa-dice-d6"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

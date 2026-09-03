@@ -1,0 +1,26 @@
+<div class="trait-sheet">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" />
+    <input name="name" type="text" value="{{item.name}}" placeholder="Trait Name" {{#unless editable}}disabled{{/unless}} />
+  </header>
+
+  <div class="form-grid">
+    <label class="checkbox">
+      <input type="checkbox" name="system.grantsEdge" {{#if system.grantsEdge}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+      {{localize "D616.Sheet.GrantsEdge"}}
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="system.grantsTrouble" {{#if system.grantsTrouble}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+      {{localize "D616.Sheet.GrantsTrouble"}}
+    </label>
+    <label class="full-width">{{localize "D616.Sheet.SituationalNote"}}
+      <input type="text" name="system.situation" value="{{system.situation}}" placeholder="e.g. Edge on Vigilance checks in low light" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <label class="full-width">{{localize "D616.Sheet.MechanicalEffect"}}
+      <textarea name="system.mechanicalEffect" rows="4" {{#unless editable}}disabled{{/unless}}>{{system.mechanicalEffect}}</textarea>
+    </label>
+    <label class="full-width">{{localize "D616.Sheet.Description"}}
+      <textarea name="system.description" rows="6" {{#unless editable}}disabled{{/unless}}>{{system.description}}</textarea>
+    </label>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="d616-roll-card {{#if isFantastic}}fantastic{{/if}} {{#if isGreen}}green{{/if}}">
+  <header class="roll-card-header">
+    <strong>{{title}}</strong>
+    {{#if item}}<span class="roll-card-sub">{{item.system.range}} &middot; {{item.system.duration}}</span>{{/if}}
+  </header>
+
+  {{#if (ne total null)}}
+  <div class="roll-card-dice">
+    <img class="die-icon" src="{{concat 'systems/d616/icons/d6-white-' d1 '.svg'}}" alt="{{d1}}" />
+    <img class="die-icon" src="{{concat 'systems/d616/icons/d6-white-' d2 '.svg'}}" alt="{{d2}}" />
+    {{#if isFantastic}}
+    <img class="die-icon marvel-die-icon" src="systems/d616/icons/d6-marvel-star.svg" alt="Fantastic" />
+    {{else}}
+    <img class="die-icon marvel-die-icon {{#if isGreen}}green{{/if}}" src="{{concat 'systems/d616/icons/d6-marvel-' rawMarvel '.svg'}}" alt="{{marvelValue}}" />
+    {{/if}}
+    <span class="plus">+</span>
+    <span class="ability-bonus">{{abilityValue}}</span>
+    <span class="equals">=</span>
+    <span class="roll-total">{{total}}</span>
+  </div>
+  {{/if}}
+
+  {{#if isFantastic}}
+  <p class="callout fantastic-callout">{{localize "D616.Roll.Fantastic"}}{{#if fantasticEffect}} — {{fantasticEffect}}{{/if}}</p>
+  {{/if}}
+  {{#if isGreen}}
+  <p class="callout green-callout">{{localize "D616.Roll.Green"}}</p>
+  {{/if}}
+
+  {{#if defenseTargetLabel}}
+  <p class="roll-vs">{{localize "D616.Roll.vs"}} {{defenseTargetLabel}} (compare to the target's value)</p>
+  {{/if}}
+  {{#if targetNumber}}
+  <p class="roll-vs">{{localize "D616.Roll.vs"}} {{targetNumber}} &mdash;
+    {{#if success}}<strong class="success">{{localize "D616.Roll.Success"}}</strong>{{else}}<strong class="failure">{{localize "D616.Roll.Failure"}}</strong>{{/if}}
+  </p>
+  {{/if}}
+
+  {{#if damage}}
+  <p class="roll-damage"><strong>{{localize "D616.Roll.Damage"}}: {{damage}}</strong></p>
+  {{/if}}
+
+  {{#if focusCost}}
+  <p class="roll-cost">Spent {{focusCost}} Focus (Focus remaining: {{focusRemaining}})</p>
+  {{/if}}
+</div>

@@ -1,0 +1,67 @@
+<section class="tab {{#if mainActive}}active{{/if}}" data-tab="main">
+
+  <div class="identity-grid">
+    <div class="mm-styled-field -fill">
+      <label class="mm-styled-label"><span>{{localize "D616.Sheet.Origin"}}</span></label>
+      <div class="mm-styled-input"><input type="text" name="system.identity.origin" value="{{system.identity.origin}}" {{#unless editable}}disabled{{/unless}} /></div>
+    </div>
+    <div class="mm-styled-field -fill">
+      <label class="mm-styled-label"><span>{{localize "D616.Sheet.Team"}}</span></label>
+      <div class="mm-styled-input"><input type="text" name="system.identity.team" value="{{system.identity.team}}" {{#unless editable}}disabled{{/unless}} /></div>
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.Abilities"}}</h3>
+    <div class="mm-styled-container-body">
+      <table class="abilities-table">
+        <thead>
+          <tr>
+            <th></th>
+            {{#each abilityList}}<th>{{this.label}}</th>{{/each}}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-label">Score</td>
+            {{#each abilityList}}
+            <td><input type="number" name="system.abilities.{{this.key}}.value" value="{{this.value}}" {{#unless ../editable}}disabled{{/unless}} /></td>
+            {{/each}}
+          </tr>
+          <tr>
+            <td class="row-label">Defense</td>
+            {{#each defenseList}}<td><span class="derived-value">{{this.value}}</span></td>{{/each}}
+          </tr>
+          <tr>
+            <td class="row-label">{{localize "D616.Sheet.RollAbility"}}</td>
+            {{#each abilityList}}
+            <td><a data-action="rollAbility" data-ability="{{this.key}}" title="{{localize 'D616.Sheet.RollAbility'}}"><i class="fa-solid fa-dice-d6"></i></a></td>
+            {{/each}}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
+    <h3>Damage</h3>
+    <div class="mm-styled-container-body">
+      <ul class="mm-damage-rows">
+        {{#each abilityList}}
+        <li>
+          <h6>{{this.label}}</h6>
+          <div class="mm-damage-multiply">
+            <img class="mm-die-icon" src="systems/d616/icons/d6-marvel-star.svg" alt="Marvel Die" />
+            <span>&times;</span>
+            <span>{{this.damageMultiplier}}</span>
+          </div>
+          <span class="plus">+</span>
+          <div class="mm-damage-addition">{{this.damageModifier}}</div>
+        </li>
+        {{/each}}
+      </ul>
+      <p class="hint">This updates automatically — Rank sets the base multiplier and each ability score sets the base modifier; owned passive Powers add on top.</p>
+    </div>
+  </div>
+
+</section>

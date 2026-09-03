@@ -1,0 +1,723 @@
+/*
+ * Visual design adapted from the "chamfered comic-panel" look of the
+ * community Foundry VTT system at https://github.com/mjording/marvel-multiverse
+ * (MIT licensed for its code) — clip-path notched panels, a
+ * red/dark-red/blue/cream palette, Roboto Slab/Condensed typography, and
+ * bracketed damage math. The CSS technique, layout, and color/typography
+ * choices are re-implemented here against this system's own markup/classes.
+ *
+ * The die-face icons below are original artwork for this system, not
+ * copied from that repo — its own /icons folder turned out to include at
+ * least one unattributed third-party stock icon (a Noun Project file,
+ * visible in its embedded metadata) and its /ui/official folder includes
+ * Marvel's own trademarked logo and photography, none of which its
+ * LICENSE.txt actually covers (it scopes the MIT grant to "the Software"
+ * and separately attributes exactly one image). The Roboto/Roboto
+ * Slab/Roboto Condensed font FILES bundled in /fonts are the real,
+ * separately Apache-2.0-licensed Google Fonts release — see
+ * fonts/*/LICENSE — and are loaded locally below rather than from a CDN.
+ */
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/roboto/Roboto-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/roboto/Roboto-Bold.woff2") format("woff2");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/roboto/Roboto-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  src: url("../fonts/roboto-slab/RobotoSlab-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  src: url("../fonts/roboto-slab/RobotoSlab-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("../fonts/roboto-condensed/RobotoCondensed-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("../fonts/roboto-condensed/RobotoCondensed-Bold.woff2") format("woff2");
+  font-weight: 700;
+}
+
+:root {
+  --mm-red: #e41d18;
+  --mm-dark-red: #8b0502;
+  --mm-blue: #0088cd;
+  --mm-dark-blue: #00599e;
+  --mm-cream: #fff2ec;
+  --mm-ink: #000101;
+  --mm-subtext: #575757;
+}
+
+.d616.sheet {
+  font-family: "Roboto Slab", "Georgia", serif;
+  color: var(--mm-ink);
+}
+
+.d616.sheet .window-content {
+  background: #ece4d8;
+  /* Force a real flex layout here instead of trusting core CSS to have set
+     one: header/tabs stay pinned, and the visible .tab section below is the
+     only part that scrolls. `min-height: 0` is the key line — without it a
+     flex item defaults to a minimum size equal to its content's natural
+     height, so instead of clipping/scrolling, this box (and the window
+     around it) just grows to fit the content and everything below the
+     window's visible frame gets silently cut off with no scrollbar. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Layout helpers ---------- */
+.d616.sheet .flexrow { display: flex; flex-direction: row; }
+.d616.sheet .flexcol { display: flex; flex-direction: column; }
+.d616.sheet .gap-sm { gap: 4px; }
+.d616.sheet .gap-md { gap: 8px; }
+
+/* ---------- Header ---------- */
+.d616.sheet .sheet-header {
+  display: flex;
+  gap: 12px;
+  padding: 8px;
+  align-items: flex-start;
+  flex: 0 0 auto; /* never shrink/scroll the header — only the tab body below does */
+}
+
+.mm-hero-portrait-block {
+  position: relative;
+  flex: 0 0 auto;
+  width: 130px;
+  height: 150px;
+}
+
+.mm-hero-portrait {
+  background: var(--mm-red);
+  clip-path: polygon(0 0, 70% 0%, 100% 30%, 100% 100%, 30% 100%, 0% 70%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mm-hero-portrait img {
+  max-width: 90%;
+  max-height: 90%;
+  border: none;
+  cursor: pointer;
+}
+
+.mm-rank-block,
+.mm-karma-block {
+  position: absolute;
+  background: var(--mm-red);
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3px;
+}
+
+.mm-rank-block {
+  top: 0;
+  left: -8px;
+  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px);
+}
+
+.mm-karma-block {
+  bottom: 0;
+  right: -8px;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 8px, calc(100% - 5px) 12px, calc(100% - 5px) calc(100% - 12px), 100% calc(100% - 8px), 100% 100%, 0% 100%, 0% calc(100% - 8px), 5px calc(100% - 12px), 5px 12px, 0% 8px);
+}
+
+.mm-rank-block .mm-label,
+.mm-karma-block .mm-label {
+  color: white;
+  font-size: 9px;
+}
+
+.mm-rank-block input,
+.mm-karma-block input {
+  width: 28px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mm-karma-block .mm-karma-max { color: white; font-size: 12px; }
+
+.header-fields {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- "Styled" field/label/input (notched tab label) ---------- */
+.mm-styled-field {
+  position: relative;
+  display: inline-grid;
+}
+
+.mm-styled-field.-fill { width: 100%; }
+
+.mm-styled-label {
+  background: var(--mm-cream);
+  border-top: 2px solid var(--mm-red);
+  position: relative;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0 4px;
+  margin-inline-start: 14px;
+  bottom: -4px;
+  min-height: 15px;
+  z-index: 1;
+  width: fit-content;
+}
+
+.mm-styled-label::before,
+.mm-styled-label::after {
+  content: "";
+  background: var(--mm-cream);
+  border-left: 2px solid var(--mm-red);
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 15px;
+}
+.mm-styled-label::before { left: -7px; transform: rotate(45deg); }
+.mm-styled-label::after { right: -7px; transform: rotate(135deg); }
+
+.mm-styled-input {
+  background: var(--mm-red);
+  border-radius: 2px;
+  padding: 2px;
+  position: relative;
+  min-height: 28px;
+}
+
+.mm-styled-input::before {
+  content: "";
+  background: var(--mm-cream);
+  border-radius: 2px;
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; bottom: 2px;
+}
+
+.mm-styled-input input,
+.mm-styled-input select {
+  background: none;
+  border: none;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Roboto Condensed", sans-serif;
+  color: var(--mm-ink);
+  padding: 4px 8px;
+}
+
+.mm-styled-input input:focus,
+.mm-styled-input select:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--mm-red);
+}
+
+/* ---------- Stat blocks: Health (red), Focus (blue), Speed/Init ---------- */
+.mm-stat-row {
+  display: flex;
+  gap: 10px;
+}
+
+.mm-stat-block {
+  position: relative;
+  background: var(--mm-red);
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+  flex: 1 1 0;
+  min-width: 110px;
+  padding: 6px 8px;
+  padding-inline-end: 40px;
+  text-align: center;
+}
+
+.mm-stat-block.-focus { background: var(--mm-blue); }
+
+.mm-stat-block::before {
+  content: "";
+  background: var(--mm-cream);
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; bottom: 2px;
+}
+
+.mm-stat-block .mm-label {
+  position: relative;
+  z-index: 1;
+  color: var(--mm-subtext);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mm-stat-block .mm-input {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mm-stat-block .mm-input input {
+  width: 2.4rem;
+  background: none;
+  border: none;
+  text-align: center;
+  font: inherit;
+  color: var(--mm-ink);
+}
+
+.mm-stat-block .mm-input a {
+  color: var(--mm-red);
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-inline-start: 2px;
+}
+.mm-stat-block .mm-input a:hover { color: var(--mm-dark-red); }
+
+.mm-stat-corner-block {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 36px;
+  height: 46px;
+  background: var(--mm-dark-red);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 10px 100%, 0% calc(100% - 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.mm-stat-block.-focus ~ .mm-stat-corner-block,
+.mm-stat-block.-focus .mm-stat-corner-block { background: var(--mm-dark-blue); }
+
+.mm-stat-corner-block .mm-label { color: white; font-size: 7px; }
+.mm-stat-corner-block .mm-input { font-size: 15px; color: white; }
+
+/* ---------- Tabs ---------- */
+.d616.sheet .sheet-tabs {
+  display: flex;
+  background: var(--mm-red);
+  clip-path: polygon(0% 14px, 14px 0%, 100% 0%, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0% 100%);
+  padding: 4px;
+  gap: 2px;
+  flex: 0 0 auto; /* never shrink/scroll the tab nav — only the tab body below does */
+}
+
+.d616.sheet .tab-link {
+  flex: 1;
+  text-align: center;
+  background: var(--mm-dark-red);
+  color: white;
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.d616.sheet .tab-link.active {
+  background: white;
+  color: var(--mm-red);
+}
+
+.d616.sheet .tab { display: none; padding: 10px; }
+.d616.sheet .tab.active {
+  display: block;
+  /* This is the actual scrolling region: it fills whatever space is left in
+     the window below the pinned header/tabs, and clips+scrolls its own
+     overflow instead of letting the sheet grow past the window frame. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ---------- Styled containers (Abilities / Damage / Powers / Traits) ---------- */
+.mm-styled-container {
+  background: var(--mm-red);
+  clip-path: polygon(0% 0%, 100px 0%, 128px 24px, 100% 24px, 100% 100%, 0% 100%);
+  padding: 3px;
+  margin-bottom: 10px;
+}
+
+.mm-styled-container h3 {
+  background: var(--mm-dark-red);
+  clip-path: polygon(0% 0%, calc(100% - 22px) 0%, 100% 100%, 0% 100%);
+  color: white;
+  font-family: "Roboto", serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 4px 20px 4px 8px;
+  width: fit-content;
+  min-width: 120px;
+}
+
+.mm-styled-container-body {
+  background: linear-gradient(180deg, var(--mm-dark-red), transparent 40%), var(--mm-cream);
+  padding: 10px 8px 6px;
+}
+
+.mm-styled-container.-blue { background: var(--mm-blue); }
+.mm-styled-container.-blue h3 { background: var(--mm-dark-blue); }
+.mm-styled-container.-blue .mm-styled-container-body {
+  background: linear-gradient(180deg, var(--mm-dark-blue), transparent 40%), var(--mm-cream);
+}
+
+/* ---------- Biography (History / Personality) ---------- */
+.editor-wrapper { display: flex; }
+.mm-styled-container-body textarea {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 0.85rem;
+  color: var(--mm-ink);
+  border: 1px solid var(--mm-red);
+  border-radius: 2px;
+  padding: 6px 8px;
+  background: white;
+}
+.biography-display {
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 0.85rem;
+  color: var(--mm-ink);
+  min-height: 60px;
+}
+.biography-display:empty::before {
+  content: "—";
+  color: var(--mm-subtext);
+}
+
+/* ---------- Abilities table ---------- */
+.abilities-table { width: 100%; border-collapse: collapse; }
+.abilities-table th {
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--mm-subtext);
+  padding: 2px 4px;
+}
+.abilities-table td {
+  text-align: center;
+  padding: 3px;
+}
+.abilities-table .row-label {
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--mm-dark-red);
+}
+.abilities-table input[type="number"] {
+  width: 3rem;
+  text-align: center;
+  background: white;
+  border: 1px solid var(--mm-red);
+  border-radius: 2px;
+  font-weight: 700;
+}
+.abilities-table .derived-value {
+  font-weight: 700;
+  background: white;
+  border: 1px solid var(--mm-dark-red);
+  border-radius: 2px;
+  display: inline-block;
+  min-width: 1.8rem;
+}
+.abilities-table a { color: var(--mm-red); cursor: pointer; font-size: 1.1rem; }
+
+/* ---------- Damage panel (bracket motif: [ ×N ] + M) ---------- */
+.mm-damage-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.mm-damage-rows li { display: flex; align-items: center; gap: 6px; color: white; }
+.mm-damage-rows h6 {
+  margin: 0;
+  color: white;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  flex: 0 0 70px;
+}
+.mm-damage-multiply,
+.mm-damage-addition {
+  position: relative;
+  background: var(--mm-cream);
+  border: 2px solid black;
+  color: var(--mm-ink);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 3px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mm-damage-multiply::before { content: "["; margin-right: 2px; font-size: 1.3rem; }
+.mm-damage-multiply::after { content: "]"; margin-left: 2px; font-size: 1.3rem; }
+.mm-die-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+.mm-damage-rows .plus { color: white; font-weight: 700; }
+
+/* ---------- Item lists (Powers / Traits) ---------- */
+.item-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.mm-item {
+  position: relative;
+  background: var(--mm-red);
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px;
+}
+
+.mm-item::before {
+  content: "";
+  background: var(--mm-cream);
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; bottom: 2px;
+}
+
+.mm-item > * { position: relative; z-index: 1; }
+
+.mm-item .item-img {
+  width: 32px;
+  height: 32px;
+  margin-inline-start: 8px;
+  border-radius: 3px;
+}
+
+.mm-item .item-name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.mm-item .item-subtitle {
+  color: var(--mm-subtext);
+  font-size: 0.65rem;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.mm-item .item-tag {
+  background: var(--mm-red);
+  color: white;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  text-transform: uppercase;
+}
+
+.mm-item .item-controls {
+  display: flex;
+  gap: 4px;
+  padding-inline-end: 12px;
+}
+
+.mm-item .item-controls a {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--mm-red);
+  border-radius: 3px;
+  color: var(--mm-red);
+  cursor: pointer;
+}
+.mm-item .item-controls a:hover { background: var(--mm-red); color: white; }
+
+.add-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--mm-dark-red);
+  color: white;
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.hint { font-size: 0.8rem; font-style: italic; color: var(--mm-subtext); }
+
+/* ---------- Identity grid ---------- */
+.identity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+/* ---------- Item sheets (Power / Trait editor) ---------- */
+/* Same fix as the actor sheet: the single "body" PART (.power-sheet /
+   .trait-sheet) is the direct child of .window-content, so it needs to be
+   the flex item that actually scrolls, with its header pinned above the
+   scrolling form-grid. */
+.d616.sheet.item .power-sheet,
+.d616.sheet.item .trait-sheet {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.d616.sheet.item .power-sheet > .sheet-header,
+.d616.sheet.item .trait-sheet > .sheet-header {
+  flex: 0 0 auto;
+}
+.d616.sheet.item .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  padding: 10px;
+  background: #ece4d8;
+}
+.d616.sheet.item fieldset {
+  grid-column: 1 / -1;
+  border: 2px solid var(--mm-red);
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  padding: 8px;
+}
+.d616.sheet.item legend {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--mm-dark-red);
+  padding: 0 6px;
+}
+.d616.sheet.item .full-width { grid-column: 1 / -1; }
+.d616.sheet.item label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--mm-subtext);
+  font-weight: 700;
+  gap: 2px;
+}
+.d616.sheet.item label.checkbox { flex-direction: row; align-items: center; gap: 6px; }
+.d616.sheet.item input,
+.d616.sheet.item select,
+.d616.sheet.item textarea {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 600;
+  color: var(--mm-ink);
+  border: 1px solid var(--mm-red);
+  border-radius: 2px;
+  padding: 4px 6px;
+}
+.d616.sheet.item .sheet-header {
+  background: var(--mm-red);
+}
+.d616.sheet.item .sheet-header input[name="name"] {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  background: none;
+  border: none;
+}
+.d616.sheet.item .profile-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ---------- Chat cards ---------- */
+.d616-roll-card {
+  font-family: "Roboto Condensed", sans-serif;
+  background: var(--mm-cream);
+  border: 2px solid var(--mm-red);
+  border-radius: 3px;
+  padding: 8px 10px;
+}
+.d616-roll-card.fantastic { border-color: #c8962c; background: #fff8e6; }
+.d616-roll-card.green { border-left: 6px solid #2c7a3d; }
+
+.roll-card-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--mm-red);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.roll-card-dice { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; margin-bottom: 6px; }
+.roll-card-dice .die-icon {
+  width: 32px;
+  height: 32px;
+}
+.roll-card-dice .marvel-die-icon.green {
+  filter: drop-shadow(0 0 0 2px #2c7a3d);
+  outline: 2px solid #2c7a3d;
+  border-radius: 6px;
+}
+.roll-card-dice .roll-total { font-size: 1.5rem; font-weight: 800; margin-left: 6px; color: var(--mm-dark-red); }
+
+.callout { font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; margin-bottom: 4px; }
+.fantastic-callout { background: #fff2cc; color: #8a6415; }
+.green-callout { background: #e2f3e5; color: #2c7a3d; }
+.success { color: #2c7a3d; }
+.failure { color: var(--mm-red); }
+.roll-damage { font-size: 1.1rem; color: var(--mm-dark-red); }
