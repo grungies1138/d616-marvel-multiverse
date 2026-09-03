@@ -1,0 +1,93 @@
+{
+  "id": "d616",
+  "title": "D616 Marvel Multiverse Role-Playing",
+  "description": "An unofficial, general-purpose Foundry VTT system implementing the six-ability (MARVEL), Rank-based, Marvel-Die superhero ruleset: Melee/Agility/Resilience/Vigilance/Ego/Logic abilities, Rank-scaled Health/Focus/Karma, data-driven Power and Trait items, and an automated 2d6+Marvel-Die roll engine with Fantastic/Green detection. Built for homebrew and original characters; not affiliated with or endorsed by Marvel or any publisher.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14.349"
+  },
+  "authors": [
+    {
+      "name": "Built with Claude"
+    }
+  ],
+  "esmodules": [
+    "module/d616.mjs"
+  ],
+  "styles": [
+    "styles/d616.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {}
+    },
+    "Item": {
+      "power": {},
+      "trait": {},
+      "gear": {}
+    }
+  },
+  "packs": [
+    {
+      "name": "powers",
+      "label": "Powers (Reference)",
+      "path": "packs/powers",
+      "type": "Item",
+      "system": "d616",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "gear",
+      "label": "Gear (Reference)",
+      "path": "packs/gear",
+      "type": "Item",
+      "system": "d616",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "characters",
+      "label": "Wickfield Eight (Pregens)",
+      "path": "packs/characters",
+      "type": "Actor",
+      "system": "d616",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "homebrew",
+      "label": "Wickfield Eight Items (Homebrew)",
+      "path": "packs/homebrew",
+      "type": "Item",
+      "system": "d616",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "villains",
+      "label": "Wickfield Eight: Adversaries",
+      "path": "packs/villains",
+      "type": "Actor",
+      "system": "d616",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    }
+  ],
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "focus",
+  "gridDistance": 1,
+  "gridUnits": "sp",
+  "initiative": "2d6 + 1d6 + @initiative",
+  "grid": {
+    "distance": 1,
+    "units": "sp"
+  },
+  "background": "",
+  "url": "https://github.com/grungies1138/d616-foundry-system/",
+  "manifest": "https://raw.githubusercontent.com/grungies1138/d616-foundry-system/main/system.json",
+  "download": "https://github.com/grungies1138/d616-foundry-system/releases/download/release-1.0.0/d616-release-1.0.0.zip"
+}
