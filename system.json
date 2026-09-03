@@ -87,7 +87,7 @@
     "units": "sp"
   },
   "background": "",
-  "url": "https://github.com/grungies1138/d616-foundry-system/",
-  "manifest": "https://raw.githubusercontent.com/grungies1138/d616-foundry-system/main/system.json",
-  "download": "https://github.com/grungies1138/d616-foundry-system/releases/download/release-1.0.0/d616-release-1.0.0.zip"
+  "url": "https://github.com/grungies1138/d616-marvel-multiverse/",
+  "manifest": "https://raw.githubusercontent.com/grungies1138/d616-marvel-multiverse/main/system.json",
+  "download": "https://github.com/grungies1138/d616-marvel-multiverse/releases/download/release-1.0.0/d616-release-1.0.0.zip"
 }
