@@ -1,0 +1,61 @@
+<section class="tab {{#if biographyActive}}active{{/if}}" data-tab="biography">
+
+  <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.Profile"}}</h3>
+    <div class="mm-styled-container-body">
+      <div class="identity-grid">
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.RealName"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.realName" value="{{system.identity.realName}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.Occupation"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.occupation" value="{{system.identity.occupation}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.Height"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.height" value="{{system.identity.height}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.Weight"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.weight" value="{{system.identity.weight}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.EyeColor"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.eyeColor" value="{{system.identity.eyeColor}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+        <div class="mm-styled-field -fill">
+          <label class="mm-styled-label"><span>{{localize "D616.Sheet.HairColor"}}</span></label>
+          <div class="mm-styled-input"><input type="text" name="system.identity.hairColor" value="{{system.identity.hairColor}}" {{#unless editable}}disabled{{/unless}} /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.History"}}</h3>
+    <div class="mm-styled-container-body">
+      {{#if editable}}
+      <div class="editor-wrapper">
+        <textarea name="system.history" rows="9" placeholder="Origin story, key events, how they got their powers...">{{system.history}}</textarea>
+      </div>
+      {{else}}
+      <div class="biography-display">{{{system.history}}}</div>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.Personality"}}</h3>
+    <div class="mm-styled-container-body">
+      {{#if editable}}
+      <div class="editor-wrapper">
+        <textarea name="system.personality" rows="9" placeholder="Temperament, motivations, quirks, how they act in a fight...">{{system.personality}}</textarea>
+      </div>
+      {{else}}
+      <div class="biography-display">{{{system.personality}}}</div>
+      {{/if}}
+    </div>
+  </div>
+
+</section>
