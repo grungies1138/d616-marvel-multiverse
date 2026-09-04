@@ -1,3 +1,5 @@
+import { applySheetTheme } from "../helpers/theme.mjs";
+
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
@@ -8,6 +10,14 @@ class BaseD616ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     window: { resizable: true },
     form: { submitOnChange: true }
   };
+
+  /** Item sheets don't have their own theme toggle button — they just follow
+   *  whatever Light/Dark preference the player already set on their
+   *  character sheet (it's the same client-scoped setting). */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    applySheetTheme(this);
+  }
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);

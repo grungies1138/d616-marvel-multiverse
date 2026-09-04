@@ -92,12 +92,29 @@
 
 /* ---------- Header ---------- */
 .d616.sheet .sheet-header {
+  position: relative; /* anchors the theme-toggle button below */
   display: flex;
   gap: 12px;
   padding: 8px;
   align-items: flex-start;
   flex: 0 0 auto; /* never shrink/scroll the header — only the tab body below does */
 }
+
+/* ---------- Player-selectable Light/Dark theme toggle ---------- */
+.d616-theme-toggle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mm-red);
+  cursor: pointer;
+}
+.d616-theme-toggle:hover { color: var(--mm-dark-red); }
 
 .mm-hero-portrait-block {
   position: relative;
@@ -810,4 +827,56 @@
   font-size: 0.85rem;
   font-style: italic;
   color: var(--mm-subtext);
+}
+
+/* ============================================================
+   Player-selectable Dark Theme
+   ============================================================
+   Applied by module/helpers/theme.mjs as a ".theme-dark" class on each
+   sheet's own root element — scoped here, not on :root, so it only ever
+   affects a d616 sheet window and never leaks into Foundry's own UI or
+   other systems. Almost every "paper" surface and its text already routes
+   through the --mm-cream / --mm-ink / --mm-subtext variables (see :root
+   above), so re-pointing those three is most of the work; the handful of
+   spots that hardcoded "white"/"black" instead (because they assumed a
+   light cream backdrop) get individually patched below. */
+.d616.sheet.theme-dark {
+  --mm-cream: #241f1c;
+  --mm-ink: #f3e9e2;
+  --mm-subtext: #b9a89d;
+}
+
+.d616.sheet.theme-dark .window-content {
+  background: #17130f;
+}
+
+.d616.sheet.theme-dark .abilities-table input[type="number"],
+.d616.sheet.theme-dark .abilities-table .derived-value,
+.d616.sheet.theme-dark .mm-styled-container-body textarea {
+  background: #2f2823;
+}
+
+.d616.sheet.theme-dark .mm-damage-multiply,
+.d616.sheet.theme-dark .mm-damage-addition {
+  border: 2px solid var(--mm-ink);
+}
+
+/* Row labels ("Score" / "Defense" / "Roll") used the dark-red accent for
+   contrast against the light cream card — that same dark red nearly
+   disappears against the new dark card, so brighten it here. */
+.d616.sheet.theme-dark .abilities-table .row-label {
+  color: #ff6b63;
+}
+
+/* Item sheets (Power/Trait/Gear edit windows) follow the same setting —
+   their form fields don't declare an explicit background at all in the
+   light theme (they just show the browser's default white), so dark mode
+   needs to set one explicitly. */
+.d616.sheet.item.theme-dark .form-grid {
+  background: #17130f;
+}
+.d616.sheet.item.theme-dark input,
+.d616.sheet.item.theme-dark select,
+.d616.sheet.item.theme-dark textarea {
+  background: #2f2823;
 }

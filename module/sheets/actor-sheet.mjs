@@ -1,3 +1,5 @@
+import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
+
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
@@ -31,9 +33,16 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       addTrait: D616CharacterSheet.#onAddTrait,
       editItem: D616CharacterSheet.#onEditItem,
       deleteItem: D616CharacterSheet.#onDeleteItem,
-      editImage: D616CharacterSheet.#onEditImage
+      editImage: D616CharacterSheet.#onEditImage,
+      toggleTheme: D616CharacterSheet.#onToggleTheme
     }
   };
+
+  /** Re-apply the player's chosen Light/Dark theme class after every render. */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    applySheetTheme(this);
+  }
 
   static PARTS = {
     header: { template: "systems/d616/templates/actor/parts/header.hbs" },
@@ -94,6 +103,7 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     context.traitsActive = this._tab === "traits";
     context.biographyActive = this._tab === "biography";
 
+    context.themeDark = game.settings.get("d616", "sheetTheme") === "dark";
     context.initiativeDisplay = (actor.system.initiative >= 0 ? "+" : "") + actor.system.initiative;
     context.defenseList = context.abilities.map((key) => ({
       key,
@@ -209,6 +219,10 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
   static #onDeleteItem(event, target) {
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     this.document.items.get(itemId)?.delete();
+  }
+
+  static #onToggleTheme() {
+    toggleSheetTheme();
   }
 
   static #onEditImage() {
