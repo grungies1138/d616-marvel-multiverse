@@ -1,7 +1,19 @@
 import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
+import { openTeamManeuverDialog } from "../helpers/team-maneuver.mjs";
+import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
+
+const SIZE_CHOICES = [
+  "microscopic", "miniature", "tiny", "little", "small",
+  "average", "big", "huge", "gigantic", "titanic", "gargantuan"
+];
+
+function getSingleTarget() {
+  const first = Array.from(game.user.targets)[0];
+  return first?.actor ?? null;
+}
 
 export default class D616CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Currently active tab; kept on the instance so re-renders don't reset it. */
@@ -34,7 +46,19 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       editItem: D616CharacterSheet.#onEditItem,
       deleteItem: D616CharacterSheet.#onDeleteItem,
       editImage: D616CharacterSheet.#onEditImage,
-      toggleTheme: D616CharacterSheet.#onToggleTheme
+      toggleTheme: D616CharacterSheet.#onToggleTheme,
+      recoverHealth: D616CharacterSheet.#onRecoverHealth,
+      recoverFocus: D616CharacterSheet.#onRecoverFocus,
+      restRecover: D616CharacterSheet.#onRestRecover,
+      resetKarma: D616CharacterSheet.#onResetKarma,
+      awardKarma: D616CharacterSheet.#onAwardKarma,
+      actionDodge: D616CharacterSheet.#onActionDodge,
+      actionClearDodge: D616CharacterSheet.#onActionClearDodge,
+      actionHelp: D616CharacterSheet.#onActionHelp,
+      actionGrab: D616CharacterSheet.#onActionGrab,
+      actionEscape: D616CharacterSheet.#onActionEscape,
+      openTeamManeuver: D616CharacterSheet.#onOpenTeamManeuver,
+      fallingDamage: D616CharacterSheet.#onFallingDamage
     }
   };
 
@@ -105,6 +129,7 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
 
     context.themeDark = game.settings.get("d616", "sheetTheme") === "dark";
     context.initiativeDisplay = (actor.system.initiative >= 0 ? "+" : "") + actor.system.initiative;
+    context.initiativeHasStandingEdge = !!actor.system.initiativeHasStandingEdge;
     context.defenseList = context.abilities.map((key) => ({
       key,
       label: game.i18n.localize(`D616.Ability.${key}`),
@@ -118,6 +143,32 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       damageMultiplier: actor.system.damageMultipliers?.[key] ?? actor.system.rank,
       damageModifier: actor.system.damageModifiers?.[key] ?? actor.system.abilities[key].value
     }));
+
+    // Size / Heroic tag / Tags (book p.19, p.21, p.40, p.63).
+    context.sizeChoices = SIZE_CHOICES.map((s) => ({ key: s, label: game.i18n.localize(`D616.Size.${s}`) }));
+    context.isHeroic = actor.system.isHeroic;
+    context.tags = actor.system.tags;
+
+    // Movement modes (book p.31-32): the four automatic ones are always
+    // shown; the four power-granted ones only show once a value is set (0
+    // means "doesn't have this mode").
+    const speeds = actor.system.speeds ?? {};
+    context.movementList = [
+      { key: "run", label: game.i18n.localize("D616.Movement.Run"), value: speeds.run },
+      { key: "climb", label: game.i18n.localize("D616.Movement.Climb"), value: speeds.climb },
+      { key: "jump", label: game.i18n.localize("D616.Movement.Jump"), value: speeds.jump },
+      { key: "swim", label: game.i18n.localize("D616.Movement.Swim"), value: speeds.swim }
+    ];
+    context.grantedMovementList = [
+      { key: "glide", label: game.i18n.localize("D616.Movement.Glide"), value: speeds.glide },
+      { key: "swingline", label: game.i18n.localize("D616.Movement.Swingline"), value: speeds.swingline },
+      { key: "fly", label: game.i18n.localize("D616.Movement.Fly"), value: speeds.fly },
+      { key: "teleport", label: game.i18n.localize("D616.Movement.Teleport"), value: speeds.teleport }
+    ].filter((m) => m.value > 0);
+
+    context.isDodging = !!actor.getFlag("d616", "dodging");
+    context.isGM = game.user.isGM;
+
     return context;
   }
 
@@ -223,6 +274,132 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
 
   static #onToggleTheme() {
     toggleSheetTheme();
+  }
+
+  static #onRecoverHealth() {
+    this.document.recoverPool("health");
+  }
+
+  static #onRecoverFocus() {
+    this.document.recoverPool("focus");
+  }
+
+  static async #onRestRecover() {
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("D616.Karma.RestRecoverTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Karma.HoursResting")}</label>
+          <input type="number" name="hours" value="1" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox">
+            <input type="checkbox" name="asleep" />
+            ${game.i18n.localize("D616.Karma.WasAsleep")}
+          </label>
+        </div>
+      `,
+      ok: { callback: (event, button) => new FormDataExtended(button.form).object }
+    }).catch(() => null);
+    if (!result) return;
+    this.document.restRecover({ hours: Number(result.hours ?? 1), asleep: !!result.asleep });
+  }
+
+  static #onResetKarma() {
+    this.document.resetKarma();
+  }
+
+  static async #onAwardKarma() {
+    if (!game.user.isGM) return;
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("D616.Karma.AwardTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Karma.AwardAmount")}</label>
+          <input type="number" name="amount" value="1" min="1" />
+        </div>
+      `,
+      ok: { callback: (event, button) => new FormDataExtended(button.form).object }
+    }).catch(() => null);
+    if (!result) return;
+    this.document.awardKarma(Number(result.amount ?? 1));
+  }
+
+  static #onActionDodge() {
+    this.document.dodge();
+  }
+
+  static #onActionClearDodge() {
+    this.document.clearDodge();
+  }
+
+  static #onActionHelp() {
+    const target = getSingleTarget();
+    this.document.helpAlly(target);
+  }
+
+  static #onActionGrab() {
+    const target = getSingleTarget();
+    this.document.meleeContest(target, { mode: "grab" });
+  }
+
+  static #onActionEscape() {
+    const target = getSingleTarget();
+    this.document.meleeContest(target, { mode: "escape" });
+  }
+
+  static #onOpenTeamManeuver() {
+    openTeamManeuverDialog(this.document);
+  }
+
+  /**
+   * Falling damage (book p.32-33): damage multiplier is 1 per 3 spaces
+   * fallen (capped at x20); a controlled landing (a successful Acrobatics-
+   * style check, adjudicated by the GM) reduces that multiplier by the
+   * faller's Jump Speed. This is a standalone calculator — it doesn't touch
+   * the actor's Health directly, since exactly how a fall interacts with a
+   * grid/scene is outside what this sheet tracks.
+   */
+  static async #onFallingDamage() {
+    const jumpSpeed = this.document.system.speeds?.jump ?? 0;
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("D616.Action.FallingDamageTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Action.SpacesFallen")}</label>
+          <input type="number" name="spaces" value="3" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox">
+            <input type="checkbox" name="controlled" />
+            ${game.i18n.format("D616.Action.ControlledLanding", { jump: jumpSpeed })}
+          </label>
+        </div>
+      `,
+      ok: { callback: (event, button) => new FormDataExtended(button.form).object }
+    }).catch(() => null);
+    if (!result) return;
+
+    const spaces = Number(result.spaces ?? 0);
+    let multiplier = Math.min(20, Math.floor(spaces / 3));
+    if (result.controlled) multiplier = Math.max(0, multiplier - jumpSpeed);
+
+    if (multiplier <= 0) {
+      ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this.document }),
+        content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.FallingDamageNone", { name: this.document.name })}</p>`
+      });
+      return;
+    }
+
+    const dice = await rollMarvelDice({});
+    const damage = computeDamage({ marvelValue: dice.marvelValue, multiplier, modifier: 0, isFantastic: dice.isFantastic });
+    ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.document }),
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.FallingDamageResult", {
+        name: this.document.name, multiplier, damage
+      })}</p>`
+    });
   }
 
   static #onEditImage() {

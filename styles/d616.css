@@ -840,6 +840,146 @@
    above), so re-pointing those three is most of the work; the handful of
    spots that hardcoded "white"/"black" instead (because they assumed a
    light cream backdrop) get individually patched below. */
+/* ------------------------------------------------------------------ */
+/* Karma action icons, recover buttons, standing-edge badge, rest row  */
+/* ------------------------------------------------------------------ */
+.mm-karma-block { position: relative; }
+.mm-karma-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 2px;
+}
+.mm-karma-actions a {
+  color: var(--mm-cream);
+  opacity: 0.85;
+  font-size: 10px;
+  cursor: pointer;
+}
+.mm-karma-actions a:hover { opacity: 1; }
+
+.mm-recover-btn {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  color: var(--mm-cream);
+  opacity: 0.8;
+  font-size: 10px;
+  cursor: pointer;
+}
+.mm-recover-btn:hover { opacity: 1; }
+
+.mm-standing-edge {
+  display: inline-block;
+  background: var(--mm-red);
+  color: white;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  font-size: 9px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 2px;
+}
+
+.mm-rest-row {
+  margin-top: 4px;
+  text-align: right;
+}
+.mm-rest-row a {
+  color: var(--mm-red);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.mm-rest-row a:hover { color: var(--mm-dark-red); }
+
+/* ------------------------------------------------------------------ */
+/* Size / Heroic meta row (header)                                    */
+/* ------------------------------------------------------------------ */
+.mm-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+.mm-meta-row .mm-styled-field { width: auto; min-width: 140px; }
+.mm-heroic-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--mm-subtext);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Movement grid (Main tab)                                            */
+/* ------------------------------------------------------------------ */
+.mm-movement-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-movement-row li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  padding: 4px 8px;
+  background: var(--mm-cream);
+  border: 1px solid var(--mm-red);
+  border-radius: 4px;
+}
+.mm-movement-row li.mm-movement-granted { border-style: dashed; }
+.mm-movement-label { font-size: 0.7rem; color: var(--mm-subtext); text-transform: uppercase; }
+.mm-movement-value { font-size: 1.1rem; font-weight: bold; color: var(--mm-ink); }
+
+/* ------------------------------------------------------------------ */
+/* Standard Action buttons row (Main tab)                              */
+/* ------------------------------------------------------------------ */
+.mm-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mm-action-row button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--mm-cream);
+  border: 1px solid var(--mm-red);
+  border-radius: 4px;
+  color: var(--mm-ink);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.mm-action-row button:hover { background: var(--mm-red); color: white; }
+.mm-action-row button.active { background: var(--mm-dark-red); color: white; }
+
+/* ------------------------------------------------------------------ */
+/* Roll-card additions: target line, Karma-spend buttons               */
+/* ------------------------------------------------------------------ */
+.roll-target { font-size: 0.8rem; color: var(--mm-subtext); margin: 2px 0; }
+.edge-trouble-btn.karma { border-style: dashed; }
+
+/* ------------------------------------------------------------------ */
+/* Dark theme overrides for the additions above                       */
+/* ------------------------------------------------------------------ */
+.d616.sheet.theme-dark .mm-movement-row li,
+.d616.sheet.theme-dark .mm-action-row button {
+  background: #2f2823;
+  border-color: var(--mm-red);
+  color: var(--mm-ink);
+}
+.d616.sheet.theme-dark .mm-heroic-toggle,
+.d616.sheet.theme-dark .mm-movement-label,
+.d616.sheet.theme-dark .roll-target { color: var(--mm-subtext); }
+
 .d616.sheet.theme-dark {
   --mm-cream: #241f1c;
   --mm-ink: #f3e9e2;

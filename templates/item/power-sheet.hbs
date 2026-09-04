@@ -73,6 +73,12 @@
         <input type="checkbox" name="system.attack.dealsDamage" {{#if system.attack.dealsDamage}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
         {{localize "D616.Sheet.DealsDamage"}}
       </label>
+      <label>{{localize "D616.Sheet.DamageType"}}
+        <select name="system.attack.damageType" {{#unless editable}}disabled{{/unless}}>
+          <option value="health" {{#if (eq system.attack.damageType "health")}}selected{{/if}}>{{localize "D616.Sheet.Health"}}</option>
+          <option value="focus" {{#if (eq system.attack.damageType "focus")}}selected{{/if}}>{{localize "D616.Sheet.Focus"}}</option>
+        </select>
+      </label>
       <label>{{localize "D616.Sheet.FantasticEffect"}}
         <input type="text" name="system.attack.fantasticEffect" value="{{system.attack.fantasticEffect}}" {{#unless editable}}disabled{{/unless}} />
       </label>
@@ -102,6 +108,19 @@
       </label>
       <label>{{localize "D616.Sheet.HealthDRBonus"}}
         <input type="number" name="system.passive.healthDamageReductionBonus" value="{{system.passive.healthDamageReductionBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.DefenseBonus"}}
+        <input type="number" name="system.passive.defenseBonus" value="{{system.passive.defenseBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.StandingEdgeOn"}}
+        <select name="system.passive.standingEdgeOn" {{#unless editable}}disabled{{/unless}}>
+          <option value="" {{#if (eq system.passive.standingEdgeOn "")}}selected{{/if}}>{{localize "D616.Roll.None"}}</option>
+          <option value="initiative" {{#if (eq system.passive.standingEdgeOn "initiative")}}selected{{/if}}>{{localize "D616.Sheet.Initiative"}}</option>
+          <option value="attacks" {{#if (eq system.passive.standingEdgeOn "attacks")}}selected{{/if}}>{{localize "D616.Sheet.AllAttacks"}}</option>
+          {{#each abilities}}
+          <option value="{{this}}" {{#if (eq ../system.passive.standingEdgeOn this)}}selected{{/if}}>{{localize (concat "D616.Ability." this)}}</option>
+          {{/each}}
+        </select>
       </label>
     </fieldset>
 

@@ -1,5 +1,7 @@
 import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
+import { registerConditions, syncAutomaticConditions } from "./helpers/conditions.mjs";
+import { openTeamManeuverDialog } from "./helpers/team-maneuver.mjs";
 import CharacterData from "./data/actor-character.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
@@ -14,6 +16,9 @@ Hooks.once("init", () => {
 
   // --- Player-selectable Light/Dark sheet theme (client-scoped: everyone picks their own). ---
   registerSheetThemeSetting();
+
+  // --- The book's Conditions vocabulary (p.37-38) as real Foundry status effects. ---
+  registerConditions();
 
   // --- Register a couple of small Handlebars helpers our templates rely on. ---
   // (Registered defensively — if Foundry core already provides equivalents,
@@ -69,8 +74,34 @@ Hooks.once("init", () => {
   });
 });
 
-Hooks.once("ready", () => {
+// Health/Focus can change from many places (the sheet's own inputs, a GM
+// dragging a value, another module) — not just D616Actor#_applyDamageTo, so
+// keep the four automatic Conditions in sync any time an actor updates.
+Hooks.on("updateActor", (actor) => {
+  syncAutomaticConditions(actor);
+});
+
+Hooks.once("ready", async () => {
   console.log("d616 | Ready.");
+
+  // --- A ready-made "Team Maneuver" macro so the table doesn't have to dig
+  // through a character sheet to find the button (book p.38-39) — targets
+  // are still chosen with normal Foundry targeting before using it. Only
+  // created once per world, and only for a user who can actually make one.
+  if (game.user.isGM && !game.macros.find((m) => m.getFlag("d616", "isTeamManeuverMacro"))) {
+    await Macro.create({
+      name: game.i18n.localize("D616.TeamManeuver.DialogTitle"),
+      type: "script",
+      img: "icons/skills/social/diplomacy-handshake-yellow.webp",
+      command: `
+        const actor = game.user.character ?? canvas.tokens.controlled[0]?.actor;
+        if (!actor) { ui.notifications.warn("Select or assign a character first."); return; }
+        const { openTeamManeuverDialog } = await import("/systems/d616/module/helpers/team-maneuver.mjs");
+        openTeamManeuverDialog(actor);
+      `,
+      flags: { d616: { isTeamManeuverMacro: true } }
+    });
+  }
 
   // --- "Add Edge" / "Add Trouble" buttons on posted roll cards ---
   // Bound once as a single delegated listener on the document, rather than
@@ -80,15 +111,36 @@ Hooks.once("ready", () => {
   // the document either way, and we just need to find which message it
   // came from.
   document.addEventListener("click", (event) => {
-    const button = event.target.closest('[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"]');
+    const button = event.target.closest(
+      '[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"], [data-action="d616KarmaEdge"], [data-action="d616KarmaTrouble"]'
+    );
     if (!button) return;
     event.preventDefault();
 
-    const mode = button.dataset.action === "d616ApplyEdge" ? "edge" : "trouble";
     const messageEl = button.closest("[data-message-id]");
     const message = messageEl ? game.messages.get(messageEl.dataset.messageId) : null;
     if (!message) return;
 
-    applyEdgeTroubleToMessage(message, mode);
+    const action = button.dataset.action;
+    if (action === "d616ApplyEdge" || action === "d616ApplyTrouble") {
+      applyEdgeTroubleToMessage(message, action === "d616ApplyEdge" ? "edge" : "trouble");
+      return;
+    }
+
+    // Karma-fueled versions (book p.19): the roller spends 1 Karma to add
+    // Edge to their own roll; the roll's recorded target spends 1 Karma to
+    // impose Trouble on the attacker instead.
+    if (action === "d616KarmaEdge") {
+      const rollerActor = ChatMessage.getSpeakerActor?.(message.speaker) ?? game.actors.get(message.speaker?.actor);
+      rollerActor?.spendKarmaForEdgeOnMessage(message);
+    } else if (action === "d616KarmaTrouble") {
+      const data = message.getFlag("d616", "roll");
+      const targetActor = data?.targetActorId ? game.actors.get(data.targetActorId) : null;
+      if (!targetActor) {
+        ui.notifications.warn(game.i18n.localize("D616.Karma.NoRecordedTarget"));
+        return;
+      }
+      targetActor.imposeKarmaTrouble(message);
+    }
   });
 });
