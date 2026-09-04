@@ -127,7 +127,15 @@
       "None": "None",
       "Edge": "Edge (reroll one d6, keep higher)",
       "Trouble": "Trouble (reroll one d6, keep lower)",
-      "InsufficientFocus": "Not enough Focus remaining to use this power."
+      "InsufficientFocus": "Not enough Focus remaining to use this power.",
+      "AddEdge": "Add Edge",
+      "AddTrouble": "Add Trouble",
+      "EdgeApplied": "Edge Applied",
+      "TroubleApplied": "Trouble Applied",
+      "EdgeAppliedNote": "Edge added: rolled an extra d6 ({die}) — new total: {total}.",
+      "TroubleAppliedNote": "Trouble added: rolled an extra d6 ({die}) — new total: {total}.",
+      "EdgeTroubleAlreadyApplied": "Edge or Trouble has already been added to this roll.",
+      "EdgeTroubleNoPermission": "Only the person who made this roll, or the GM, can add Edge or Trouble to it."
     }
   }
 }

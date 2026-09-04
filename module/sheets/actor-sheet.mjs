@@ -5,6 +5,15 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
   /** Currently active tab; kept on the instance so re-renders don't reset it. */
   _tab = "main";
 
+  /**
+   * Just the codename in the window title bar — override the base sheet's
+   * default, which otherwise prefixes/suffixes it with the document type
+   * (e.g. "Character: Amberlight" or "Amberlight [Character]").
+   */
+  get title() {
+    return this.document.name;
+  }
+
   static DEFAULT_OPTIONS = {
     classes: ["d616", "sheet", "actor", "character"],
     position: { width: 700, height: 780 },

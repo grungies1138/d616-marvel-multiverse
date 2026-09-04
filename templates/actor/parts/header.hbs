@@ -25,9 +25,10 @@
     <div class="mm-stat-row">
       <div class="mm-stat-block">
         <label class="mm-label">{{localize "D616.Sheet.Health"}}</label>
-        <div class="mm-input">
-          <input type="number" name="system.health.value" value="{{system.health.value}}" {{#unless editable}}disabled{{/unless}} />
-          / {{system.health.max}}
+        <div class="mm-input mm-fraction">
+          <input type="number" class="mm-fraction-num" name="system.health.value" value="{{system.health.value}}" {{#unless editable}}disabled{{/unless}} />
+          <span class="mm-fraction-bar"></span>
+          <span class="mm-fraction-den">{{system.health.max}}</span>
         </div>
         <div class="mm-stat-corner-block">
           <label class="mm-label">DR</label>
@@ -39,19 +40,21 @@
 
       <div class="mm-stat-block -focus">
         <label class="mm-label">{{localize "D616.Sheet.Focus"}}</label>
-        <div class="mm-input">
-          <input type="number" name="system.focus.value" value="{{system.focus.value}}" {{#unless editable}}disabled{{/unless}} />
-          / {{system.focus.max}}
+        <div class="mm-input mm-fraction">
+          <input type="number" class="mm-fraction-num" name="system.focus.value" value="{{system.focus.value}}" {{#unless editable}}disabled{{/unless}} />
+          <span class="mm-fraction-bar"></span>
+          <span class="mm-fraction-den">{{system.focus.max}}</span>
         </div>
       </div>
 
       <div class="mm-stat-block">
         <label class="mm-label">{{localize "D616.Sheet.Speed"}} / {{localize "D616.Sheet.Initiative"}}</label>
         <div class="mm-input">
-          <span>{{system.speed}}</span>
-          <span>&middot;</span>
-          <span>{{initiativeDisplay}}</span>
-          <a data-action="rollInitiative" title="{{localize 'D616.Roll.Initiative'}}"><i class="fa-solid fa-dice-d6"></i></a>
+          <span class="mm-input-line">{{system.speed}}</span>
+          <span class="mm-input-line">
+            {{initiativeDisplay}}
+            <a data-action="rollInitiative" title="{{localize 'D616.Roll.Initiative'}}"><i class="fa-solid fa-dice-d6"></i></a>
+          </span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <div class="d616-roll-card {{#if isFantastic}}fantastic{{/if}} {{#if isGreen}}green{{/if}}">
   <header class="roll-card-header">
     <strong>{{title}}</strong>
-    {{#if item}}<span class="roll-card-sub">{{item.system.range}} &middot; {{item.system.duration}}</span>{{/if}}
+    {{#if subtitle}}<span class="roll-card-sub">{{subtitle}}</span>{{/if}}
   </header>
 
   {{#if (ne total null)}}
@@ -42,5 +42,18 @@
 
   {{#if focusCost}}
   <p class="roll-cost">Spent {{focusCost}} Focus (Focus remaining: {{focusRemaining}})</p>
+  {{/if}}
+
+  {{#if (ne total null)}}
+  <div class="roll-edge-trouble">
+    {{#if (eq edgeTroubleApplied "none")}}
+    <button type="button" class="edge-trouble-btn edge" data-action="d616ApplyEdge">{{localize "D616.Roll.AddEdge"}}</button>
+    <button type="button" class="edge-trouble-btn trouble" data-action="d616ApplyTrouble">{{localize "D616.Roll.AddTrouble"}}</button>
+    {{else}}
+    <span class="edge-trouble-tag {{edgeTroubleApplied}}">
+      {{#if (eq edgeTroubleApplied "edge")}}{{localize "D616.Roll.EdgeApplied"}}{{else}}{{localize "D616.Roll.TroubleApplied"}}{{/if}}
+    </span>
+    {{/if}}
+  </div>
   {{/if}}
 </div>
