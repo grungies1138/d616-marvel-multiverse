@@ -61,6 +61,18 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.5.4 — Traits Reference journal
+
+Added **Traits Reference — Core Rulebook** to the D616 Reference journal
+compendium. Unlike Powers or Gear, the book gives Traits no fixed catalog to
+compile — each character's Traits are written by that character's own
+player, tied to their specific backstory (p.21, p.63+). This page instead
+covers the book's guidance: the Traits/Tags distinction, how many Traits you
+get and where they come from (an Origin/Occupation starter package plus one
+per Rank), the handful of trigger patterns every Trait in this system uses
+(Edge, Trouble, an Edge/Trouble pair, a Karma hook, a one-shot ability), and
+a set of worked examples drawn from the Wickfield Eight to use as templates.
+
 ## 1.5.3 — Removed the standalone Powers/Gear reference Item packs
 
 The **Powers (Reference)** and **Gear (Reference)** Item compendiums have been
@@ -384,11 +396,14 @@ Two JournalEntry compendiums round out the packs above:
   formulas rather than hand-waved. Same sourcing discipline as everywhere else
   in this system: the book's tables and formulas are reproduced exactly, all
   prose and the worked example are original.
-- **D616 Reference** (`reference`) — five JournalEntries compiling the entire
+- **D616 Reference** (`reference`) — six JournalEntries compiling the entire
   `d616_powers_traits_reference.md` (see the "Compendium packs" sourcing note
   above — same rules-facts-exact/prose-original discipline) into a browsable
   in-Foundry form: **Powers Reference — Core Rulebook** (25 pages, one per
-  Power Set), **Gear Reference — Common Weapons**, **Wickfield Eight — Homebrew
+  Power Set), **Gear Reference — Common Weapons**, **Traits Reference — Core
+  Rulebook** (the book gives Traits no fixed catalog the way it does Powers
+  and Gear — this page covers its guidance on writing your own, tied to
+  backstory, plus a handful of worked examples), **Wickfield Eight — Homebrew
   Powers & Gear** (8 pages, one per pregen), **Wickfield Eight — Traits** (8
   pages, one per pregen), and **Wickfield Eight — Adversaries**.
 

@@ -1,6 +1,6 @@
 # D616 Compendium — Full Powers, Gear & Traits Reference
 
-Everything currently in the `d616` Foundry system's Item compendiums: every Power in the **Powers (Reference)** pack (sourced from the Marvel Multiverse RPG Core Rule Book — facts exact, wording original, see the system README for the full sourcing note), every Common Weapon in the **Gear (Reference)** pack (same sourcing discipline), every custom Power and Gear item in the **Wickfield Eight Items (Homebrew)** pack, every Trait available across the eight Wickfield Eight pregens plus their adversaries (traits aren't a book-sourced pack in this system — see README — so this is the complete set that exists), and the one-shot's villain and henchman template from **Wickfield Eight: Adversaries**. This is also the source content compiled into the in-Foundry **D616 Reference** journal compendium and the sheet's hover tooltips — see README.
+Every Power and Common Weapon from the Marvel Multiverse RPG Core Rule Book (facts exact, wording original, see the system README for the full sourcing note), the book's guidance on writing Traits (which, unlike Powers and Gear, aren't a fixed book catalog — see Part 3), every custom Power and Gear item in the **Wickfield Eight Items (Homebrew)** pack, every Trait available across the eight Wickfield Eight pregens plus their adversaries, and the one-shot's villain and henchman template from **Wickfield Eight: Adversaries**. This is the source content compiled into the in-Foundry **D616 Reference** journal compendium and the sheet's hover tooltips — see README. (The book-sourced Powers and Common Weapons previously also shipped as standalone Item compendiums; those were removed in 1.5.3 since this document and the Reference journal already cover the same content — the actual usable Item versions of Powers/Gear live in the Homebrew pack and on the pregens/adversaries.)
 
 **Totals:** 307 book-sourced Powers + 12 book-sourced Common Weapons (Gear) + 24 custom hero Powers + 6 custom hero Gear + 5 adversary Powers = **336 Powers**, **18 Gear items**, and **29 Traits**.
 
@@ -411,7 +411,27 @@ Mundane weapons available to any character regardless of Power Set, sourced from
 
 ---
 
-## Part 3 — Custom Powers & Gear: Wickfield Eight (Homebrew) (24 Powers, 6 Gear)
+## Part 3 — Traits (Reference): Core Rulebook Guidance
+
+Unlike Powers or Gear, the book gives Traits no fixed catalog to compile — each character's Traits are written by that character's own player, tied to their specific backstory (p.21, p.63+). This section is the book's guidance rather than an itemized list.
+
+**Traits vs. Tags.** Traits are mechanical: each one grants a concrete, describable benefit — almost always Edge or Trouble in a specific situation — and is tracked as its own item so it applies automatically, or as a one-click reminder, when that situation comes up. Tags are purely narrative labels (Rich, Secret Identity, Famous, Backup, Obligation, and the like) with no mechanical effect of their own.
+
+**Where Traits come from.** Your Origin and Occupation (Step 3 of character creation) each come with a small starter package of Traits and Tags that people who share that background typically pick up. Beyond that starter package, your Rank determines how many additional Traits you can freely choose: you gain one extra Trait per Rank, so a Rank 1 character has 1 free pick and a Rank 6 character has 6.
+
+**Common trigger patterns:**
+
+- **Edge** — a specific, narrow situation where the character has a clear advantage.
+- **Trouble** — the mirror case: a specific situation where the character is at a disadvantage.
+- **Edge/Trouble pair** — one Trait carrying both a strength and a weakness that stem from the same piece of character.
+- **Karma hook** — a Trouble trigger written so the GM has a clean cue to award Karma when it actually costs the character something at the table.
+- **One-shot ability** — a small number of Traits grant a once-per-scene action instead of a roll modifier.
+
+**Writing your own.** A Trait works best when it's specific enough that the table can immediately picture the moment it applies, tied to one concrete detail from the character's actual backstory rather than a generic archetype. See Part 5 below for 24 worked examples from the Wickfield Eight, and Part 6 for two more from their adversaries.
+
+---
+
+## Part 4 — Custom Powers & Gear: Wickfield Eight (Homebrew) (24 Powers, 6 Gear)
 
 ### Bulwark (Marcus "Mo" Odom) — 4 Powers
 
@@ -475,7 +495,7 @@ Mundane weapons available to any character regardless of Power Set, sourced from
 
 ---
 
-## Part 4 — Traits: Wickfield Eight (24)
+## Part 5 — Traits: Wickfield Eight (24)
 
 ### Bulwark (Marcus "Mo" Odom) — 3 Traits
 
@@ -527,7 +547,7 @@ Mundane weapons available to any character regardless of Power Set, sourced from
 
 ---
 
-## Part 5 — Adversaries: Wickfield Eight: Adversaries pack (5 Powers, 5 Traits, plus Gear)
+## Part 6 — Adversaries: Wickfield Eight: Adversaries pack (5 Powers, 5 Traits, plus Gear)
 
 The one-shot's villain and a reusable henchman template, from the **Wickfield Eight: Adversaries** Actor pack. See the system README for how they tie into the fundraiser-night hook.
 
