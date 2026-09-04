@@ -58,6 +58,15 @@ publisher — built for homebrew/original characters and personal home-game use.
   prompt shows that same tag immediately instead of the buttons, since it's already
   been applied.
 
+## 1.4.1 hotfix
+
+1.4.0 shipped a broken `standingEdgeOn` field on Powers and Gear (added for the
+Spider-Sense-style "standing Edge" indicator): it defaulted to a blank value that
+Foundry's own schema validation rejected, which made **every** Power and Gear item —
+old and newly created — invalid and invisible on the sheet. If you installed 1.4.0,
+update to 1.4.1; nothing about your existing characters or items needs fixing by hand,
+this was purely a bug in the system's own field definition.
+
 ## Mechanics added in 1.4.0
 
 A full pass against `mechanics_gap_analysis.md` (itself written from a page-by-page

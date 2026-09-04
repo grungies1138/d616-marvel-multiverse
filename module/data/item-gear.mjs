@@ -28,8 +28,8 @@ export default class GearData extends foundry.abstract.TypeDataModel {
 
       attack: new SchemaField({
         enabled: new BooleanField({ required: true, initial: false }),
-        ability: new StringField({ required: false, initial: "melee", choices: ABILITY_CHOICES }),
-        defenseTarget: new StringField({ required: false, initial: "resilience", choices: [...ABILITY_CHOICES, "flat"] }),
+        ability: new StringField({ required: false, blank: true, initial: "melee", choices: ABILITY_CHOICES }),
+        defenseTarget: new StringField({ required: false, blank: true, initial: "resilience", choices: [...ABILITY_CHOICES, "flat"] }),
         flatDC: new NumberField({ required: true, integer: true, initial: 10, min: 0 }),
         dealsDamage: new BooleanField({ required: true, initial: true }),
         damageType: new StringField({ required: true, initial: "health", choices: ["health", "focus"] }),
@@ -50,7 +50,7 @@ export default class GearData extends foundry.abstract.TypeDataModel {
 
       passive: new SchemaField({
         enabled: new BooleanField({ required: true, initial: false }),
-        ability: new StringField({ required: false, initial: "melee", choices: ABILITY_CHOICES }),
+        ability: new StringField({ required: false, blank: true, initial: "melee", choices: ABILITY_CHOICES }),
         damageMultiplierBonus: new NumberField({ required: true, integer: true, initial: 0 }),
         damageModifierBonus: new NumberField({ required: true, integer: true, initial: 0 }),
         nonAttackCheckBonus: new NumberField({ required: true, integer: true, initial: 0 }),
@@ -58,6 +58,7 @@ export default class GearData extends foundry.abstract.TypeDataModel {
         defenseBonus: new NumberField({ required: true, integer: true, initial: 0 }),
         standingEdgeOn: new StringField({
           required: false,
+          blank: true,
           initial: "",
           choices: ["", "initiative", "attacks", ...ABILITY_CHOICES.filter((a) => a)]
         })
