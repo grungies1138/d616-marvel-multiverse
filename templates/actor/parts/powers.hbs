@@ -10,7 +10,7 @@
       {{#if powers.length}}
       <ul class="item-list">
         {{#each powers}}
-        <li class="mm-item" data-item-id="{{this.id}}">
+        <li class="mm-item" data-item-id="{{this.id}}" data-tooltip="{{{this.tooltip}}}" data-tooltip-direction="UP">
           <img class="item-img" src="{{this.img}}" />
           <div class="item-name">
             <span>{{this.name}}</span>

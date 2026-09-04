@@ -15,6 +15,77 @@ function getSingleTarget() {
   return first?.actor ?? null;
 }
 
+/** Strips HTML tags from an HTMLField's stored value for use in plain-text tooltips. */
+function stripHtml(html) {
+  return (html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Escapes a plain-text string for safe inclusion inside an HTML attribute
+ * value. Applied to each piece of tooltip text BEFORE joining with a literal
+ * (unescaped) "<br>" — Foundry's TooltipManager renders a `data-tooltip`
+ * attribute's value as HTML, so this keeps line breaks working while making
+ * sure stray quotes/angle-brackets in item text (names, freeform fields)
+ * can't break out of the attribute.
+ */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Truncates a tooltip body so it stays readable as a hover tooltip rather than a wall of text. */
+function truncate(text, max = 320) {
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
+/** Joins tooltip lines (already HTML-escaped) with a literal line break for display. */
+function joinTooltipLines(lines) {
+  return truncate(lines.filter(Boolean).join("<br>"));
+}
+
+/** Builds the hover-tooltip HTML for a "power" Item: action/duration/cost line, then its Effect text. */
+function powerTooltip(item) {
+  const sys = item.system;
+  const header = [];
+  if (sys.powerSet) header.push(sys.powerSet);
+  header.push(game.i18n.localize(`D616.Action.${sys.action}`));
+  if (sys.duration) header.push(sys.duration);
+  header.push(`${sys.cost.flat}${sys.cost.scales ? "+" : ""} Focus`);
+  if (sys.prerequisites) header.push(`Prereq: ${sys.prerequisites}`);
+  const effect = stripHtml(sys.effect);
+  return joinTooltipLines([escapeHtml(header.join(" • ")), escapeHtml(effect)]);
+}
+
+/** Builds the hover-tooltip HTML for a "gear" Item: category/range/cost line, then its Effect text. */
+function gearTooltip(item) {
+  const sys = item.system;
+  const header = [game.i18n.localize(`D616.Category.${sys.category}`)];
+  if (sys.range) header.push(sys.range);
+  if (sys.attack?.enabled) {
+    const cost = `${sys.cost.flat}${sys.cost.scales ? "+" : ""} Focus`;
+    if (cost !== "0 Focus") header.push(cost);
+  }
+  if (sys.availability) header.push(sys.availability);
+  const effect = stripHtml(sys.effect);
+  return joinTooltipLines([escapeHtml(header.join(" • ")), escapeHtml(effect)]);
+}
+
+/** Builds the hover-tooltip HTML for a "trait" Item: Edge/Trouble + situation line, then its mechanical effect. */
+function traitTooltip(item) {
+  const sys = item.system;
+  const header = [];
+  if (sys.grantsEdge) header.push("Edge");
+  if (sys.grantsTrouble) header.push("Trouble");
+  if (sys.situation) header.push(sys.situation);
+  const mechanical = stripHtml(sys.mechanicalEffect);
+  const description = stripHtml(sys.description);
+  return joinTooltipLines([escapeHtml(header.join(" • ")), escapeHtml(mechanical), escapeHtml(description)]);
+}
+
 export default class D616CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Currently active tab; kept on the instance so re-renders don't reset it. */
   _tab = "main";
@@ -98,7 +169,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
         img: i.img,
         powerSet: i.system.powerSet,
         actionLabel: game.i18n.localize(`D616.Action.${i.system.action}`),
-        costLabel: `${i.system.cost.flat}${i.system.cost.scales ? "+" : ""} Focus`
+        costLabel: `${i.system.cost.flat}${i.system.cost.scales ? "+" : ""} Focus`,
+        tooltip: powerTooltip(i)
       }));
     context.gear = actor.items
       .filter((i) => i.type === "gear")
@@ -110,7 +182,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
         isAttack: !!i.system.attack?.enabled,
         costLabel: i.system.cost.flat || i.system.cost.scales
           ? `${i.system.cost.flat}${i.system.cost.scales ? "+" : ""} Focus`
-          : null
+          : null,
+        tooltip: gearTooltip(i)
       }));
     context.traits = actor.items
       .filter((i) => i.type === "trait")
@@ -118,7 +191,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
         id: i.id,
         name: i.name,
         img: i.img,
-        situation: i.system.situation
+        situation: i.system.situation,
+        tooltip: traitTooltip(i)
       }));
 
     context.mainActive = this._tab === "main";

@@ -1,0 +1,6 @@
+# Foundry compendium packs are ClassicLevel/LevelDB stores. Several of their
+# internal control files (CURRENT, LOG, LOG.old, MANIFEST-*) are small
+# plain-text-looking files that git's line-ending heuristics can silently
+# rewrite (LF -> CRLF) on checkout when core.autocrlf is enabled, which
+# corrupts the store. Never let git touch bytes anywhere under packs/.
+packs/** -text -diff

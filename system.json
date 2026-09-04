@@ -2,7 +2,7 @@
   "id": "d616",
   "title": "D616 Marvel Multiverse Role-Playing",
   "description": "An unofficial, general-purpose Foundry VTT system implementing the six-ability (MARVEL), Rank-based, Marvel-Die superhero ruleset: Melee/Agility/Resilience/Vigilance/Ego/Logic abilities, Rank-scaled Health/Focus/Karma, data-driven Power and Trait items, and an automated 2d6+Marvel-Die roll engine with Fantastic/Green detection. Built for homebrew and original characters; not affiliated with or endorsed by Marvel or any publisher.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "compatibility": {
     "minimum": "13",
     "verified": "14.349"
@@ -105,5 +105,5 @@
   "background": "",
   "url": "https://github.com/grungies1138/d616-marvel-multiverse/",
   "manifest": "https://raw.githubusercontent.com/grungies1138/d616-marvel-multiverse/main/system.json",
-  "download": "https://github.com/grungies1138/d616-marvel-multiverse/releases/download/release-1.5.0/d616-release-1.5.0.zip"
+  "download": "https://github.com/grungies1138/d616-marvel-multiverse/releases/download/release-1.5.1/d616-release-1.5.1.zip"
 }
