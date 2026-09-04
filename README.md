@@ -58,6 +58,16 @@ publisher — built for homebrew/original characters and personal home-game use.
   prompt shows that same tag immediately instead of the buttons, since it's already
   been applied.
 
+## 1.4.2 hotfix
+
+The Health/Focus "recover" icons on the header (added in 1.4.0) were invisible —
+functional (the clickable area was there and worked) but drawn in the same cream
+color as the card behind them, since that part of the header box is actually an
+inset cream panel over a red/blue border, not the border color itself. Recolored
+them to match the same red used by the existing Initiative roll icon in that same
+panel, and sized them up a bit since they were easy to miss even once visible.
+Purely a CSS fix — no data or mechanics changes.
+
 ## 1.4.1 hotfix
 
 1.4.0 shipped a broken `standingEdgeOn` field on Powers and Gear (added for the
