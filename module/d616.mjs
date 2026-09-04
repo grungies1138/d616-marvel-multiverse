@@ -1,4 +1,5 @@
 import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
+import { registerSheetThemeSetting } from "./helpers/theme.mjs";
 import CharacterData from "./data/actor-character.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
@@ -10,6 +11,9 @@ import { D616PowerSheet, D616TraitSheet, D616GearSheet } from "./sheets/item-she
 
 Hooks.once("init", () => {
   console.log("d616 | Initializing the d616 superhero system");
+
+  // --- Player-selectable Light/Dark sheet theme (client-scoped: everyone picks their own). ---
+  registerSheetThemeSetting();
 
   // --- Register a couple of small Handlebars helpers our templates rely on. ---
   // (Registered defensively — if Foundry core already provides equivalents,

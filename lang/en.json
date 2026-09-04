@@ -101,7 +101,16 @@
       "MechanicalEffect": "Mechanical Effect",
       "GrantsEdge": "Grants an Edge",
       "GrantsTrouble": "Imposes Trouble",
-      "SituationalNote": "When this applies"
+      "SituationalNote": "When this applies",
+      "ToggleTheme": "Toggle Light/Dark Theme"
+    },
+    "Settings": {
+      "SheetTheme": {
+        "Name": "Sheet Theme",
+        "Hint": "Choose a light or dark look for your own character and item sheets. This is a per-player preference — it doesn't affect what anyone else sees.",
+        "Light": "Light",
+        "Dark": "Dark"
+      }
     },
     "Action": {
       "standard": "Standard Action",
