@@ -59,7 +59,7 @@
             <input type="number" name="system.health.damageReduction" value="{{system.health.damageReduction}}" {{#unless editable}}disabled{{/unless}} />
           </div>
         </div>
-        <a class="mm-recover-btn" data-action="recoverHealth" title="{{localize 'D616.Karma.RecoverHealthTitle'}}"><i class="fa-solid fa-heart-pulse"></i></a>
+        <a class="mm-recover-btn" data-action="recoverHealth" title="{{localize 'D616.Karma.RecoverHealthTitle' name=actor.name}}"><i class="fa-solid fa-heart-pulse"></i></a>
       </div>
 
       <div class="mm-stat-block -focus">
@@ -69,7 +69,7 @@
           <span class="mm-fraction-bar"></span>
           <span class="mm-fraction-den">{{system.focus.max}}</span>
         </div>
-        <a class="mm-recover-btn" data-action="recoverFocus" title="{{localize 'D616.Karma.RecoverFocusTitle'}}"><i class="fa-solid fa-brain"></i></a>
+        <a class="mm-recover-btn" data-action="recoverFocus" title="{{localize 'D616.Karma.RecoverFocusTitle' name=actor.name}}"><i class="fa-solid fa-brain"></i></a>
       </div>
 
       <div class="mm-stat-block">
