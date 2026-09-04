@@ -36,6 +36,10 @@
   </p>
   {{/if}}
 
+  {{#if targetName}}
+  <p class="roll-target">{{localize "D616.Roll.Target"}}: <strong>{{targetName}}</strong>{{#if drApplied}} &middot; {{localize "D616.Roll.DRApplied"}}: {{drApplied}}{{/if}}{{#if damageType}} &middot; {{localize (concat "D616.Roll.DamageType." damageType)}}{{/if}}</p>
+  {{/if}}
+
   {{#if damage}}
   <p class="roll-damage"><strong>{{localize "D616.Roll.Damage"}}: {{damage}}</strong></p>
   {{/if}}
@@ -44,11 +48,19 @@
   <p class="roll-cost">Spent {{focusCost}} Focus (Focus remaining: {{focusRemaining}})</p>
   {{/if}}
 
+  {{#if healed}}
+  <p class="roll-damage"><strong>{{localize "D616.Karma.Healed"}}: {{healed}}</strong></p>
+  {{/if}}
+
   {{#if (ne total null)}}
   <div class="roll-edge-trouble">
     {{#if (eq edgeTroubleApplied "none")}}
     <button type="button" class="edge-trouble-btn edge" data-action="d616ApplyEdge">{{localize "D616.Roll.AddEdge"}}</button>
     <button type="button" class="edge-trouble-btn trouble" data-action="d616ApplyTrouble">{{localize "D616.Roll.AddTrouble"}}</button>
+    <button type="button" class="edge-trouble-btn edge karma" data-action="d616KarmaEdge">{{localize "D616.Karma.SpendForEdgeBtn"}}</button>
+    {{#if targetName}}
+    <button type="button" class="edge-trouble-btn trouble karma" data-action="d616KarmaTrouble">{{localize "D616.Karma.SpendForTroubleBtn"}}</button>
+    {{/if}}
     {{else}}
     <span class="edge-trouble-tag {{edgeTroubleApplied}}">
       {{#if (eq edgeTroubleApplied "edge")}}{{localize "D616.Roll.EdgeApplied"}}{{else}}{{localize "D616.Roll.TroubleApplied"}}{{/if}}

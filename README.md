@@ -58,6 +58,80 @@ publisher — built for homebrew/original characters and personal home-game use.
   prompt shows that same tag immediately instead of the buttons, since it's already
   been applied.
 
+## Mechanics added in 1.4.0
+
+A full pass against `mechanics_gap_analysis.md` (itself written from a page-by-page
+read of the Core Rule Book, not memory). Grouped by how confident the automation is:
+
+**Bug fixes / previously-missing core rules**
+- **Damage Reduction is now actually applied.** Targeting a token before using a
+  Power/Gear attack pulls that target's Defense, its Health Damage Reduction (reducing
+  the damage *multiplier*, going to 0 damage if that drops below 1, per p.36 — not a
+  flat subtraction), and its Size's Attack Modifier automatically, and applies the
+  resulting damage to the target's Health or Focus for you.
+- **Ultimate Fantastic (6-M-6)** is now a real auto-success that also cancels Trouble,
+  per p.15.
+- **`isHeroic`** now actually gates Karma: only Heroic characters have a standing Karma
+  pool (`karma.max = Rank`); it's a checkbox on the header. Non-Heroic characters can
+  still be awarded Karma by the GM, they just don't keep a resting pool of it.
+- **Health/Focus can go properly negative** (down to `-max`) instead of floor-clamping
+  at 0, so Unconscious/Killed/Demoralized/Shattered thresholds (p.33-34) are reachable
+  at all.
+
+**New subsystems**
+- **Karma spending** (p.19, p.36): buttons on the header let you spend 1 Karma for a
+  free Recovery roll (Resilience for Health, Vigilance for Focus, TN 10, heals Marvel
+  Die × Rank, doubled on Fantastic); every attack roll's chat card also gets a
+  "Spend Karma: Edge" button for the roller and a "Spend Karma: Trouble" button for
+  its recorded target, on top of the existing free Add-Edge/Add-Trouble buttons.
+  Resting resets Karma to its standard value and applies natural Health/Focus recovery
+  (Rank/hour, doubled asleep).
+- **Conditions** (p.37-38): all 13 book conditions are registered as real status
+  effects (token HUD icons). Unconscious/Demoralized/Shattered are kept in sync
+  automatically off Health/Focus after every actor update; Killed posts a one-time chat
+  notice instead of a status icon, since the book treats it as removal from play, not a
+  toggleable condition. The other 9 (Ablaze, Bleeding, Blinded, Deafened, Grabbed,
+  Paralyzed, Pinned, Prone, Stunned, Surprised) are now available to toggle by hand from
+  the token HUD, same as any status — this doesn't yet auto-apply each one's specific
+  numeric effect (e.g. Trouble on Melee while Prone).
+- **Movement modes** (p.31-32): Run/Climb/Jump/Swim compute automatically (the latter
+  three default to half Run Speed); Glide/Swingline/Fly/Teleport show once a power sets
+  them (they're 0 — "doesn't have this" — otherwise).
+- **Size** (p.40): an 11-step field from Microscopic to Gargantuan on the header, now
+  actually applied as both an attack-modifier when targeted and a Run Speed
+  modifier (±1 for Big/Small).
+- **Standard Actions beyond Attack/Use a Power** (p.29-31): Dodge (Trouble on incoming
+  attacks until your next turn), Help (one-shot Edge for an ally's next action), Grab/
+  Escape (a Melee check vs. the other character's Melee Defense; a Fantastic Grab also
+  Pins). All read your current Foundry target(s).
+- **Team Maneuvers** (p.38-39): a "Team Maneuver" button (and a ready-made world macro)
+  opens a dialog that gathers your targeted teammates, computes the group's Level cap
+  and per-member Focus cost off their average Rank, and resolves Offensive (Edge, or an
+  auto-Fantastic at Level 3 against equal/lower-Rank targets)/Defensive (flat DR)/Rally
+  (Trouble on attacks against the team at L1, a free recovery roll for everyone at L2,
+  reviving one downed member at L3). A member short on Focus can cover their share with
+  1 Karma instead, per the book.
+- **Tags** (p.21, p.63+): a free-text field on the Biography tab for narrative-only
+  labels (Rich, Secret Identity, Backup...) — distinct from Traits, which carry
+  mechanics.
+
+**Small tools**
+- **Falling damage** (p.32-33): a calculator (spaces fallen, optional controlled
+  landing) computing the multiplier — 1 per 3 spaces, capped ×20, reduced by Jump Speed
+  if the landing was controlled — and rolling the resulting damage.
+- **Standing Edge indicator**: a small "E" badge next to Initiative when a passive
+  Power/Gear grants a standing Edge there (e.g. Spider-Sense), matching the book's own
+  notation (p.20).
+
+**Deliberately still deferred** (per `mechanics_gap_analysis.md`'s own reasoning — all
+depend on grid/distance tracking this sheet doesn't do): grenade scatter/blast-area
+templates, Plowing Through Things damage thresholds, Knockback distance, and Objects &
+Sizes carry/throw rules for improvised weapons. A per-weapon special-rules engine
+(Rifle/SMG close-range Trouble, etc.) was also left out as too weapon-specific to
+generalize — add those by hand on the Gear item's Effect text as needed. A rigorous
+Target-Number-by-Rank/Adjective calculator was considered but not included in this pass,
+since it needs the book's own table transcribed carefully rather than approximated.
+
 ## What's intentionally manual
 
 - **Traits** are reference cards, not automated bonuses — the book's traits are too

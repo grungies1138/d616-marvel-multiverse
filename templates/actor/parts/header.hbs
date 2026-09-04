@@ -13,6 +13,10 @@
     <div class="mm-karma-block">
       <label class="mm-label">{{localize "D616.Sheet.Karma"}}</label>
       <input type="number" name="system.karma.value" value="{{system.karma.value}}" {{#unless editable}}disabled{{/unless}} />
+      <div class="mm-karma-actions">
+        <a data-action="resetKarma" title="{{localize 'D616.Karma.ResetTitle'}}"><i class="fa-solid fa-rotate-left"></i></a>
+        {{#if isGM}}<a data-action="awardKarma" title="{{localize 'D616.Karma.AwardTitle'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+      </div>
     </div>
   </div>
 
@@ -22,6 +26,23 @@
       <div class="mm-styled-input">
         <input name="name" type="text" value="{{actor.name}}" placeholder="Codename" {{#unless editable}}disabled{{/unless}} />
       </div>
+    </div>
+
+    <div class="mm-meta-row">
+      <div class="mm-styled-field">
+        <label class="mm-styled-label"><span>{{localize "D616.Sheet.Size"}}</span></label>
+        <div class="mm-styled-input">
+          <select name="system.size" {{#unless editable}}disabled{{/unless}}>
+            {{#each sizeChoices}}
+            <option value="{{this.key}}" {{#if (eq this.key ../system.size)}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+      <label class="mm-heroic-toggle">
+        <input type="checkbox" name="system.isHeroic" {{#if isHeroic}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.Heroic"}}
+      </label>
     </div>
 
     <div class="mm-stat-row">
@@ -38,6 +59,7 @@
             <input type="number" name="system.health.damageReduction" value="{{system.health.damageReduction}}" {{#unless editable}}disabled{{/unless}} />
           </div>
         </div>
+        <a class="mm-recover-btn" data-action="recoverHealth" title="{{localize 'D616.Karma.RecoverHealthTitle'}}"><i class="fa-solid fa-heart-pulse"></i></a>
       </div>
 
       <div class="mm-stat-block -focus">
@@ -47,6 +69,7 @@
           <span class="mm-fraction-bar"></span>
           <span class="mm-fraction-den">{{system.focus.max}}</span>
         </div>
+        <a class="mm-recover-btn" data-action="recoverFocus" title="{{localize 'D616.Karma.RecoverFocusTitle'}}"><i class="fa-solid fa-brain"></i></a>
       </div>
 
       <div class="mm-stat-block">
@@ -54,11 +77,15 @@
         <div class="mm-input">
           <span class="mm-input-line">{{system.speed}}</span>
           <span class="mm-input-line">
-            {{initiativeDisplay}}
+            {{initiativeDisplay}}{{#if initiativeHasStandingEdge}}<span class="mm-standing-edge" title="{{localize 'D616.Sheet.StandingEdge'}}">E</span>{{/if}}
             <a data-action="rollInitiative" title="{{localize 'D616.Roll.Initiative'}}"><i class="fa-solid fa-dice-d6"></i></a>
           </span>
         </div>
       </div>
+    </div>
+
+    <div class="mm-rest-row">
+      <a data-action="restRecover"><i class="fa-solid fa-bed"></i> {{localize "D616.Karma.RestRecoverTitle"}}</a>
     </div>
   </div>
 </header>

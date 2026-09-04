@@ -15,7 +15,7 @@
  * This is a reasonable, table-friendly implementation of Edge/Trouble; if
  * your group plays it differently, this is the one function to adjust.
  */
-export async function rollMarvelDice({ edgeTrouble = "none" } = {}) {
+export async function rollMarvelDice({ edgeTrouble = "none", stacks = 1 } = {}) {
   const baseRoll = new Roll("1d6 + 1d6 + 1d6");
   await baseRoll.evaluate();
 
@@ -23,14 +23,24 @@ export async function rollMarvelDice({ edgeTrouble = "none" } = {}) {
   let [d1, d2, dm] = dice.map((d) => d.total);
 
   if (edgeTrouble === "edge" || edgeTrouble === "trouble") {
-    const extra = await new Roll("1d6").evaluate();
-    ({ d1, d2 } = adjustDiceForEdgeTrouble(d1, d2, edgeTrouble, extra.total));
+    // `stacks` lets a Team Maneuver's higher levels apply Edge more than
+    // once in the same spirit as the book's "stacking edges" rule (p.16) —
+    // each pass rerolls one extra d6 and keeps the better/worse result.
+    for (let i = 0; i < Math.max(1, stacks); i++) {
+      const extra = await new Roll("1d6").evaluate();
+      ({ d1, d2 } = adjustDiceForEdgeTrouble(d1, d2, edgeTrouble, extra.total));
+    }
   }
 
   const rawMarvel = dm;
   const isFantastic = rawMarvel === 1;
   const isGreen = rawMarvel === 6;
   const marvelValue = isFantastic ? 6 : rawMarvel;
+
+  // The Ultimate Fantastic roll (book p.15): 6 M 6 — a Fantastic result
+  // where both ordinary dice also came up 6. This automatically succeeds
+  // no matter the target number, and cancels out any Trouble on the roll.
+  const isUltimate = isFantastic && d1 === 6 && d2 === 6;
 
   return {
     d1,
@@ -39,8 +49,19 @@ export async function rollMarvelDice({ edgeTrouble = "none" } = {}) {
     marvelValue,
     isFantastic,
     isGreen,
+    isUltimate,
     diceTotal: d1 + d2 + marvelValue
   };
+}
+
+/**
+ * Given a d616 roll's total/target number (as already computed) and whether
+ * it was an Ultimate Fantastic roll, determine success — Ultimate Fantastic
+ * always succeeds regardless of the target number (book p.15).
+ */
+export function resolveSuccess({ total, targetNumber, isUltimate }) {
+  if (isUltimate) return true;
+  return targetNumber === null || targetNumber === undefined ? null : total >= targetNumber;
 }
 
 /**
@@ -109,7 +130,8 @@ export async function applyEdgeTroubleToMessage(message, mode) {
   const { d1, d2 } = adjustDiceForEdgeTrouble(data.d1, data.d2, mode, extraVal);
 
   const total = d1 + d2 + data.marvelValue + (data.abilityValue ?? 0) + (data.checkBonus ?? 0);
-  const success = (data.targetNumber ?? null) === null ? null : total >= data.targetNumber;
+  const isUltimate = data.isFantastic && d1 === 6 && d2 === 6;
+  const success = resolveSuccess({ total, targetNumber: data.targetNumber ?? null, isUltimate });
 
   let damage = data.damage ?? null;
   if (data.isAttack && data.dealsDamageFlag && (success === null || success) && data.damageParams) {

@@ -44,6 +44,53 @@
   </div>
 
   <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.Movement"}}</h3>
+    <div class="mm-styled-container-body">
+      <ul class="mm-movement-row">
+        {{#each movementList}}
+        <li><span class="mm-movement-label">{{this.label}}</span><span class="mm-movement-value">{{this.value}}</span></li>
+        {{/each}}
+        {{#each grantedMovementList}}
+        <li class="mm-movement-granted"><span class="mm-movement-label">{{this.label}}</span><span class="mm-movement-value">{{this.value}}</span></li>
+        {{/each}}
+      </ul>
+      <p class="hint">{{localize "D616.Sheet.MovementHint"}}</p>
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
+    <h3>{{localize "D616.Sheet.StandardActions"}}</h3>
+    <div class="mm-styled-container-body">
+      <div class="mm-action-row">
+        <button type="button" data-action="actionDodge" {{#if isDodging}}class="active"{{/if}}>
+          <i class="fa-solid fa-shield"></i> {{localize "D616.Action.Dodge"}}
+        </button>
+        {{#if isDodging}}
+        <button type="button" data-action="actionClearDodge">
+          <i class="fa-solid fa-xmark"></i> {{localize "D616.Action.ClearDodge"}}
+        </button>
+        {{/if}}
+        <button type="button" data-action="actionHelp">
+          <i class="fa-solid fa-hands-holding-circle"></i> {{localize "D616.Action.Help"}}
+        </button>
+        <button type="button" data-action="actionGrab">
+          <i class="fa-solid fa-hand-fist"></i> {{localize "D616.Action.Grab"}}
+        </button>
+        <button type="button" data-action="actionEscape">
+          <i class="fa-solid fa-person-running"></i> {{localize "D616.Action.Escape"}}
+        </button>
+        <button type="button" data-action="openTeamManeuver">
+          <i class="fa-solid fa-people-group"></i> {{localize "D616.TeamManeuver.DialogTitle"}}
+        </button>
+        <button type="button" data-action="fallingDamage">
+          <i class="fa-solid fa-person-falling"></i> {{localize "D616.Action.FallingDamageTitle"}}
+        </button>
+      </div>
+      <p class="hint">{{localize "D616.Sheet.StandardActionsHint"}}</p>
+    </div>
+  </div>
+
+  <div class="mm-styled-container">
     <h3>Damage</h3>
     <div class="mm-styled-container-body">
       <ul class="mm-damage-rows">
