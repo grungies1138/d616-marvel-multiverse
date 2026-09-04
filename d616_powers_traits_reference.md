@@ -2,7 +2,7 @@
 
 Everything currently in the `d616` Foundry system's Item compendiums: every Power in the **Powers (Reference)** pack (sourced from the Marvel Multiverse RPG Core Rule Book — facts exact, wording original, see the system README for the full sourcing note), every custom Power in the **Wickfield Eight Items (Homebrew)** pack, every Trait available across the eight Wickfield Eight pregens plus their adversaries (traits aren't a book-sourced pack in this system — see README — so this is the complete set that exists), and the one-shot's villain and henchman template from **Wickfield Eight: Adversaries**.
 
-**Totals:** 307 book-sourced Powers + 30 custom hero Powers + 5 adversary Powers = **342 Powers**, and **29 Traits**.
+**Totals:** 307 book-sourced Powers + 24 custom hero Powers + 5 adversary Powers = **336 Powers**, **29 Traits**, and **6 custom hero Gear items**.
 
 ---
 
@@ -392,7 +392,7 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 
 ---
 
-## Part 2 — Custom Powers: Wickfield Eight (Homebrew) (30)
+## Part 2 — Custom Powers &amp; Gear: Wickfield Eight (Homebrew) (24 Powers, 6 Gear)
 
 ### Bulwark (Marcus "Mo" Odom) — 4 Powers
 
@@ -421,12 +421,15 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 - **Veil of Dusk** — *Standard Action, Instant, Touch (self or ally), 10 Focus*. Touch a willing target (or self) to make them Unseen — untargetable by ranged attacks or normal sight — until they act, or until the end of the caster's next turn.
 - **Shadow Snare** — *Standard Action, Instant, 4 squares, 20 Focus*. *(Ego check vs. Resilience Defense.)* A ranged Ego attack against the target's Resilience Defense. A hit Restrains the target (Speed 0) until they beat the caster's Ego Defense with an Agility check.
 
-### Circuit (Owen Park) — 4 Powers
+### Circuit (Owen Park) — 1 Power, 3 Gear
 
-- **Snap Shooting** — *Standard Action, Instant, 8 squares, 0 Focus*. *(Logic check vs. Agility Defense.)* A HUD-aimed ranged Logic attack against the target's Agility Defense. A hit deals 12 damage.
-- **Suppressive Fire** — *Standard Action, Instant, 3-square line, 10 Focus*. *(Logic check vs. Agility Defense.)* A ranged Logic attack against the Agility Defense of everyone in a 3-square line. A hit deals 8 damage and gives Trouble on the target's next attack roll.
-- **Stopping Power** — *Standard Action, Instant, 8 squares, 10 Focus*. *(Logic check vs. Resilience Defense.)* A ranged Logic attack against the target's Resilience Defense. A hit deals 18 damage and pushes the target back 2 squares.
 - **Field Drone** — *Standard Action, Instant, Deploy within 6 squares (one active at a time), 10 Focus*. Deploy the support drone within 6 squares. Any ally within 2 squares of the drone gains Edge on one check of their choice each of their turns.
+
+**Gear:**
+
+- **Snap Shooting** — *Ranged Weapon, Homebrew (built), 8 squares, 0 Focus*. *(Logic check vs. Agility Defense.)* A HUD-aimed ranged Logic attack from the gauntlet blaster, against the target's Agility Defense. A hit deals 12 damage.
+- **Suppressive Fire** — *Ranged Weapon, Homebrew (built), 3-square line, 10 Focus*. *(Logic check vs. Agility Defense.)* A ranged Logic attack from the gauntlet blaster against the Agility Defense of everyone in a 3-square line. A hit deals 8 damage and gives Trouble on the target's next attack roll.
+- **Stopping Power** — *Ranged Weapon, Homebrew (built), 8 squares, 10 Focus*. *(Logic check vs. Resilience Defense.)* A heavier ranged Logic attack from the gauntlet blaster against the target's Resilience Defense. A hit deals 18 damage and pushes the target back 2 squares.
 
 ### Amberlight (Sable Okafor) — 3 Powers
 
@@ -441,12 +444,15 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 - **Elemental Push** — *Standard Action, Instant, 6 squares, 10 Focus*. Prerequisites: Elemental Burst. *(Logic check vs. Resilience Defense.)* A ranged Logic attack against the target's Resilience Defense. A hit deals 16 damage, pushes the target 3 squares, and knocks them prone if they collide with something.
 - **Ice Slide** — *Move Action, This turn, Self, 0 Focus*. Prerequisites: Once per turn. Once per turn, lay down a sheet of ice and move up to Speed + 2 squares in a straight line.
 
-### The Latch (Renata "Ren" Cruz) — 4 Powers
+### The Latch (Renata "Ren" Cruz) — 1 Power, 3 Gear
 
-- **Baton Strike** — *Standard Action, Instant, Melee, 0 Focus*. *(Melee check vs. Agility Defense.)* A weapon Melee attack against the target's Agility Defense. A hit deals 14 damage.
 - **Accuracy 1** — *Passive, Permanent, 0 Focus*. Always-on passive: Edge on Melee attack rolls as long as she hasn't taken damage yet this scene. (Reference only — apply this manually; conditional Edge isn't a numeric bonus the sheet can automate.)
-- **Fast Strikes** — *Standard Action, Instant, Melee, 10 Focus*. *(Melee check vs. Agility Defense.)* A Melee attack against the Agility Defense of up to two different adjacent enemies. A hit deals 8 damage to each.
-- **Counterstrike Technique** — *Reaction, Instant, Melee, 10 Focus*. Prerequisites: Triggers when a melee attack against her misses. *(Melee check vs. Agility Defense.)* Reaction triggered when a melee attack against her misses: an immediate Melee attack against the attacker's Agility Defense. A hit deals 12 damage.
+
+**Gear:**
+
+- **Baton Strike** — *Melee Weapon, Standard-issue, Melee, 0 Focus*. *(Melee check vs. Agility Defense.)* A precise weapon Melee attack with a collapsible baton, against the target's Agility Defense. A hit deals 14 damage.
+- **Fast Strikes** — *Melee Weapon, Standard-issue, Melee, 10 Focus*. *(Melee check vs. Agility Defense.)* A baton Melee attack against the Agility Defense of up to two different adjacent enemies. A hit deals 8 damage to each.
+- **Counterstrike Technique** — *Melee Weapon, Standard-issue, Melee, 10 Focus*. *(Melee check vs. Agility Defense.)* Reaction triggered when a melee attack against her misses: an immediate baton Melee attack against the attacker's Agility Defense. A hit deals 12 damage.
 
 ---
 

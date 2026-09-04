@@ -144,25 +144,38 @@ the one-shot hook and table-running notes) as ready-to-drop-in Foundry documents
   Ability scores set and Health/Focus/Karma/Defenses/Speed/Initiative all deriving
   correctly from them. Each one's Biography tab is filled in with a full original
   History and Personality write-up (not just the one-line hooks from the printable
-  sheet), plus Real Name/Occupation/Origin/Team. Each actor's Powers and Traits
-  tabs come pre-populated with that character's actual items — drag one out of the
-  compendium and it's playable immediately, no manual data entry.
-- **Wickfield Eight Items (Homebrew)** (`homebrew`, Item pack) — the same 30 Powers
-  and 24 Traits used by the eight pregens, as standalone reference items, in case
-  you want to browse, reuse, or hand one to a different character without opening
-  a pregen's sheet.
+  sheet), plus Real Name/Occupation/Origin/Team. Each actor's Powers, Gear, and
+  Traits tabs come pre-populated with that character's actual items — drag one out
+  of the compendium and it's playable immediately, no manual data entry.
+- **Wickfield Eight Items (Homebrew)** (`homebrew`, Item pack) — the same 24
+  Powers, 6 Gear, and 24 Traits used by the eight pregens, as standalone reference
+  items, in case you want to browse, reuse, or hand one to a different character
+  without opening a pregen's sheet.
 
-These powers are intentionally simpler than the Powers (Reference) pack above:
-per `wickfield_pregens.md`'s own note, their Focus costs and damage numbers are
-**streamlined flat values for pick-up-and-play speed**, not the book's own
-`(Marvel Die × Multiplier) + Modifier` formula. To keep that design intent intact
-rather than silently overriding it, each attack power's to-hit roll is automated
-(it rolls against the right Defense) but its damage is deliberately left off
-auto-calculation (`dealsDamage: false`) with the exact flat number spelled out in
-its Effect text for you to apply by hand. A few powers (Quickness's extra Move
-Action, Accuracy 1's conditional Edge) grant something the data model has no
-numeric field for at all — those are marked passive/reference-only in the same
-way Traits are, with the full effect in their text.
+Two of the eight carry actual physical equipment rather than an innate power, and
+those are typed as **Gear** (not Power) so they use Gear's own weapon mechanics
+(a `category` and a non-stacking `attack.damageMultiplierBonus`, the same fields
+the book's Common Weapons use) instead of Power's: Circuit's gauntlet blaster
+(Snap Shooting, Suppressive Fire, Stopping Power — his support-drone deployment,
+Field Drone, stays a Power since it's the ability to direct the drone, not the
+drone itself as a weapon) and The Latch's collapsible batons (Baton Strike, Fast
+Strikes, Counterstrike Technique — Accuracy 1 stays a Power, since it's her own
+trained conditional Edge, not a property of the batons). Their `damageMultiplierBonus`
+ships at 0 (no fabricated bonus) — bump it on the item sheet if you want one of
+them running upgraded gear.
+
+The rest of the pregens' powers are intentionally simpler than the Powers
+(Reference) pack above: per `wickfield_pregens.md`'s own note, their Focus costs
+and damage numbers are **streamlined flat values for pick-up-and-play speed**, not
+the book's own `(Marvel Die × Multiplier) + Modifier` formula. To keep that design
+intent intact rather than silently overriding it, each attack power's (and Gear
+weapon's) to-hit roll is automated (it rolls against the right Defense) but its
+damage is deliberately left off auto-calculation (`dealsDamage: false`) with the
+exact flat number spelled out in its Effect text for you to apply by hand. A few
+powers (Quickness's extra Move Action, Accuracy 1's conditional Edge) grant
+something the data model has no numeric field for at all — those are marked
+passive/reference-only in the same way Traits are, with the full effect in their
+text.
 
 ### The one-shot's adversary
 
