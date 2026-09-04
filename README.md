@@ -61,6 +61,51 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.5.3 — Removed the standalone Powers/Gear reference Item packs
+
+The **Powers (Reference)** and **Gear (Reference)** Item compendiums have been
+removed. Every entry in them (all 307 Powers, all 12 Common Weapons) is
+already documented as browsable text in the **D616 Reference** journal
+compendium added in 1.5.0, so the two Item packs were pure duplication. The
+actual usable, drag-onto-a-sheet Power/Gear items remain available via the
+Wickfield Eight Items (Homebrew) pack and the pregens/adversaries themselves;
+build your own Power/Gear item off the Reference journal's write-up for
+anything beyond that. See "Compendium packs" below.
+
+## 1.5.2 hotfix
+
+Root-caused and fixed why the Character Creation Tutorial journal opened but
+showed no pages: Foundry's LevelDB compendium format requires every embedded
+sub-document (an Actor's items, a JournalEntry's pages) to be written as its
+own entry with a compound key, with the parent document holding only an
+array of ids. The packs shipped in 1.5.0/1.5.1 instead stored the full nested
+objects inline with no key metadata — the parent document opened fine (its
+name and top-level fields were real) but Foundry resolved the embedded
+collection as empty. This affected every pack with embedded sub-documents:
+`tutorial` and `reference` (0 pages), and `characters`/`villains` (0
+Powers/Gear/Traits on every actor). All seven packs were rebuilt through
+`@foundryvtt/foundryvtt-cli`'s own `fvtt package pack`, so they now use the
+exact on-disk structure Foundry itself produces — verified by round-tripping
+every pack through the official unpacker with no errors, and a deep content
+diff confirming nothing was lost in the rebuild.
+
+Also fixed: the Health/Focus recovery button tooltips were showing the
+literal text `{name} recovers Health` / `{name} recovers Focus` instead of
+the actor's name — `header.hbs` called the `localize` helper without passing
+`name` as a hash argument, so the `{name}` placeholder never got substituted.
+
+## 1.5.1 hotfix
+
+The `tutorial` and `reference` compendium packs declared in `system.json`
+had never actually landed in the repo: their LevelDB files were uploaded to
+the repo root instead of `packs/tutorial`/`packs/reference`, where they
+silently collided by filename with an earlier upload. Restored both to their
+correct location. Also: `module/sheets/actor-sheet.mjs` and the Powers/Gear/
+Traits row templates in the tracked source were a stale revision missing the
+1.5.0 hover-tooltip feature — the working version had only ever reached the
+release zip, not git. Added `.gitattributes` so Windows git clones can no
+longer corrupt the LevelDB compendium files via line-ending conversion.
+
 ## 1.5.0 — Tutorial & Reference compendiums, sheet tooltips
 
 - **Character Creation Tutorial** (`tutorial`, JournalEntry pack) — a new
@@ -217,40 +262,45 @@ For each character:
 
 ## Compendium packs
 
-The system ships two reference Item compendiums, built directly from the printed
-**Marvel Multiverse RPG Core Rule Book** (Marvel Entertainment / Hasbro):
-
-- **Powers (Reference)** — all 307 individual Powers from the book's Power
-  Descriptions chapter, across its ~20 Power Sets.
-- **Gear (Reference)** — the book's full Common Weapons table (Pistol, Bow, Rifle,
-  Sniper Rifle, Shotgun, Submachine Gun, Frag Grenade, Flash-Bang Grenade, Club,
-  Knife, Knife/Thrown, Sword), as ready-to-use Gear items.
+The book's official Powers and Gear catalog — all 307 individual Powers from
+the Power Descriptions chapter across its ~20 Power Sets, and the full Common
+Weapons table (Pistol, Bow, Rifle, Sniper Rifle, Shotgun, Submachine Gun, Frag
+Grenade, Flash-Bang Grenade, Club, Knife, Knife/Thrown, Sword) — is documented
+as browsable reference text inside the **D616 Reference** journal compendium
+(see "Tutorial & full Reference journals" below), built directly from the
+printed **Marvel Multiverse RPG Core Rule Book** (Marvel Entertainment /
+Hasbro). It previously also shipped as two separate ready-to-use Item
+compendiums (**Powers (Reference)** / **Gear (Reference)**); those were
+removed since every entry in them is already covered by the Reference
+journal's write-up, and the actual usable Power/Gear items you'd drag onto a
+sheet live in the Wickfield Eight Items (Homebrew) pack and on the pregens
+themselves — see "The Wickfield Eight (pregens)" below.
 
 **How the content was sourced, and why it's written the way it is.** Game rules,
 mechanics, names, numbers, and other functional facts (a Power's name and Power
 Set, its Action type/Duration/Range/Focus cost, whether and how it attacks, its
 damage-multiplier or Health Damage Reduction bonus, a weapon's range and damage
 bonus) are not protected by copyright — they're the game's factual rules, and
-every entry in these packs reproduces those facts exactly as printed. The book's
-own descriptive sentences, however — its prose — **are** the publisher's
+every entry in this reference reproduces those facts exactly as printed. The
+book's own descriptive sentences, however — its prose — **are** the publisher's
 copyrighted expression, and reproducing them at compendium scale isn't something
-I'm able to do, attribution or no. So every `effect` field in both packs is
-**original wording**, independently written from the same underlying rules facts
-rather than copied or lightly reworded from the book's text. If a line of these
-packs and a line of the book read alike, it's very likely because there's only one
-clear way to state a specific mechanical fact (e.g. "makes a Melee attack against
-the target's Resilience Defense" is standard rules terminology, not creative
-prose) — never because text was copied.
+I'm able to do, attribution or no. So every effect write-up is **original
+wording**, independently written from the same underlying rules facts rather
+than copied or lightly reworded from the book's text. If a line of this
+reference and a line of the book read alike, it's very likely because there's
+only one clear way to state a specific mechanical fact (e.g. "makes a Melee
+attack against the target's Resilience Defense" is standard rules terminology,
+not creative prose) — never because text was copied.
 
 A few individual powers had no numeric Focus cost or fully explicit attack/defense
 pairing in the source text (e.g. a handful of "Varies" costs, or powers whose
 description implies rather than states an ability); those were filled in with the
 most reasonable, rules-consistent interpretation rather than left blank or
-invented wholesale — treat those as a sensible default you're free to override on
-the item sheet, not as a book citation. You'll also want to add your own `img` for
-these — they ship with generic placeholder icons.
+invented wholesale — treat those as a sensible default you're free to override
+if you build your own Power/Gear item off this reference, not as a book
+citation.
 
-These packs are for your own reference and play at the table — they are not a
+This reference is for your own use and play at the table — it is not a
 substitute for owning the book, which is where all the flavor text, examples, and
 setting material actually live.
 
@@ -285,8 +335,9 @@ trained conditional Edge, not a property of the batons). Their `damageMultiplier
 ships at 0 (no fabricated bonus) — bump it on the item sheet if you want one of
 them running upgraded gear.
 
-The rest of the pregens' powers are intentionally simpler than the Powers
-(Reference) pack above: per `wickfield_pregens.md`'s own note, their Focus costs
+The rest of the pregens' powers are intentionally simpler than the book's own
+Powers documented in the D616 Reference journal: per `wickfield_pregens.md`'s
+own note, their Focus costs
 and damage numbers are **streamlined flat values for pick-up-and-play speed**, not
 the book's own `(Marvel Die × Multiplier) + Modifier` formula. To keep that design
 intent intact rather than silently overriding it, each attack power's (and Gear
@@ -311,8 +362,9 @@ built around the same "rolling blackouts closing in on the fundraiser" hook from
   drains someone, and her finisher, Full Strength, only unlocks once she's stacked it three times —
   mechanically reproducing the hook's "she'll be at full strength by the night of the fundraiser."
 - **Kade's Enforcer** — Rank 1 henchman template (not a single named character — duplicate the actor
-  for as many Enforcers as a scene needs), hired muscle armed with a Pistol from the Gear (Reference)
-  pack, meant to be a speed bump rather than a real threat to a team of Rank 2 heroes.
+  for as many Enforcers as a scene needs), hired muscle armed with a Pistol Gear item (see the Common
+  Weapons table in the D616 Reference journal), meant to be a speed bump rather than a real threat to
+  a team of Rank 2 heroes.
 
 Both are built the same way as the Wickfield Eight themselves: full History/Personality on the
 Biography tab, and their Powers/Traits/Gear pre-populated as real embedded Items. Brownout's Power
