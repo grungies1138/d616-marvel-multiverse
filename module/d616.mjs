@@ -1,3 +1,4 @@
+import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
 import CharacterData from "./data/actor-character.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
@@ -66,4 +67,24 @@ Hooks.once("init", () => {
 
 Hooks.once("ready", () => {
   console.log("d616 | Ready.");
+
+  // --- "Add Edge" / "Add Trouble" buttons on posted roll cards ---
+  // Bound once as a single delegated listener on the document, rather than
+  // per-message via a chat-render hook, so this works the same whether the
+  // running Foundry version fires "renderChatMessageHTML" (current) or the
+  // older jQuery-based "renderChatMessage" — the click still bubbles up to
+  // the document either way, and we just need to find which message it
+  // came from.
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest('[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"]');
+    if (!button) return;
+    event.preventDefault();
+
+    const mode = button.dataset.action === "d616ApplyEdge" ? "edge" : "trouble";
+    const messageEl = button.closest("[data-message-id]");
+    const message = messageEl ? game.messages.get(messageEl.dataset.messageId) : null;
+    if (!message) return;
+
+    applyEdgeTroubleToMessage(message, mode);
+  });
 });

@@ -9,7 +9,9 @@ publisher — built for homebrew/original characters and personal home-game use.
 ## What's automated
 
 - **Ability checks**: click the dice icon next to any ability to roll 2d6 + Marvel Die +
-  that ability, with Edge/Trouble support.
+  that ability. Powers/Gear rolls prompt for Edge/Trouble before rolling; every roll's
+  chat card also carries **Add Edge**/**Add Trouble** buttons so it can be applied
+  after the fact instead (see below).
 - **Powers**: each Power item can define an attack roll (ability vs. a Defense or flat
   target number), whether it deals damage, and a Focus cost (flat, or scaling — spend
   extra Focus for +1 Damage Modifier per N Focus, matching the book's "5 or more Focus"
@@ -41,6 +43,20 @@ publisher — built for homebrew/original characters and personal home-game use.
   automatically takes the single largest one. The same is true for Health Damage
   Reduction (from armor or a passive Power like Sturdy). This is handled for you in
   `prepareDerivedData()`/`rollItem()` — you don't need to do this math by hand.
+- **Add Edge / Add Trouble from the chat card**: every roll that actually rolls dice
+  (ability checks, Initiative, and any Power/Gear attack) posts its chat card with
+  **Add Edge** and **Add Trouble** buttons at the bottom, so the roll doesn't have to
+  be pre-committed to Edge or Trouble before you see it — decide once the result is on
+  the table. Clicking one rolls one extra d6, applies it the same way choosing
+  Edge/Trouble up front would (it replaces whichever of the two ordinary d6 it can
+  improve or worsen; the Marvel Die itself, and therefore Fantastic/Green, never
+  changes), updates that same chat card in place with the new total, and posts a
+  short follow-up note showing the extra die. Only the roll's own player or the GM can
+  click these, and it's a one-time thing per roll — once Edge or Trouble has been
+  added, the buttons are replaced with an "Edge Applied"/"Trouble Applied" tag. A
+  Power or Gear roll that already had Edge/Trouble chosen from its own pre-roll
+  prompt shows that same tag immediately instead of the buttons, since it's already
+  been applied.
 
 ## What's intentionally manual
 

@@ -62,9 +62,11 @@ export default class D616Actor extends Actor {
 
     const success = targetNumber === null ? null : total >= targetNumber;
 
+    const title = flavor ?? game.i18n.format("D616.Roll.AbilityCheck", { ability: game.i18n.localize(`D616.Ability.${abilityKey}`) });
+
     const content = await renderRollCard({
       actor: this,
-      title: flavor ?? game.i18n.format("D616.Roll.AbilityCheck", { ability: game.i18n.localize(`D616.Ability.${abilityKey}`) }),
+      title,
       d1: dice.d1,
       d2: dice.d2,
       marvelValue: dice.marvelValue,
@@ -76,12 +78,40 @@ export default class D616Actor extends Actor {
       success,
       isFantastic: dice.isFantastic,
       isGreen: dice.isGreen,
-      isAttack: false
+      isAttack: false,
+      edgeTroubleApplied: edgeTrouble
     });
 
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content
+      content,
+      flags: {
+        d616: {
+          roll: {
+            kind: "ability",
+            title,
+            subtitle: null,
+            d1: dice.d1,
+            d2: dice.d2,
+            rawMarvel: dice.rawMarvel,
+            marvelValue: dice.marvelValue,
+            isFantastic: dice.isFantastic,
+            isGreen: dice.isGreen,
+            abilityValue,
+            checkBonus,
+            targetNumber,
+            defenseTargetLabel: null,
+            isAttack: false,
+            dealsDamageFlag: false,
+            damageParams: null,
+            damage: null,
+            fantasticEffect: null,
+            focusCost: null,
+            focusRemaining: null,
+            edgeTroubleApplied: edgeTrouble
+          }
+        }
+      }
     });
   }
 
@@ -102,9 +132,11 @@ export default class D616Actor extends Actor {
     const dice = await rollMarvelDice({ edgeTrouble });
     const total = dice.diceTotal + abilityValue;
 
+    const title = game.i18n.localize("D616.Roll.Initiative");
+
     const content = await renderRollCard({
       actor: this,
-      title: game.i18n.localize("D616.Roll.Initiative"),
+      title,
       d1: dice.d1,
       d2: dice.d2,
       marvelValue: dice.marvelValue,
@@ -116,12 +148,40 @@ export default class D616Actor extends Actor {
       success: null,
       isFantastic: dice.isFantastic,
       isGreen: dice.isGreen,
-      isAttack: false
+      isAttack: false,
+      edgeTroubleApplied: edgeTrouble
     });
 
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content
+      content,
+      flags: {
+        d616: {
+          roll: {
+            kind: "initiative",
+            title,
+            subtitle: null,
+            d1: dice.d1,
+            d2: dice.d2,
+            rawMarvel: dice.rawMarvel,
+            marvelValue: dice.marvelValue,
+            isFantastic: dice.isFantastic,
+            isGreen: dice.isGreen,
+            abilityValue,
+            checkBonus: 0,
+            targetNumber: null,
+            defenseTargetLabel: null,
+            isAttack: false,
+            dealsDamageFlag: false,
+            damageParams: null,
+            damage: null,
+            fantasticEffect: null,
+            focusCost: null,
+            focusRemaining: null,
+            edgeTroubleApplied: edgeTrouble
+          }
+        }
+      }
     });
 
     const combat = game.combat;
@@ -186,8 +246,15 @@ export default class D616Actor extends Actor {
     }
 
     // --- Damage (if applicable) ---
+    // Multiplier/modifier are computed whenever this attack deals damage at
+    // all, even if this particular hit didn't land — they're stashed in the
+    // chat message's flags so that adding Edge/Trouble after the fact (which
+    // can turn a miss into a hit against a flat DC) can compute damage then
+    // too, without needing to re-derive the actor's state later.
+    const dealsDamageFlag = !!(sys.attack?.enabled && sys.attack?.dealsDamage);
     let damage = null;
-    if (sys.attack?.enabled && sys.attack?.dealsDamage && (success === null || success)) {
+    let damageParams = null;
+    if (dealsDamageFlag) {
       const ability = sys.attack.ability;
       let multiplier = this.system.damageMultipliers?.[ability] ?? this.system.rank;
       // A weapon's own damage-multiplier bonus (Gear only) doesn't stack
@@ -197,7 +264,10 @@ export default class D616Actor extends Actor {
         multiplier = Math.max(multiplier, this.system.rank + sys.attack.damageMultiplierBonus);
       }
       const modifier = (this.system.damageModifiers?.[ability] ?? abilityValue ?? 0) + bonusModifier;
-      damage = computeDamage({ marvelValue, multiplier, modifier, isFantastic });
+      damageParams = { multiplier, modifier };
+      if (success === null || success) {
+        damage = computeDamage({ marvelValue, multiplier, modifier, isFantastic });
+      }
     }
 
     // --- Spend Focus ---
@@ -205,30 +275,60 @@ export default class D616Actor extends Actor {
       await this.update({ "system.focus.value": Math.max(0, this.system.focus.value - focusCost) });
     }
 
+    const subtitle = `${sys.range ?? ""} · ${sys.duration ?? ""}`;
+    const defenseTargetLabel = sys.attack?.defenseTarget && sys.attack.defenseTarget !== "flat"
+      ? game.i18n.localize(`D616.Ability.${sys.attack.defenseTarget}`) + " Defense"
+      : null;
+    const fantasticEffect = sys.attack?.fantasticEffect;
+    const focusRemaining = this.system.focus.value;
+
     const content = await renderRollCard({
       actor: this,
-      item,
       title: item.name,
+      subtitle,
       isAttack: !!sys.attack?.enabled,
       d1, d2, marvelValue, rawMarvel,
       abilityValue,
+      checkBonus: 0,
       total: attackTotal,
       targetNumber,
-      defenseTargetLabel: sys.attack?.defenseTarget && sys.attack.defenseTarget !== "flat"
-        ? game.i18n.localize(`D616.Ability.${sys.attack.defenseTarget}`) + " Defense"
-        : null,
+      defenseTargetLabel,
       success,
       isFantastic,
       isGreen,
       damage,
-      fantasticEffect: sys.attack?.fantasticEffect,
+      fantasticEffect,
       focusCost,
-      focusRemaining: this.system.focus.value
+      focusRemaining,
+      edgeTroubleApplied: edgeTrouble
     });
 
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content
+      content,
+      flags: {
+        d616: {
+          roll: {
+            kind: "item",
+            title: item.name,
+            subtitle,
+            d1, d2, rawMarvel, marvelValue,
+            isFantastic, isGreen,
+            abilityValue,
+            checkBonus: 0,
+            targetNumber,
+            defenseTargetLabel,
+            isAttack: !!sys.attack?.enabled,
+            dealsDamageFlag,
+            damageParams,
+            damage,
+            fantasticEffect,
+            focusCost,
+            focusRemaining,
+            edgeTroubleApplied: edgeTrouble
+          }
+        }
+      }
     });
   }
 

@@ -249,6 +249,8 @@
 }
 
 /* ---------- Stat blocks: Health (red), Focus (blue), Speed/Init ---------- */
+/* The three blocks stay side by side; it's each block's own value(s) —
+   current/max, or Speed and Initiative — that stack top/bottom inside it. */
 .mm-stat-row {
   display: flex;
   gap: 10px;
@@ -288,11 +290,58 @@
   position: relative;
   z-index: 1;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* One row within a stacked value (e.g. the Initiative row's number + roll
+   icon) — the value itself stacks top/bottom, but anything sharing a row
+   still sits side by side. */
+.mm-stat-block .mm-input .mm-input-line {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 18px;
-  font-weight: 700;
+}
+
+/* Current/max shown as an actual fraction — a number directly above the
+   other, divided by a horizontal line — instead of "value / max". The bar
+   is its own element (not a border on the input) so its width is
+   consistent and the two numbers center on it precisely. */
+.mm-stat-block .mm-input.mm-fraction {
+  gap: 0;
+}
+.mm-fraction-num,
+.mm-fraction-den {
+  line-height: 1.2;
+}
+.mm-stat-block .mm-input input.mm-fraction-num {
+  border: none;
+  padding: 0;
+  height: auto;
+  width: auto;
+  min-width: 1.6rem;
+  max-width: 2.8rem;
+  /* Drop the native number-input spinner arrows — with the fraction this
+     tight, they'd crowd out the digits instead of sitting off to the side. */
+  appearance: none;
+  -moz-appearance: textfield;
+}
+.mm-stat-block .mm-input input.mm-fraction-num::-webkit-outer-spin-button,
+.mm-stat-block .mm-input input.mm-fraction-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.mm-fraction-bar {
+  display: block;
+  width: 1.8rem;
+  height: 2px;
+  background: var(--mm-ink);
+  margin: 3px 0;
 }
 
 .mm-stat-block .mm-input input {
@@ -721,3 +770,46 @@
 .success { color: #2c7a3d; }
 .failure { color: var(--mm-red); }
 .roll-damage { font-size: 1.1rem; color: var(--mm-dark-red); }
+
+.roll-edge-trouble {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+}
+.edge-trouble-btn {
+  flex: 1;
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid var(--mm-red);
+  background: var(--mm-cream);
+  color: var(--mm-dark-red);
+}
+.edge-trouble-btn:hover { background: var(--mm-red); color: #fff; }
+.edge-trouble-btn.trouble { border-color: var(--mm-ink); color: var(--mm-ink); }
+.edge-trouble-btn.trouble:hover { background: var(--mm-ink); color: #fff; }
+
+.edge-trouble-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+.edge-trouble-tag.edge { background: #e2f3e5; color: #2c7a3d; }
+.edge-trouble-tag.trouble { background: #f0e2e2; color: var(--mm-dark-red); }
+
+.d616-edge-trouble-note {
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--mm-subtext);
+}
