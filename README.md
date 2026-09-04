@@ -340,15 +340,21 @@ Two JournalEntry compendiums round out the packs above:
   Powers & Gear** (8 pages, one per pregen), **Wickfield Eight — Traits** (8
   pages, one per pregen), and **Wickfield Eight — Adversaries**.
 
-Both packs were hand-built directly against the same ClassicLevel/LevelDB
-format Foundry itself writes (see `packs/tutorial` and `packs/reference`),
-the same approach already used for `characters`/`homebrew`/`villains` — the
-`fvtt-cli`'s own `pack`/`unpack` commands expect a JournalEntry's pages (or an
-Actor's items) to already be split into their own sublevel keys the way its
-own `pack` step would produce them, and error out on a plain embedded array
-even though Foundry's client reads a plain embedded array back correctly (as
-the shipped Actor packs already prove, live). If you regenerate either pack
-from source, build it the same way rather than through `fvtt package pack`.
+All packs are built with `@foundryvtt/foundryvtt-cli`'s own `fvtt package pack`
+against a source directory of plain per-document JSON files (embedded
+Actor items / JournalEntry pages included as normal nested arrays in that
+JSON — the same shape a world export uses). `pack` is what splits each
+embedded sub-document into its own LevelDB entry with a compound key
+(`!actors.items!<actorId>.<itemId>`, `!journal.pages!<journalId>.<pageId>`),
+which is the layout Foundry's client actually expects when reading a
+compendium; a parent document that instead stores its `items`/`pages` as
+full nested objects inline (rather than an array of ids, with the real
+sub-documents each keyed separately) opens fine — its name and top-level
+fields show up — but the client resolves its embedded collection as empty,
+so an Actor shows no Powers/Gear/Traits and a JournalEntry shows no pages.
+If you regenerate any pack from source, feed `fvtt package pack` a directory
+of per-document JSON files (nested `items`/`pages` arrays are fine — the
+tool handles the split) rather than writing LevelDB entries by hand.
 
 ## Visual design
 
