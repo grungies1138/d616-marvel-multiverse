@@ -57,6 +57,34 @@ publisher — built for homebrew/original characters and personal home-game use.
   Power or Gear roll that already had Edge/Trouble chosen from its own pre-roll
   prompt shows that same tag immediately instead of the buttons, since it's already
   been applied.
+- **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
+  mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
+  Effect text on hover, without needing to open the item's own sheet.
+
+## 1.5.0 — Tutorial & Reference compendiums, sheet tooltips
+
+- **Character Creation Tutorial** (`tutorial`, JournalEntry pack) — a new
+  step-by-step walkthrough of the book's 5-step character creation process
+  (Determine Rank → Pick Ability Scores → Pick Backstory Elements → Pick
+  Powers (and Gear) → Calculate Other Scores), with the exact Ability Score
+  Points and Resources-by-Rank tables, and a full worked example that builds
+  Bulwark (one of the Wickfield Eight pregens) from a blank sheet, cross-checked
+  line-by-line against this system's own formulas in `actor-character.mjs`.
+- **D616 Reference** (`reference`, JournalEntry pack) — the entire
+  `d616_powers_traits_reference.md` document (see below), compiled into five
+  browsable in-Foundry journals: Powers Reference — Core Rulebook (25 pages,
+  one per Power Set), Gear Reference — Common Weapons, Wickfield Eight —
+  Homebrew Powers & Gear, Wickfield Eight — Traits, and Wickfield Eight —
+  Adversaries. No more tabbing out to the markdown file to look something up
+  mid-session.
+- **`d616_powers_traits_reference.md` now also covers Gear (Reference)'s 12
+  Common Weapons** (previously it only documented Powers, homebrew Gear, and
+  Traits) — it's the single source both this reference journal and the sheet
+  tooltips below are built from.
+- **Hover tooltips** on every Power, Gear, and Trait row in the character
+  sheet: hovering a row (not just opening the item) now shows its action/cost
+  line and full Effect text (or, for Traits, its Edge/Trouble trigger and
+  mechanical effect) right there in the Powers/Gear/Traits tabs.
 
 ## 1.4.2 hotfix
 
@@ -291,6 +319,37 @@ Biography tab, and their Powers/Traits/Gear pre-populated as real embedded Items
 Surge and Full Strength are reference-only entries (like a couple of the heroes' own powers) since a
 scene-cumulative stacking counter isn't something a static sheet field can track — run it by hand.
 
+### Tutorial & full Reference journals
+
+Two JournalEntry compendiums round out the packs above:
+
+- **Character Creation Tutorial** (`tutorial`) — one JournalEntry, 7 pages, walking
+  through the book's own 5-step process (Rank → Ability Scores → Backstory →
+  Powers/Gear → Other Scores) with the exact Ability Score Points and
+  Resources-by-Rank tables, then a full worked example building Bulwark from a
+  blank sheet, step by step, with every derived number (Health, Focus, Karma,
+  Speed, Initiative) cross-checked against `actor-character.mjs`'s actual
+  formulas rather than hand-waved. Same sourcing discipline as everywhere else
+  in this system: the book's tables and formulas are reproduced exactly, all
+  prose and the worked example are original.
+- **D616 Reference** (`reference`) — five JournalEntries compiling the entire
+  `d616_powers_traits_reference.md` (see the "Compendium packs" sourcing note
+  above — same rules-facts-exact/prose-original discipline) into a browsable
+  in-Foundry form: **Powers Reference — Core Rulebook** (25 pages, one per
+  Power Set), **Gear Reference — Common Weapons**, **Wickfield Eight — Homebrew
+  Powers & Gear** (8 pages, one per pregen), **Wickfield Eight — Traits** (8
+  pages, one per pregen), and **Wickfield Eight — Adversaries**.
+
+Both packs were hand-built directly against the same ClassicLevel/LevelDB
+format Foundry itself writes (see `packs/tutorial` and `packs/reference`),
+the same approach already used for `characters`/`homebrew`/`villains` — the
+`fvtt-cli`'s own `pack`/`unpack` commands expect a JournalEntry's pages (or an
+Actor's items) to already be split into their own sublevel keys the way its
+own `pack` step would produce them, and error out on a plain embedded array
+even though Foundry's client reads a plain embedded array back correctly (as
+the shipped Actor packs already prove, live). If you regenerate either pack
+from source, build it the same way rather than through `fvtt package pack`.
+
 ## Visual design
 
 The sheet's look — chamfered "comic panel" containers with notched corners, a
@@ -341,7 +400,8 @@ d616/
 ├── system.json
 ├── README.md
 ├── wickfield_pregens.md          (printable Wickfield Eight pregen sheets)
-├── d616_powers_traits_reference.md (every Power + Trait in the compendiums, one document)
+├── d616_powers_traits_reference.md (every Power + Gear + Trait in the compendiums, one document —
+│                                   source content for the "reference" pack and the sheet tooltips)
 ├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer)
 ├── lang/en.json
 ├── module/
@@ -356,6 +416,6 @@ d616/
 │   └── chat/roll-card.hbs        (chat message template for every roll)
 ├── icons/                        (original die-face SVGs — see "Visual design")
 ├── fonts/                        (bundled Roboto/Roboto Slab/Roboto Condensed, Apache 2.0)
-├── packs/                        (Powers + Gear reference compendiums — see "Compendium packs")
+├── packs/                        (Item + Actor + JournalEntry compendiums — see "Compendium packs")
 └── styles/d616.css
 ```

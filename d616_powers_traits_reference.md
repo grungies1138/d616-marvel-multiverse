@@ -1,8 +1,8 @@
-# D616 Compendium — Full Powers & Traits Reference
+# D616 Compendium — Full Powers, Gear & Traits Reference
 
-Everything currently in the `d616` Foundry system's Item compendiums: every Power in the **Powers (Reference)** pack (sourced from the Marvel Multiverse RPG Core Rule Book — facts exact, wording original, see the system README for the full sourcing note), every custom Power in the **Wickfield Eight Items (Homebrew)** pack, every Trait available across the eight Wickfield Eight pregens plus their adversaries (traits aren't a book-sourced pack in this system — see README — so this is the complete set that exists), and the one-shot's villain and henchman template from **Wickfield Eight: Adversaries**.
+Everything currently in the `d616` Foundry system's Item compendiums: every Power in the **Powers (Reference)** pack (sourced from the Marvel Multiverse RPG Core Rule Book — facts exact, wording original, see the system README for the full sourcing note), every Common Weapon in the **Gear (Reference)** pack (same sourcing discipline), every custom Power and Gear item in the **Wickfield Eight Items (Homebrew)** pack, every Trait available across the eight Wickfield Eight pregens plus their adversaries (traits aren't a book-sourced pack in this system — see README — so this is the complete set that exists), and the one-shot's villain and henchman template from **Wickfield Eight: Adversaries**. This is also the source content compiled into the in-Foundry **D616 Reference** journal compendium and the sheet's hover tooltips — see README.
 
-**Totals:** 307 book-sourced Powers + 24 custom hero Powers + 5 adversary Powers = **336 Powers**, **29 Traits**, and **6 custom hero Gear items**.
+**Totals:** 307 book-sourced Powers + 12 book-sourced Common Weapons (Gear) + 24 custom hero Powers + 6 custom hero Gear + 5 adversary Powers = **336 Powers**, **18 Gear items**, and **29 Traits**.
 
 ---
 
@@ -392,7 +392,26 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 
 ---
 
-## Part 2 — Custom Powers &amp; Gear: Wickfield Eight (Homebrew) (24 Powers, 6 Gear)
+## Part 2 — Gear (Reference): Common Weapons (12)
+
+Mundane weapons available to any character regardless of Power Set, sourced from the Marvel Multiverse RPG Core Rule Book's Common Weapons table (facts exact, wording original). Each is a `gear` Item with a working `attack` block, so it rolls exactly like a Power's attack — a melee or ranged check against the target's Resilience Defense — and (except grenades) adds a flat bonus to the wielder's damage multiplier for that attack only; this bonus does not stack with any other damage-multiplier bonus the character has, so only the higher of the two applies. None of the twelve grant any passive bonus, and none have a gold/Karma cost — they're just equipment.
+
+- **Bow** — *Ranged 15, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing.
+- **Club** — *Melee (Reach), Melee attack vs. Resilience Defense.* Adds +1 to the wielder's Melee damage multiplier.
+- **Flash-Bang Grenade** — *Ranged 10, Agility attack vs. Vigilance Defense; Fantastic: target also knocked prone.* Single-use thrown device; deals no Health damage and grants no damage-multiplier bonus. A hit leaves the target dazed and disoriented until the start of its next turn.
+- **Frag Grenade** — *Ranged 10, Agility attack vs. Resilience Defense.* Single-use thrown explosive. Unlike the other Common Weapons its bonus isn't an addition to the damage multiplier — it doubles the wielder's normal damage multiplier for the throw instead.
+- **Knife** — *Melee (Reach), Melee attack vs. Resilience Defense.* Adds +1 to the wielder's Melee damage multiplier. Can also be thrown — see Knife, Thrown.
+- **Knife, Thrown** — *Ranged 5, Agility attack vs. Resilience Defense.* The same knife, thrown instead of swung; adds +1 to the wielder's Agility damage multiplier when thrown.
+- **Pistol** — *Ranged 10, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing.
+- **Rifle** — *Ranged 20, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing.
+- **Shotgun** — *Ranged 6, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing.
+- **Sniper Rifle** — *Ranged 40, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing; the longest range of any Common Weapon.
+- **Submachine Gun** — *Ranged 10, Agility attack vs. Resilience Defense.* Adds +1 to the wielder's Agility damage multiplier when firing.
+- **Sword** — *Melee (Reach), Melee attack vs. Resilience Defense.* Adds +2 to the wielder's Melee damage multiplier — the largest bonus of any Common Weapon.
+
+---
+
+## Part 3 — Custom Powers & Gear: Wickfield Eight (Homebrew) (24 Powers, 6 Gear)
 
 ### Bulwark (Marcus "Mo" Odom) — 4 Powers
 
@@ -456,7 +475,7 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 
 ---
 
-## Part 3 — Traits: Wickfield Eight (24)
+## Part 4 — Traits: Wickfield Eight (24)
 
 ### Bulwark (Marcus "Mo" Odom) — 3 Traits
 
@@ -508,7 +527,7 @@ Everything currently in the `d616` Foundry system's Item compendiums: every Powe
 
 ---
 
-## Part 4 — Adversaries: Wickfield Eight: Adversaries pack (5 Powers, 5 Traits, plus Gear)
+## Part 5 — Adversaries: Wickfield Eight: Adversaries pack (5 Powers, 5 Traits, plus Gear)
 
 The one-shot's villain and a reusable henchman template, from the **Wickfield Eight: Adversaries** Actor pack. See the system README for how they tie into the fundraiser-night hook.
 
