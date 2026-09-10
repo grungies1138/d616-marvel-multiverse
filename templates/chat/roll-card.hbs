@@ -7,12 +7,12 @@
   {{#if (ne total null)}}
   <div class="roll-card-dice">
     <img class="die-icon" src="{{concat 'systems/d616/icons/d6-white-' d1 '.svg'}}" alt="{{d1}}" />
-    <img class="die-icon" src="{{concat 'systems/d616/icons/d6-white-' d2 '.svg'}}" alt="{{d2}}" />
     {{#if isFantastic}}
     <img class="die-icon marvel-die-icon" src="systems/d616/icons/d6-marvel-star.svg" alt="Fantastic" />
     {{else}}
     <img class="die-icon marvel-die-icon {{#if isGreen}}green{{/if}}" src="{{concat 'systems/d616/icons/d6-marvel-' rawMarvel '.svg'}}" alt="{{marvelValue}}" />
     {{/if}}
+    <img class="die-icon" src="{{concat 'systems/d616/icons/d6-white-' d2 '.svg'}}" alt="{{d2}}" />
     <span class="plus">+</span>
     <span class="ability-bonus">{{abilityValue}}</span>
     <span class="equals">=</span>

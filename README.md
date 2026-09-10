@@ -61,62 +61,336 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
-## 1.5.4 — Traits Reference journal
+## 1.5.16 — Marvel D616 folder, Journals rename, and a private Heroes & Villains pack
 
-Added **Traits Reference — Core Rulebook** to the D616 Reference journal
-compendium. Unlike Powers or Gear, the book gives Traits no fixed catalog to
-compile — each character's Traits are written by that character's own
-player, tied to their specific backstory (p.21, p.63+). This page instead
-covers the book's guidance: the Traits/Tags distinction, how many Traits you
-get and where they come from (an Origin/Occupation starter package plus one
-per Rank), the handful of trigger patterns every Trait in this system uses
-(Edge, Trouble, an Edge/Trouble pair, a Karma hook, a one-shot ability), and
-a set of worked examples drawn from the Wickfield Eight to use as templates.
+> ⚠️ **`heroes-villains` is for personal/private use only — do not publish it.**
+> See "Heroes & Villains (PRIVATE — do not distribute)" below before cutting a
+> public release of this system.
 
-## 1.5.3 — Removed the standalone Powers/Gear reference Item packs
+- **New "Marvel D616" sidebar folder**, mirroring the existing Wickfield Eight
+  folder: it groups the `marvel-d616` pack and the new `heroes-villains` pack
+  together, so the system-wide material sits in its own labeled group instead
+  of loose at the top level of the Compendium sidebar.
+- **`marvel-d616` relabeled to Journals** (previously "Marvel D616" — the pack
+  name/id is unchanged, only the sidebar label, now that the folder itself
+  carries the "Marvel D616" name). Same 4 JournalEntries, same contents.
+- **New Actor pack, Heroes & Villains (`heroes-villains`)** — all 128 named
+  characters from the core rulebook's Character Profiles chapter (Abomination
+  through Wong), each with Rank/Abilities/Health/Focus/Karma/Movement set from
+  the book, full Biography (Real Name, Occupation, Origin, Team, History,
+  Personality), and every Trait and Power from their profile page as real
+  embedded Items — Powers cross-referenced against the book's own Power
+  Descriptions glossary for their Effect text wherever a match exists, and
+  left as reference-only (not attack-automated) otherwise, the same way
+  Traits already are. **This pack reproduces the book's own copyrighted
+  character write-ups almost verbatim and is included in this local install
+  for personal reference only — it must not be committed to the public
+  GitHub repo or bundled into a public release zip.** See the dedicated
+  section below for exactly what that means in practice.
+- As with 1.5.14/1.5.15, a world already running when this update lands may
+  need its compendium sidebar layout refreshed once (return to Setup and
+  relaunch the world, or a hard refresh of an already-open window) before the
+  new folder and pack appear.
 
-The **Powers (Reference)** and **Gear (Reference)** Item compendiums have been
-removed. Every entry in them (all 307 Powers, all 12 Common Weapons) is
-already documented as browsable text in the **D616 Reference** journal
-compendium added in 1.5.0, so the two Item packs were pure duplication. The
-actual usable, drag-onto-a-sheet Power/Gear items remain available via the
-Wickfield Eight Items (Homebrew) pack and the pregens/adversaries themselves;
-build your own Power/Gear item off the Reference journal's write-up for
-anything beyond that. See "Compendium packs" below.
+## 1.5.15 — Pregens and Homebrew packs joined the Wickfield Eight folder
+
+- **The "Wickfield Eight" sidebar folder now groups all four one-shot packs**:
+  Journals, Adversaries, and — newly added — Pregens and Homebrew. Previously
+  only Journals and Adversaries were grouped; Pregens and Homebrew sat as
+  separate entries at the top level of the Compendium sidebar alongside
+  Marvel D616. Now all of the one-shot's content lives in one folder, and
+  Marvel D616 is the only pack left at the top level.
+- **Renamed to match the other two packs already in the folder:** the
+  `characters` Actor pack is now labeled **Pregens** (previously "Wickfield
+  Eight (Pregens)"), and the `homebrew` Item pack is now labeled **Homebrew**
+  (previously "Wickfield Eight Items (Homebrew)"). As with the 1.5.14 rename,
+  this only changes the label shown in the sidebar — pack contents, IDs, and
+  ownership settings are unchanged.
+- As with 1.5.14, a world that was already running when this update lands
+  may need its compendium sidebar layout refreshed once (return to Setup and
+  relaunch the world, or a hard refresh of an already-open window) before the
+  new grouping appears — the underlying folder assignment lives in the world
+  itself and is picked up on the next real page load, not through a live
+  socket update to an already-open session.
+
+## 1.5.14 — Wickfield Eight packs grouped into a sidebar folder
+
+- **New "Wickfield Eight" folder in the Compendium sidebar** groups the
+  Journals pack and the Adversaries pack together, so the one-shot's two
+  smaller packs sit as one visual group instead of scattered among the
+  system-wide ones. This is a sidebar-only grouping declared in the system
+  manifest (`packFolders`) — each pack keeps its own identity, contents, and
+  ownership settings; nothing about their data changed.
+- **Renamed to avoid repeating "Wickfield Eight" now that it's inside a
+  folder already labeled that:** the `wickfield` JournalEntry pack is now
+  labeled **Journals** (previously "Wickfield Eight"), and the `villains`
+  Actor pack is now labeled **Adversaries** (previously "Wickfield Eight:
+  Adversaries"). Wickfield Eight (Pregens) and Wickfield Eight Items
+  (Homebrew) were unchanged in this release and stayed outside the folder, at
+  the top level — see 1.5.15 above, where they joined the folder too.
+- Foundry only builds a manifest's `packFolders` into the sidebar the first
+  time a world loads that folder configuration; an already-running world
+  needs its compendium sidebar layout reset once to pick up a new folder.
+
+## 1.5.13 — Fixed blank journal pages and empty actor items in every compendium
+
+- **Root cause found and fixed: compendium packs were stored in a format
+  Foundry's own compendium loader doesn't fully support.** Every hand-built
+  pack in this system (`characters`, `homebrew`, `villains`, `marvel-d616`,
+  `wickfield`) stored each document's embedded collection — a JournalEntry's
+  `pages`, an Actor's `items` — as a plain array embedded directly inside that
+  document's own database entry. That's valid JSON and reads back fine with a
+  generic LevelDB tool, but it's **not** the format Foundry itself writes or
+  expects: Foundry's real compendium format splits each embedded page/item
+  out into its own database entry (keyed like
+  `!journal.pages!<entryId>.<pageId>` or `!actors.items!<actorId>.<itemId>`),
+  with the parent document holding only a list of IDs. When the parent's own
+  entry is opened directly instead, Foundry finds no IDs to resolve and
+  silently renders it as empty — the document still shows up in a compendium
+  listing (its own top-level fields are fine), but its journal pages or
+  actor's items come back blank. This is what "items are listed, but blank"
+  was — not a caching issue, despite earlier changelog entries (1.5.7, 1.5.9)
+  guessing that a stale session was to blame. All five packs were rebuilt
+  using Foundry's own official packing library
+  (`@foundryvtt/foundryvtt-cli`) so their on-disk format now matches exactly
+  what a real Foundry install produces. No content changed — every journal
+  page and every actor's Powers/Gear/Traits are byte-for-byte the same text
+  as before, just stored the way Foundry actually reads it.
+
+## 1.5.12 — Wickfield Eight compendium relabeled
+
+- **"Wickfield Eight: Journals" renamed to just "Wickfield Eight."** Same
+  `wickfield` compendium, same three journals — just a shorter label in the
+  sidebar to match the pattern of the other Wickfield Eight packs.
+
+## 1.5.11 — Wickfield Eight journals promoted to their own compendium
+
+- **New compendium: "Wickfield Eight: Journals"** (`wickfield`, later
+  relabeled "Wickfield Eight" in 1.5.12). The three
+  Wickfield Eight-specific write-ups — Homebrew Powers & Gear, Traits, and
+  Adversaries — moved out of the "Wickfield" subfolder inside Marvel D616 and
+  into their own standalone top-level compendium, sitting in the sidebar
+  alongside Marvel D616, Wickfield Eight (Pregens), Wickfield Eight Items
+  (Homebrew), and Wickfield Eight: Adversaries.
+- **Marvel D616 is back to 4 JournalEntries, no subfolder.** How to Play,
+  Character Creation Tutorial, Gear Reference, and Powers Reference — the
+  system-wide material only, with nothing Wickfield-Eight-specific nested
+  inside it anymore.
+
+## 1.5.10 — Wickfield Eight journals restored in a subfolder; reference order fixed (superseded by 1.5.11)
+
+- **Marvel D616 now holds 7 JournalEntries again.** Wickfield Eight — Homebrew
+  Powers & Gear, Wickfield Eight — Traits, and Wickfield Eight — Adversaries
+  are back, this time tucked into a "Wickfield" subfolder inside the
+  compendium instead of sitting at the top level — so the system-wide
+  material (How to Play, Character Creation Tutorial, Gear Reference, Powers
+  Reference) stays front and center, and the Wickfield Eight-specific
+  write-ups are one click away in their own folder rather than removed.
+- **Top-level order fixed to How to Play, Character Creation Tutorial, Gear
+  Reference, then Powers Reference.** Gear Reference now sorts ahead of
+  Powers Reference (previously the reverse).
+
+## 1.5.9 — Wickfield Eight journals removed from Marvel D616 (superseded by 1.5.10)
+
+- **Marvel D616 now holds 4 JournalEntries instead of 7.** Wickfield Eight —
+  Homebrew Powers & Gear, Wickfield Eight — Traits, and Wickfield Eight —
+  Adversaries are gone from the compendium — they were read-only write-ups of
+  content that already exists as real, playable documents (the `homebrew`
+  Item pack, each pregen's own Powers/Gear/Traits tabs, and the `villains`
+  Actor pack), so nothing playable was lost, just a duplicate description of
+  it. Marvel D616 is now scoped to system-wide material only: How to Play,
+  Character Creation Tutorial, Powers Reference, and Gear Reference. See
+  "Marvel D616 (tutorials & full reference)" below for where the removed
+  content actually lives now.
+
+## 1.5.8 — Compendiums consolidated into Marvel D616
+
+- **All tutorials and reference journals merged into one compendium,
+  "Marvel D616."** The `tutorial` pack (Character Creation Tutorial, How to
+  Play — Core Mechanics) and the `reference` pack (Powers Reference, Gear
+  Reference, Wickfield Eight Homebrew Powers & Gear, Traits, Adversaries) are
+  gone as separate compendiums; all 7 of their JournalEntries now live
+  together in the new `marvel-d616` pack, with How to Play and Character
+  Creation Tutorial at the top. Same content, same pages — just one place to
+  look instead of two.
+- **Powers (Reference) and Gear (Reference) Item packs removed.** These held
+  all 307 Powers and all 12 Common Weapons as draggable, ready-to-use items.
+  Removed as of this version — see "Marvel D616 (tutorials & full reference)"
+  below for the verification done before deleting them (a full name-by-name
+  diff plus a mechanical-field spot-check confirming the Powers/Gear
+  Reference journals already contain everything those packs did) and for how
+  to add a Power or weapon to a sheet by hand now that they're gone.
+
+## 1.5.7 — "How to Play" mechanics tutorial
+
+- **"How to Play — Core Mechanics"** (new JournalEntry in the `tutorial`
+  pack, alongside the existing Character Creation Tutorial) — an 8-page
+  walkthrough of actually running a session: the core 2d6 + Marvel Die roll
+  and what Fantastic/Green/Ultimate Fantastic mean, Edge & Trouble and where
+  they come from, the Standard Actions available on your turn, the full
+  attack/Defense/damage formula (including how Damage Reduction actually
+  applies), Focus costs (flat and scaling) and passive Powers/Gear, Karma
+  (spending it for Edge/Trouble, Karma-fueled recovery, Rest & Recover,
+  awarding it), Health/Focus going negative and the automatic Unconscious/
+  Demoralized/Shattered/Killed status icons (plus which Conditions are
+  reminders only, not automated), and Team Maneuvers, closing with a
+  one-screen quick-reference. Cross-checked page by page against this
+  system's own formulas (`module/dice/marvel-roll.mjs`,
+  `module/documents/actor.mjs`, `module/data/actor-character.mjs`,
+  `module/helpers/conditions.mjs`, `module/helpers/team-maneuver.mjs`), not
+  just the book, so it describes what this Foundry system actually does for
+  you, including the few places it intentionally leaves something manual.
+
+## 1.5.6 hotfix
+
+- **Roll card die order fixed: white, Marvel Die, white.** The 2d6 + Marvel
+  Die chat card was displaying the two white dice first and the red Marvel
+  Die last. It now shows the Marvel Die between the two white dice, matching
+  how the physical dice are laid out in the book. Pure display change — the
+  underlying roll math and Fantastic/Green detection are untouched.
+
+## 1.5.5 — Portrait crop/resize tool
+
+Clicking the character portrait no longer jumps straight to Foundry's plain
+file browser — it opens a small crop/resize dialog so a player can point it
+at any photo or art (any size, any aspect ratio) and fit it into the
+hexagonal frame themselves, instead of needing to pre-crop the file in
+another program first.
+
+- **Pick a source two ways**: upload a file straight from your computer
+  (or drag one onto the dialog), or browse the files already on the server
+  the way the old file picker did.
+- **Pan and zoom, not a movable crop box.** The preview *is* the crop — drag
+  the image to reposition it, scroll or use the slider to zoom in. It's
+  locked to the portrait box's aspect ratio (13:15) and can never zoom out
+  past "fills the frame," so there's no way to end up with gaps or a
+  stretched result.
+- **Shift-click the portrait** to skip the cropper and open the old plain
+  file picker instead, for anyone who'd rather just point it at an
+  already-correctly-sized image.
+- **Saved image lands under `worlds/<world>/assets/portraits/`** as a new
+  PNG (the original file is never modified), then the character's `img` is
+  updated to point at it.
+- **Uploading needs the "Players can Upload New Files" world permission.**
+  By default only the Gamemaster can upload new files in a fresh Foundry
+  world — a player without it will get a clear error telling them to ask
+  their GM, and can fall back to "Choose Existing Image" (browsing files
+  already on the server) in the meantime. A GM who wants players to use the
+  upload option should enable it once under **Game Settings → Configure
+  Permissions**.
+- Built as `module/apps/image-cropper.mjs` — a small ApplicationV2 dialog,
+  not a bundled third-party library, so there's nothing extra to install.
+
+## 1.5.4 hotfix
+
+- **Character portrait is another 20% larger.** `.mm-hero-portrait-block`
+  grew from 143×165px (the 1.5.2 size) to 172×198px. Rank/Karma badge size
+  and position are unchanged — they're sized independently of the portrait,
+  so they now read as a bit smaller relative to it than before.
+
+## 1.5.3 — Real icons for Powers, Gear, and Traits
+
+Every Power, Gear item, and Trait across the reference compendiums, the
+Wickfield Eight homebrew items, and the pregens/adversaries' own owned items
+(370 uniquely-named items in all) now points at a small, themed SVG icon
+instead of Foundry's generic default art (`icons/svg/aura.svg`, `book.svg`,
+and similar) — so a Powers or Traits tab full of items reads at a glance
+instead of as a wall of identical dice/books.
+
+- **Icons come from [game-icons.net](https://game-icons.net)**, a large
+  (4,000+ icon), actively-maintained, Foundry-community-standard set licensed
+  CC BY 3.0 (a handful of contributors release theirs CC0). 75 icons across 7
+  artists ended up used, kept under `icons/game-icons/` and renamed
+  `<artist>_<icon-name>.svg` so each file's origin stays traceable. Each was
+  stripped of the flat background shape the raw files ship with (the actual
+  glyph is a separate white silhouette layered on top of it), leaving a clean
+  transparent-background icon.
+- **Mapping was keyword-driven**, not hand-picked one at a time: each item's
+  name was matched against a set of thematic categories (fire, ice,
+  lightning, teleport, psychic/mental, defense, stealth, illusion, healing,
+  speed, flight, size change, melee, marksmanship, leadership, and so on),
+  falling back to an exact-name lookup for the handful of items whose name
+  doesn't carry a clean keyword (things like "Shape-Shift" or "Full
+  Strength"). It's a best-effort thematic match, not a curated one — if an
+  icon looks off for a given Power, swapping its `img` on the item sheet is
+  the fix, same as any other item art.
+- **The existing light-mode icon-color fix (from 1.5.2) still applies
+  unchanged.** These icons are white-on-transparent SVGs, same as the
+  Foundry defaults they replaced, so they'd have gone invisible against
+  light mode's near-white row background the same way — the `.mm-item
+  .item-img` filter that recolors them to red in light mode (and leaves them
+  alone in dark mode) already handles that with no changes needed.
+- **Keeping a live world's actors in sync.** The name→icon mapping ships as
+  `icons/game-icons/name_to_icon.json`, and a copy of the Wickfield Eight
+  (and any adversaries) placed into a world are separate documents from the
+  compendium — they don't pick up icon changes automatically. A "Sync Actor
+  Icons" script macro fetches that JSON and updates every owned Power/Gear/
+  Trait's `img` across `game.actors` to match by name; it's idempotent, so
+  re-running it after any future icon-mapping change is enough to bring a
+  world's actors back in line with the compendium.
+
+### Icon credits
+
+Per game-icons.net's license, each contributor whose icons ended up in this
+release is credited below (icons made by, followed by where to find them):
+
+- Icons made by [Delapouite](http://delapouite.com)
+- Icons made by [Lorc](http://lorcblog.blogspot.com)
+- Icons made by [Sbed](http://opengameart.org/content/95-game-icons)
+- Icons made by Skoll
+- Icons made by [DarkZaitzev](http://darkzaitzev.deviantart.com)
+- Icons made by [John Colburn](http://ninmunanmu.com)
+- Icons made by the game-icons.net "badges" set
+
+All available at [game-icons.net](https://game-icons.net), under CC BY 3.0.
 
 ## 1.5.2 hotfix
 
-Root-caused and fixed why the Character Creation Tutorial journal opened but
-showed no pages: Foundry's LevelDB compendium format requires every embedded
-sub-document (an Actor's items, a JournalEntry's pages) to be written as its
-own entry with a compound key, with the parent document holding only an
-array of ids. The packs shipped in 1.5.0/1.5.1 instead stored the full nested
-objects inline with no key metadata — the parent document opened fine (its
-name and top-level fields were real) but Foundry resolved the embedded
-collection as empty. This affected every pack with embedded sub-documents:
-`tutorial` and `reference` (0 pages), and `characters`/`villains` (0
-Powers/Gear/Traits on every actor). All seven packs were rebuilt through
-`@foundryvtt/foundryvtt-cli`'s own `fvtt package pack`, so they now use the
-exact on-disk structure Foundry itself produces — verified by round-tripping
-every pack through the official unpacker with no errors, and a deep content
-diff confirming nothing was lost in the rebuild.
+Header layout tweaks and another light-mode-only visibility bug:
 
-Also fixed: the Health/Focus recovery button tooltips were showing the
-literal text `{name} recovers Health` / `{name} recovers Focus` instead of
-the actor's name — `header.hbs` called the `localize` helper without passing
-`name` as a hash argument, so the `{name}` placeholder never got substituted.
+- **Character portrait is 10% larger.** `.mm-hero-portrait-block` grew from
+  130×150px to 143×165px.
+- **Karma badge moved back to the bottom-right corner of the portrait**, to
+  mirror the Rank badge at the top-left. Both badges now share one clip-path
+  (a symmetric notched octagon), so the shape reads identically in either
+  corner instead of Karma using its own asymmetric notch tuned for the
+  right-edge position it briefly had in 1.5.1.
+- **Power/Gear/Trait item icons were invisible in light mode.** These rows
+  use Foundry's default item art (`icons/svg/aura.svg`, `book.svg`, etc. —
+  whatever the item didn't get a custom icon), which renders light/white.
+  That's fine in dark mode, where the row's backdrop (`.mm-item::before`,
+  `var(--mm-cream)`) is dark — but in light mode `--mm-cream` is a near-white
+  cream, so a white icon on a near-white row disappeared entirely. Added a
+  `filter` on `.mm-item .item-img` that flattens the icon to a black
+  silhouette (`brightness(0)`, which works regardless of the source icon's
+  original color) and recolors it to match `--mm-red`; reset to `filter: none`
+  under `.theme-dark` since dark mode wasn't broken.
 
 ## 1.5.1 hotfix
 
-The `tutorial` and `reference` compendium packs declared in `system.json`
-had never actually landed in the repo: their LevelDB files were uploaded to
-the repo root instead of `packs/tutorial`/`packs/reference`, where they
-silently collided by filename with an earlier upload. Restored both to their
-correct location. Also: `module/sheets/actor-sheet.mjs` and the Powers/Gear/
-Traits row templates in the tracked source were a stale revision missing the
-1.5.0 hover-tooltip feature — the working version had only ever reached the
-release zip, not git. Added `.gitattributes` so Windows git clones can no
-longer corrupt the LevelDB compendium files via line-ending conversion.
+Two light-mode-only layout bugs on the main tab:
+
+- **Damage panel text was invisible in light mode.** `.mm-styled-container-body`'s
+  background is a gradient from `--mm-dark-red` at the top fading to plain
+  `--mm-cream` by 40% down; with six ability rows stacked in the Damage panel,
+  most of them land on that later, cream portion. Their label text (the ability
+  name and the "+" separator) was hardcoded `color: white`, which disappears
+  against light-mode cream (dark-mode cream is dark, so it wasn't visible
+  there). Switched to `var(--mm-ink)`, the same theme-aware token the
+  `[ ×N ] + M` boxes in that same panel already used correctly.
+- **Longer `<h3>` section headers (e.g. "Standard Actions") were clipped.**
+  `.mm-styled-container`'s chamfered corner-notch `clip-path` used fixed pixel
+  thresholds (100px/128px) tuned for short labels like "Damage" or "Gear" —
+  anything wider had its trailing characters cut off by the same notch, since
+  the notch's geometry doesn't derive from the header's actual rendered width.
+  Widened the flat run before the notch (180px/208px) to clear the longest
+  header currently in use.
+
+Also removed a stray, unscoped `.mm-karma-block { position: relative; }` rule
+left over near the dark-theme overrides (not actually gated by `.theme-dark`)
+that was silently overriding the Karma badge's real `position: absolute` rule
+later in the cascade — found while repositioning that badge to the right side
+of the portrait box instead of the bottom-right corner.
 
 ## 1.5.0 — Tutorial & Reference compendiums, sheet tooltips
 
@@ -274,29 +548,21 @@ For each character:
 
 ## Compendium packs
 
-The book's official Powers and Gear catalog — all 307 individual Powers from
-the Power Descriptions chapter across its ~20 Power Sets, and the full Common
-Weapons table (Pistol, Bow, Rifle, Sniper Rifle, Shotgun, Submachine Gun, Frag
-Grenade, Flash-Bang Grenade, Club, Knife, Knife/Thrown, Sword) — is documented
-as browsable reference text inside the **D616 Reference** journal compendium
-(see "Tutorial & full Reference journals" below), built directly from the
-printed **Marvel Multiverse RPG Core Rule Book** (Marvel Entertainment /
-Hasbro). It previously also shipped as two separate ready-to-use Item
-compendiums (**Powers (Reference)** / **Gear (Reference)**); those were
-removed since every entry in them is already covered by the Reference
-journal's write-up, and the actual usable Power/Gear items you'd drag onto a
-sheet live in the Wickfield Eight Items (Homebrew) pack and on the pregens
-themselves — see "The Wickfield Eight (pregens)" below.
+As of 1.5.8, the book's full Powers and Common Weapons catalog lives as
+**browsable reference journals** inside the single **Marvel D616** compendium
+(see "Marvel D616 (tutorials & full reference)" below) rather than as separate
+draggable Item compendiums — see that section for what changed, why, and how to
+still get a Power or Gear item onto a sheet now that the Item packs are gone.
 
 **How the content was sourced, and why it's written the way it is.** Game rules,
 mechanics, names, numbers, and other functional facts (a Power's name and Power
 Set, its Action type/Duration/Range/Focus cost, whether and how it attacks, its
 damage-multiplier or Health Damage Reduction bonus, a weapon's range and damage
 bonus) are not protected by copyright — they're the game's factual rules, and
-every entry in this reference reproduces those facts exactly as printed. The
-book's own descriptive sentences, however — its prose — **are** the publisher's
+every entry reproduces those facts exactly as printed. The book's own
+descriptive sentences, however — its prose — **are** the publisher's
 copyrighted expression, and reproducing them at compendium scale isn't something
-I'm able to do, attribution or no. So every effect write-up is **original
+I'm able to do, attribution or no. So every mechanical summary is **original
 wording**, independently written from the same underlying rules facts rather
 than copied or lightly reworded from the book's text. If a line of this
 reference and a line of the book read alike, it's very likely because there's
@@ -308,11 +574,13 @@ A few individual powers had no numeric Focus cost or fully explicit attack/defen
 pairing in the source text (e.g. a handful of "Varies" costs, or powers whose
 description implies rather than states an ability); those were filled in with the
 most reasonable, rules-consistent interpretation rather than left blank or
-invented wholesale — treat those as a sensible default you're free to override
-if you build your own Power/Gear item off this reference, not as a book
-citation.
+invented wholesale — treat those as a sensible default, not as a book citation.
+As of 1.5.3, every Power, Gear item, and Trait in the Wickfield Eight homebrew
+items and on the pregens/adversaries themselves ships with a themed icon from
+[game-icons.net](https://game-icons.net) instead of a generic placeholder; see
+"Icon credits" below. You're still free to swap in your own `img` on any item.
 
-This reference is for your own use and play at the table — it is not a
+This journal is for your own reference and play at the table — it is not a
 substitute for owning the book, which is where all the flavor text, examples, and
 setting material actually live.
 
@@ -320,20 +588,25 @@ setting material actually live.
 
 Two more packs ship the eight original pregenerated characters from
 `wickfield_pregens.md` (see that file for the printable/readable version, including
-the one-shot hook and table-running notes) as ready-to-drop-in Foundry documents:
+the one-shot hook and table-running notes) as ready-to-drop-in Foundry documents.
+As of 1.5.15 both packs sit inside the **Wickfield Eight** folder in the
+Compendium sidebar alongside Journals and Adversaries, and are labeled to match
+(no more repeating "Wickfield Eight" now that the folder already says it):
 
-- **Wickfield Eight (Pregens)** (`characters`, Actor pack) — Bulwark, Ricochet,
-  Wisp, Nightglass, Circuit, Amberlight, Permafrost, and The Latch, Rank 2, with
-  Ability scores set and Health/Focus/Karma/Defenses/Speed/Initiative all deriving
-  correctly from them. Each one's Biography tab is filled in with a full original
-  History and Personality write-up (not just the one-line hooks from the printable
-  sheet), plus Real Name/Occupation/Origin/Team. Each actor's Powers, Gear, and
-  Traits tabs come pre-populated with that character's actual items — drag one out
-  of the compendium and it's playable immediately, no manual data entry.
-- **Wickfield Eight Items (Homebrew)** (`homebrew`, Item pack) — the same 24
-  Powers, 6 Gear, and 24 Traits used by the eight pregens, as standalone reference
-  items, in case you want to browse, reuse, or hand one to a different character
-  without opening a pregen's sheet.
+- **Pregens** (`characters`, Actor pack, previously labeled "Wickfield Eight
+  (Pregens)") — Bulwark, Ricochet, Wisp, Nightglass, Circuit, Amberlight,
+  Permafrost, and The Latch, Rank 2, with Ability scores set and
+  Health/Focus/Karma/Defenses/Speed/Initiative all deriving correctly from
+  them. Each one's Biography tab is filled in with a full original History and
+  Personality write-up (not just the one-line hooks from the printable sheet),
+  plus Real Name/Occupation/Origin/Team. Each actor's Powers, Gear, and Traits
+  tabs come pre-populated with that character's actual items — drag one out of
+  the compendium and it's playable immediately, no manual data entry.
+- **Homebrew** (`homebrew`, Item pack, previously labeled "Wickfield Eight
+  Items (Homebrew)") — the same 24 Powers, 6 Gear, and 24 Traits used by the
+  eight pregens, as standalone reference items, in case you want to browse,
+  reuse, or hand one to a different character without opening a pregen's
+  sheet.
 
 Two of the eight carry actual physical equipment rather than an innate power, and
 those are typed as **Gear** (not Power) so they use Gear's own weapon mechanics
@@ -348,8 +621,8 @@ ships at 0 (no fabricated bonus) — bump it on the item sheet if you want one o
 them running upgraded gear.
 
 The rest of the pregens' powers are intentionally simpler than the book's own
-Powers documented in the D616 Reference journal: per `wickfield_pregens.md`'s
-own note, their Focus costs
+Powers, as browsable in the Powers Reference journal (see below): per
+`wickfield_pregens.md`'s own note, their Focus costs
 and damage numbers are **streamlined flat values for pick-up-and-play speed**, not
 the book's own `(Marvel Die × Multiplier) + Modifier` formula. To keep that design
 intent intact rather than silently overriding it, each attack power's (and Gear
@@ -363,8 +636,10 @@ text.
 
 ### The one-shot's adversary
 
-A third Actor pack, **Wickfield Eight: Adversaries** (`villains`), gives the pregens something to fight,
-built around the same "rolling blackouts closing in on the fundraiser" hook from
+A third Actor pack, **Adversaries** (`villains`) — grouped with Pregens,
+Homebrew, and the Journals pack below inside the "Wickfield Eight" folder in
+the Compendium sidebar — gives the pregens something to fight, built around
+the same "rolling blackouts closing in on the fundraiser" hook from
 `wickfield_pregens.md`:
 
 - **Brownout** (Rosalind "Ross" Kade) — Rank 4 villain. A Kade Electric heir who lost the family's
@@ -374,54 +649,169 @@ built around the same "rolling blackouts closing in on the fundraiser" hook from
   drains someone, and her finisher, Full Strength, only unlocks once she's stacked it three times —
   mechanically reproducing the hook's "she'll be at full strength by the night of the fundraiser."
 - **Kade's Enforcer** — Rank 1 henchman template (not a single named character — duplicate the actor
-  for as many Enforcers as a scene needs), hired muscle armed with a Pistol Gear item (see the Common
-  Weapons table in the D616 Reference journal), meant to be a speed bump rather than a real threat to
-  a team of Rank 2 heroes.
+  for as many Enforcers as a scene needs), hired muscle armed with a Pistol (a real, working Gear item
+  embedded right on its sheet, same as any pregen's gear), meant to be a speed bump rather than a real
+  threat to a team of Rank 2 heroes.
 
 Both are built the same way as the Wickfield Eight themselves: full History/Personality on the
 Biography tab, and their Powers/Traits/Gear pre-populated as real embedded Items. Brownout's Power
 Surge and Full Strength are reference-only entries (like a couple of the heroes' own powers) since a
 scene-cumulative stacking counter isn't something a static sheet field can track — run it by hand.
 
-### Tutorial & full Reference journals
+### Journals (Wickfield Eight folder)
 
-Two JournalEntry compendiums round out the packs above:
+A fourth compendium, **Journals** (`wickfield`, JournalEntry pack), holds
+three journals documenting the Wickfield Eight one-shot specifically —
+separate from the system-wide Marvel D616 compendium below, so neither
+clutters the other. It sits inside the **Wickfield Eight** folder in the
+Compendium sidebar together with Adversaries, Pregens, and Homebrew, so all
+four one-shot-specific packs are grouped rather than scattered among the
+system-wide ones (as of 1.5.15, Marvel D616 is the only pack left at the top
+level); every pack keeps its own identity and contents, the folder just
+organizes where they show up in the sidebar.
 
-- **Character Creation Tutorial** (`tutorial`) — one JournalEntry, 7 pages, walking
-  through the book's own 5-step process (Rank → Ability Scores → Backstory →
-  Powers/Gear → Other Scores) with the exact Ability Score Points and
-  Resources-by-Rank tables, then a full worked example building Bulwark from a
-  blank sheet, step by step, with every derived number (Health, Focus, Karma,
-  Speed, Initiative) cross-checked against `actor-character.mjs`'s actual
-  formulas rather than hand-waved. Same sourcing discipline as everywhere else
-  in this system: the book's tables and formulas are reproduced exactly, all
-  prose and the worked example are original.
-- **D616 Reference** (`reference`) — six JournalEntries compiling the entire
-  `d616_powers_traits_reference.md` (see the "Compendium packs" sourcing note
-  above — same rules-facts-exact/prose-original discipline) into a browsable
-  in-Foundry form: **Powers Reference — Core Rulebook** (25 pages, one per
-  Power Set), **Gear Reference — Common Weapons**, **Traits Reference — Core
-  Rulebook** (the book gives Traits no fixed catalog the way it does Powers
-  and Gear — this page covers its guidance on writing your own, tied to
-  backstory, plus a handful of worked examples), **Wickfield Eight — Homebrew
-  Powers & Gear** (8 pages, one per pregen), **Wickfield Eight — Traits** (8
-  pages, one per pregen), and **Wickfield Eight — Adversaries**.
+- **Wickfield Eight — Homebrew Powers & Gear**
+- **Wickfield Eight — Traits**
+- **Wickfield Eight — Adversaries**
 
-All packs are built with `@foundryvtt/foundryvtt-cli`'s own `fvtt package pack`
-against a source directory of plain per-document JSON files (embedded
-Actor items / JournalEntry pages included as normal nested arrays in that
-JSON — the same shape a world export uses). `pack` is what splits each
-embedded sub-document into its own LevelDB entry with a compound key
-(`!actors.items!<actorId>.<itemId>`, `!journal.pages!<journalId>.<pageId>`),
-which is the layout Foundry's client actually expects when reading a
-compendium; a parent document that instead stores its `items`/`pages` as
-full nested objects inline (rather than an array of ids, with the real
-sub-documents each keyed separately) opens fine — its name and top-level
-fields show up — but the client resolves its embedded collection as empty,
-so an Actor shows no Powers/Gear/Traits and a JournalEntry shows no pages.
-If you regenerate any pack from source, feed `fvtt package pack` a directory
-of per-document JSON files (nested `items`/`pages` arrays are fine — the
-tool handles the split) rather than writing LevelDB entries by hand.
+These are read-only restatements, not the source of truth — the same
+Powers/Gear are the `homebrew` Item pack's real items (and are already
+embedded on each pregen's Powers/Gear tab), the same Traits are the real
+Trait items already embedded on each pregen's Traits tab (click one to post
+its effect to chat, same as always), and Brownout/Kade's Enforcer are the
+real Actors in the `villains` pack. Treat this compendium as a quick,
+browsable summary of the one-shot's homebrew content, not a second copy you
+need to keep in sync by hand — the playable documents it summarizes are the
+ones that actually matter at the table.
+
+### Journals (Marvel D616 folder)
+
+One JournalEntry compendium, **Journals** (`marvel-d616`, previously labeled
+"Marvel D616" — see the 1.5.16 changelog entry above), holds the system-wide
+tutorials and core-rulebook reference — 4 JournalEntries, nothing one-shot-specific
+mixed in (see "Journals (Wickfield Eight folder)" above for that one — same
+pack label, different compendium, so tell them apart by which sidebar folder
+they sit in). As of 1.5.16 it sits inside its own **Marvel D616** folder in the
+Compendium sidebar, alongside the new Heroes & Villains pack below:
+
+- **How to Play — Core Mechanics** — 8 pages covering actually running a
+  session: the core 2d6 + Marvel Die roll and Fantastic/Green/Ultimate
+  Fantastic, Edge & Trouble and every source that can grant them, Standard
+  Actions on your turn, the full attack/Defense/damage formula (including how
+  Damage Reduction really applies, to the multiplier rather than the final
+  total), Focus costs and passive Powers/Gear, Karma in all its forms,
+  Health/Focus going negative with the automatic status conditions (and which
+  Conditions are reminders only), and Team Maneuvers, ending on a one-screen
+  quick reference. Cross-checked page by page against this system's own code
+  (`marvel-roll.mjs`, `documents/actor.mjs`, `actor-character.mjs`,
+  `conditions.mjs`, `team-maneuver.mjs`) rather than the book alone, so it
+  documents what this Foundry system actually automates for you — including
+  the parts (Traits, most Conditions' numeric effects) it deliberately leaves
+  manual (see "What's intentionally manual" below).
+- **Character Creation Tutorial** — 7 pages walking through the book's own
+  5-step process (Rank → Ability Scores → Backstory → Powers/Gear → Other
+  Scores) with the exact Ability Score Points and Resources-by-Rank tables,
+  then a full worked example building Bulwark from a blank sheet, step by
+  step, with every derived number (Health, Focus, Karma, Speed, Initiative)
+  cross-checked against `actor-character.mjs`'s actual formulas rather than
+  hand-waved. Same sourcing discipline as everywhere else in this system: the
+  book's tables and formulas are reproduced exactly, all prose and the worked
+  example are original.
+- **Gear Reference — Common Weapons** — the book's full Common Weapons table
+  (Pistol, Bow, Rifle, Sniper Rifle, Shotgun, Submachine Gun, Frag Grenade,
+  Flash-Bang Grenade, Club, Knife, Knife/Thrown, Sword).
+- **Powers Reference — Core Rulebook** — 25 pages (one per Power Set), all 307
+  individual Powers from the book's Power Descriptions chapter.
+
+Compiled from the book-facing portion of `d616_powers_traits_reference.md`
+(same rules-facts-exact/prose-original discipline as everywhere else — see
+the sourcing note above) plus the two tutorials, all into one browsable,
+in-Foundry compendium that's about the *system*, not any specific campaign.
+
+### Heroes & Villains
+
+A new Actor pack, **Heroes & Villains** (`heroes-villains`), sitting in the
+**Marvel D616** folder in the Compendium sidebar alongside Journals: the full
+128-character roster from the core rulebook's Character Profiles chapter
+(Abomination through Wong), each built out the same way the Wickfield Eight
+pregens and Adversaries are —
+
+- **Rank, all six Abilities, Health/Focus/Karma, Size, and Movement** (including
+  Glide/Swingline/Fly/Teleport where the character has them) set exactly as
+  printed, with Speed derived the same way the rest of this system derives it.
+- **Full Biography tab** — Real Name, Occupation, Origin, Team, and the book's
+  own History and Personality write-ups for that character, reproduced as
+  printed (this is the copyrighted material the warning above refers to).
+- **Every Trait and Power from the character's profile page as a real,
+  embedded Item** — Traits are reference-only (as they are everywhere else in
+  this system), and Powers are cross-referenced by name against the book's own
+  Power Descriptions glossary: where a match is found, the Power's Effect text,
+  Action, Duration, Range, and Focus cost come from that glossary entry (~99%
+  of the roster's ~1,700 power instances matched); a handful of one-off or
+  ambiguously-named powers that had no clean glossary match instead carry a
+  short note pointing you to the character's own page in the book. As with
+  every Power in this system, these are **not attack-automated**
+  (`attack.enabled`/`passive.enabled` are both off) — 128 characters' worth of
+  powers is far too much to safely auto-mechanize sight-unseen, so treat them
+  the way you'd treat a Trait: reference text you apply by hand, not a button
+  that rolls dice for you. Feel free to wire up automation yourself on any
+  individual character you plan to actually run.
+
+Because every character's write-up is close to a direct transcription of its
+book page, **this pack does not get its own name-by-name public-domain-facts
+verification** the way the system-wide Powers/Gear Reference journals do —
+there's no attempt here to separate "rules facts" from "the book's prose" the
+way the rest of this README describes, since the whole point of this pack was
+a faithful private copy of the book's own roster. That's exactly why it stays
+out of the public repo.
+
+**1.5.11 — Wickfield Eight journals moved out to their own compendium.** The
+three Wickfield Eight-specific journals lived here briefly as a "Wickfield"
+subfolder (1.5.10) and, before that, as loose top-level entries removed
+entirely (1.5.9). As of 1.5.11 they've moved out for good, into their own
+standalone **Wickfield Eight** compendium — see that section below.
+Marvel D616 stays scoped to system-wide material only: how to play, how to
+build a character, and the book's own Powers and Gear.
+
+**1.5.8 — Powers (Reference) and Gear (Reference) Item packs removed.**
+Earlier versions also shipped `powers` and `gear` as separate Item
+compendiums — all 307 Powers and all 12 Common Weapons as real, draggable
+Gear/Power items with their mechanical fields already filled in, so you could
+drag one straight onto a sheet instead of building it by hand. As of 1.5.8
+those two Item packs are gone; the Powers Reference and Gear Reference
+journals above are now the only copy of that content. Before removing them, I
+verified the journals are a complete substitute for the Item packs'
+**information** (not their drag-and-drop convenience — see below): every one
+of the 307 Power names and all 12 weapon names appear in the journals
+verbatim (a scripted diff against both packs' actual item names, byte for
+byte), and a spot-check across 16 Powers plus all 12 weapons confirmed their
+Focus cost, attack ability/Defense target, damage flag, and passive bonuses
+match the journal's mechanical-summary text exactly, field for field. So
+nothing described in the old Item packs is missing from the journal text.
+
+What you lose is the convenience of dragging a pre-built item straight onto a
+sheet — a Power or a weapon from the book now has to be added by hand: **Add
+Power** (or **Add Gear**) on the sheet, then copy the Focus cost, Action,
+attack ability/Defense target, and damage-multiplier bonus straight off that
+Power's or weapon's line in the Powers/Gear Reference journal into the item's
+own fields (the journal spells out every one of those numbers explicitly for
+exactly this purpose). It's a few more clicks per item than dragging one in,
+but keeps the system to a single compendium of tutorials and reference
+material instead of maintaining the same 319 facts in two different document
+types. The Wickfield Eight's own items (`homebrew`), and everything already
+embedded on the pregens/adversaries, are untouched — those were never part of
+the Powers (Reference)/Gear (Reference) packs and still drag on and play
+exactly as before.
+
+Marvel D616 was hand-built directly against the same ClassicLevel/LevelDB
+format Foundry itself writes (see `packs/marvel-d616`), the same approach
+already used for `characters`/`homebrew`/`villains` — the `fvtt-cli`'s own
+`pack`/`unpack` commands expect a JournalEntry's pages (or an Actor's items)
+to already be split into their own sublevel keys the way its own `pack` step
+would produce them, and error out on a plain embedded array even though
+Foundry's client reads a plain embedded array back correctly (as the shipped
+Actor packs already prove, live). If you regenerate this pack from source,
+build it the same way rather than through `fvtt package pack`.
 
 ## Visual design
 
@@ -474,7 +864,8 @@ d616/
 ├── README.md
 ├── wickfield_pregens.md          (printable Wickfield Eight pregen sheets)
 ├── d616_powers_traits_reference.md (every Power + Gear + Trait in the compendiums, one document —
-│                                   source content for the "reference" pack and the sheet tooltips)
+│                                   source content for the Marvel D616 pack's reference journals and
+│                                   the sheet tooltips)
 ├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer)
 ├── lang/en.json
 ├── module/

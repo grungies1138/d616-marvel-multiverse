@@ -1,0 +1,47 @@
+<div class="d616-cropper-body">
+  <input type="file" accept="image/*" class="d616-cropper-file-input" hidden />
+
+  {{#unless hasImage}}
+  <div class="d616-cropper-picker">
+    <p class="hint">{{localize "D616.ImageCropper.PickHint"}}</p>
+    <div class="d616-cropper-picker-actions">
+      <button type="button" class="d616-cropper-btn" data-action="pickUpload">
+        <i class="fa-solid fa-upload"></i> {{localize "D616.ImageCropper.UploadButton"}}
+      </button>
+      <button type="button" class="d616-cropper-btn" data-action="pickExisting">
+        <i class="fa-solid fa-folder-open"></i> {{localize "D616.ImageCropper.BrowseButton"}}
+      </button>
+    </div>
+  </div>
+  {{else}}
+  <div class="d616-cropper-editor">
+    <div class="d616-cropper-canvas-wrap">
+      <canvas class="d616-crop-canvas" width="{{viewW}}" height="{{viewH}}"></canvas>
+    </div>
+    <div class="d616-cropper-controls">
+      <label class="d616-cropper-zoom-label">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="range" class="d616-crop-zoom" min="1" max="4" step="0.01" value="1" />
+      </label>
+      <div class="d616-cropper-controls-row">
+        <button type="button" class="d616-cropper-btn -sm" data-action="reset">
+          <i class="fa-solid fa-arrows-rotate"></i> {{localize "D616.ImageCropper.ResetButton"}}
+        </button>
+        <button type="button" class="d616-cropper-btn -sm" data-action="changeImage">
+          <i class="fa-solid fa-image"></i> {{localize "D616.ImageCropper.ChangeButton"}}
+        </button>
+      </div>
+    </div>
+    <p class="hint d616-cropper-footnote">{{localize "D616.ImageCropper.DragHint"}}</p>
+  </div>
+  {{/unless}}
+
+  <footer class="d616-cropper-footer">
+    <button type="button" class="d616-cropper-btn" data-action="cancel">
+      {{localize "D616.ImageCropper.CancelButton"}}
+    </button>
+    <button type="button" class="d616-cropper-btn -primary" data-action="save" {{#unless hasImage}}disabled{{/unless}}>
+      <i class="fa-solid fa-check"></i> {{localize "D616.ImageCropper.SaveButton"}}
+    </button>
+  </footer>
+</div>

@@ -65,6 +65,7 @@
         "biography": "Biography"
       },
       "Rank": "Rank",
+      "EditPortraitHint": "Click to crop/resize a portrait. Shift-click to pick a file directly.",
       "Codename": "Codename",
       "History": "History",
       "Personality": "Personality",
@@ -141,6 +142,23 @@
       "MovementHint": "Run/Climb/Jump/Swim are automatic (Climb/Jump/Swim default to half Run Speed). Glide/Swingline/Fly/Teleport only appear once a power grants them (set on the actor's movement fields).",
       "StandardActions": "Standard Actions",
       "StandardActionsHint": "Dodge/Help/Grab/Escape and Team Maneuvers per the book (p.29-31, p.38-39). Grab/Escape/Help use your current target(s) via normal Foundry targeting."
+    },
+    "ImageCropper": {
+      "Title": "Crop Portrait",
+      "PickHint": "Choose an image to crop into a portrait.",
+      "UploadButton": "Upload from Computer",
+      "BrowseButton": "Choose Existing Image",
+      "ResetButton": "Reset",
+      "ChangeButton": "Change Image",
+      "CancelButton": "Cancel",
+      "SaveButton": "Save Portrait",
+      "DragHint": "Drag to reposition, scroll or use the slider to zoom. The crop always fills the frame.",
+      "NotAnImage": "That file isn't an image.",
+      "LoadError": "Couldn't load \"{name}\" as an image.",
+      "NoImage": "Choose an image first.",
+      "NoPermission": "You don't have permission to change this character's portrait.",
+      "Saved": "{name}'s portrait was updated.",
+      "UploadError": "Couldn't save the cropped portrait. If you're not the Gamemaster, ask them to enable \"Players can Upload New Files\" in World Settings → Manage Permissions, or use \"Choose Existing Image\" instead."
     },
     "Settings": {
       "SheetTheme": {

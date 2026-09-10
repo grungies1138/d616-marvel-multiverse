@@ -1,6 +1,7 @@
 import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
 import { openTeamManeuverDialog } from "../helpers/team-maneuver.mjs";
 import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
+import D616ImageCropper from "../apps/image-cropper.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -476,12 +477,24 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     });
   }
 
-  static #onEditImage() {
-    const FP = foundry.applications?.apps?.FilePicker ?? FilePicker;
-    new FP({
-      type: "image",
-      current: this.document.img,
-      callback: (path) => this.document.update({ img: path })
-    }).browse();
+  /**
+   * Opens the crop/resize dialog (see module/apps/image-cropper.mjs) so
+   * players can fit their own photo/art into the portrait frame without
+   * needing to pre-crop it themselves. Shift-click bypasses that and opens
+   * Foundry's plain file browser instead, for anyone who just wants to point
+   * the portrait at an already-correctly-sized image.
+   */
+  static #onEditImage(event) {
+    if (!this.isEditable) return;
+    if (event?.shiftKey) {
+      const FP = foundry.applications?.apps?.FilePicker ?? FilePicker;
+      new FP({
+        type: "image",
+        current: this.document.img,
+        callback: (path) => this.document.update({ img: path })
+      }).browse();
+      return;
+    }
+    new D616ImageCropper(this.document).render(true);
   }
 }
