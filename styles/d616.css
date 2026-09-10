@@ -119,8 +119,10 @@
 .mm-hero-portrait-block {
   position: relative;
   flex: 0 0 auto;
-  width: 130px;
-  height: 150px;
+  /* 1.5.2 set this to 143x165 (10% larger than the original 130x150);
+     this is that size plus another 20% on top. */
+  width: 172px;
+  height: 198px;
 }
 
 .mm-hero-portrait {
@@ -154,16 +156,22 @@
   padding: 3px;
 }
 
+/* Rank sits at the top-left corner of the portrait; Karma mirrors it at the
+   bottom-right. Both use the same symmetric notched-octagon clip-path, so
+   the shape reads identically in either corner. */
+.mm-rank-block,
+.mm-karma-block {
+  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px);
+}
+
 .mm-rank-block {
   top: 0;
   left: -8px;
-  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px);
 }
 
 .mm-karma-block {
   bottom: 0;
   right: -8px;
-  clip-path: polygon(0% 0%, 100% 0%, 100% 8px, calc(100% - 5px) 12px, calc(100% - 5px) calc(100% - 12px), 100% calc(100% - 8px), 100% 100%, 0% 100%, 0% calc(100% - 8px), 5px calc(100% - 12px), 5px 12px, 0% 8px);
 }
 
 .mm-rank-block .mm-label,
@@ -441,7 +449,12 @@
 /* ---------- Styled containers (Abilities / Damage / Powers / Traits) ---------- */
 .mm-styled-container {
   background: var(--mm-red);
-  clip-path: polygon(0% 0%, 100px 0%, 128px 24px, 100% 24px, 100% 100%, 0% 100%);
+  /* The flat run before the diagonal notch has to clear the widest h3 header
+     tab ("Standard Actions") or its trailing characters get clipped away by
+     this same shape (the notch's x-thresholds are fixed pixels, not derived
+     from the header's actual rendered width) — was 100px/128px, which only
+     cleared short labels like "Damage" or "Gear". */
+  clip-path: polygon(0% 0%, 180px 0%, 208px 24px, 100% 24px, 100% 100%, 0% 100%);
   padding: 3px;
   margin-bottom: 10px;
 }
@@ -535,10 +548,16 @@
 
 /* ---------- Damage panel (bracket motif: [ ×N ] + M) ---------- */
 .mm-damage-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.mm-damage-rows li { display: flex; align-items: center; gap: 6px; color: white; }
+/* This panel's background fades from --mm-dark-red at the top to plain
+   --mm-cream by 40% down (see .mm-styled-container-body); with 6 ability
+   rows stacked here, most of them sit on that later, cream portion. Text
+   hardcoded to white (assuming a dark-red backdrop everywhere) went invisible
+   there in light mode, where cream is light — same var(--mm-ink) token the
+   [ ×N ] + M boxes below already use, which flips per-theme correctly. */
+.mm-damage-rows li { display: flex; align-items: center; gap: 6px; color: var(--mm-ink); }
 .mm-damage-rows h6 {
   margin: 0;
-  color: white;
+  color: var(--mm-ink);
   font-size: 0.7rem;
   text-transform: uppercase;
   flex: 0 0 70px;
@@ -563,7 +582,7 @@
   width: 16px;
   height: 16px;
 }
-.mm-damage-rows .plus { color: white; font-weight: 700; }
+.mm-damage-rows .plus { color: var(--mm-ink); font-weight: 700; }
 
 /* ---------- Item lists (Powers / Traits) ---------- */
 .item-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -593,6 +612,20 @@
   height: 32px;
   margin-inline-start: 8px;
   border-radius: 3px;
+  /* Power/Gear/Trait icons are Foundry's default item art (icons/svg/aura.svg,
+     book.svg, etc.), which renders as a light/white shape. That's fine in
+     dark mode, where the row's backdrop (.mm-item::before, var(--mm-cream))
+     is dark — but in light mode --mm-cream is a near-white cream, so a
+     white icon on a near-white row disappears entirely. brightness(0) first
+     flattens the icon to a solid black silhouette (keeping its alpha), then
+     the rest of the chain recolors that silhouette to match --mm-red
+     (#e41d18) — this works regardless of the source icon's original color.
+     Dark mode is untouched below since it wasn't broken. */
+  filter: brightness(0) saturate(100%) invert(20%) sepia(95%) saturate(7484%) hue-rotate(356deg) brightness(94%) contrast(118%);
+}
+
+.d616.sheet.theme-dark .mm-item .item-img {
+  filter: none;
 }
 
 .mm-item .item-name {
@@ -843,7 +876,6 @@
 /* ------------------------------------------------------------------ */
 /* Karma action icons, recover buttons, standing-edge badge, rest row  */
 /* ------------------------------------------------------------------ */
-.mm-karma-block { position: relative; }
 .mm-karma-actions {
   display: flex;
   gap: 4px;
@@ -1019,4 +1051,177 @@
 .d616.sheet.item.theme-dark select,
 .d616.sheet.item.theme-dark textarea {
   background: #2f2823;
+}
+
+/* ======================================================================
+   Image Cropper (module/apps/image-cropper.mjs) — the "pick, pan, zoom,
+   crop" dialog opened from clicking the portrait. `.d616.sheet` already
+   supplies the font, ink color, and window-content background/flex layout
+   (see the top of this file); everything below is specific to this dialog.
+   ====================================================================== */
+
+.image-cropper .window-content {
+  padding: 12px;
+}
+
+.d616-cropper-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- Step 1: pick a source ---------- */
+
+.d616-cropper-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 12px;
+  border: 2px dashed var(--mm-red);
+  border-radius: 8px;
+  text-align: center;
+  transition: background-color 0.1s ease;
+}
+
+.d616-cropper-picker.-dragover {
+  background: color-mix(in srgb, var(--mm-red) 12%, transparent);
+}
+
+.d616-cropper-picker .hint { margin: 0; }
+
+.d616-cropper-picker-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---------- Step 2: pan/zoom/crop ---------- */
+
+.d616-cropper-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.d616-cropper-canvas-wrap {
+  /* Keep in sync with VIEW_W/VIEW_H in module/apps/image-cropper.mjs. */
+  width: 338px;
+  height: 390px;
+  max-width: 100%;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid var(--mm-red);
+  border-radius: 4px;
+  background: repeating-conic-gradient(#0000 0 25%, color-mix(in srgb, var(--mm-ink) 8%, transparent) 0 50%) 0 0 / 20px 20px;
+  transition: background-color 0.1s ease;
+}
+
+.d616-cropper-canvas-wrap.-dragover {
+  outline: 3px solid var(--mm-dark-red);
+  outline-offset: 2px;
+}
+
+.d616-crop-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.d616-crop-canvas:active { cursor: grabbing; }
+
+.d616-cropper-controls {
+  width: 100%;
+  max-width: 338px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.d616-cropper-zoom-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mm-red);
+}
+
+.d616-crop-zoom {
+  flex: 1;
+  accent-color: var(--mm-red);
+}
+
+.d616-cropper-controls-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.d616-cropper-footnote {
+  margin: 0;
+  text-align: center;
+}
+
+/* ---------- Buttons + footer ---------- */
+
+.d616-cropper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 2px solid var(--mm-red);
+  border-radius: 4px;
+  background: var(--mm-cream);
+  color: var(--mm-red);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.d616-cropper-btn:hover {
+  background: var(--mm-red);
+  color: var(--mm-cream);
+}
+
+.d616-cropper-btn.-sm { padding: 4px 10px; font-size: 0.85rem; }
+
+.d616-cropper-btn.-primary {
+  background: var(--mm-red);
+  color: var(--mm-cream);
+}
+
+.d616-cropper-btn.-primary:hover { background: var(--mm-dark-red); }
+
+/* Dim in place rather than swapping colors — a disabled `.-primary` button
+   re-coloring to the plain-button palette here would tie in specificity with
+   `.-primary` itself (same 2-class weight) and, depending on source order,
+   could win and leave it looking like flat, nearly invisible cream-on-cream
+   (or, in dark mode, near-black-on-near-black). Opacity alone keeps whatever
+   palette the button already has (plain or -primary) recognizable, just
+   faded, in both themes; pointer-events:none stops :hover from re-swapping
+   those colors back in when the cursor happens to be over a disabled button. */
+.d616-cropper-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.d616-cropper-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 2px solid var(--mm-red);
+}
+
+.image-cropper.theme-dark .d616-cropper-btn {
+  background: #2f2823;
+}
+
+.image-cropper.theme-dark .d616-cropper-btn.-primary {
+  background: var(--mm-red);
 }
