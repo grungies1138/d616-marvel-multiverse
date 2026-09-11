@@ -61,6 +61,17 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.5.17 — More visible theme toggle
+
+- **The Light/Dark theme toggle is now a solid red circular badge with a
+  white sun/moon icon**, instead of a plain 22px icon with no background
+  sitting flush in the sheet's top-right corner. It was easy to miss against
+  the header — same red as several other icon buttons on the sheet, no
+  container to read as a button, blended into the background regardless of
+  which theme was active. Also added a hover state (darkens, scales up
+  slightly) and a distinct look for the dark theme itself (a darker red-brown
+  fill so the badge doesn't disappear against the dark header).
+
 ## 1.5.16 — Marvel D616 folder, Journals rename, and a private Heroes & Villains pack
 
 > ⚠️ **`heroes-villains` is for personal/private use only — do not publish it.**
