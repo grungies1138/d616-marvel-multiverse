@@ -103,18 +103,33 @@
 /* ---------- Player-selectable Light/Dark theme toggle ---------- */
 .d616-theme-toggle {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 6px;
+  right: 6px;
   z-index: 2;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--mm-red);
+  font-size: 0.85rem;
+  color: white;
+  background: var(--mm-red);
+  border: 2px solid var(--mm-dark-red);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
-.d616-theme-toggle:hover { color: var(--mm-dark-red); }
+.d616-theme-toggle:hover {
+  background: var(--mm-dark-red);
+  transform: scale(1.08);
+}
+
+.d616.sheet.theme-dark .d616-theme-toggle {
+  background: #4a201f;
+  border-color: var(--mm-red);
+}
+.d616.sheet.theme-dark .d616-theme-toggle:hover { background: var(--mm-red); }
 
 .mm-hero-portrait-block {
   position: relative;
