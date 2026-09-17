@@ -220,10 +220,13 @@ export default class D616Actor extends Actor {
    * Roll Initiative using this system's own 2d6 + Marvel Die engine (same
    * dice and Fantastic/Green detection as every other roll here) rather
    * than Foundry's generic default, add the Vigilance-based Initiative
-   * modifier, post the usual chat card, and — if this actor has a
-   * Combatant in the currently active Combat — feed the total straight
-   * into the tracker so turn order updates immediately, the same as
-   * clicking the tracker's own "Roll Initiative" button would.
+   * modifier, post the usual chat card, and feed the total straight into
+   * the active Combat's tracker so turn order updates immediately, the
+   * same as clicking the tracker's own "Roll Initiative" button would. If
+   * this actor doesn't have a Combatant in the encounter yet, it's added
+   * automatically (using its current token if one is placed on the scene);
+   * if there's no active Combat at all, an error is shown instead, since
+   * there's nothing to add this actor's initiative to.
    * (system.json's own `initiative` formula covers rolling directly from
    * the Combat Tracker without opening a sheet at all; this covers rolling
    * it from the character sheet itself, with the full chat card.)
@@ -287,10 +290,27 @@ export default class D616Actor extends Actor {
     });
 
     const combat = game.combat;
-    if (combat) {
-      const combatant = combat.combatants.find((c) => c.actor?.id === this.id);
-      if (combatant) await combat.setInitiative(combatant.id, total);
+    if (!combat) {
+      ui.notifications.error(game.i18n.localize("D616.Roll.NoActiveCombat"));
+      return total;
     }
+
+    let combatant = combat.combatants.find((c) => c.actor?.id === this.id);
+    if (!combatant) {
+      const token = this.getActiveTokens(false, true)[0] ?? null;
+      const combatantData = token
+        ? { tokenId: token.id, sceneId: token.parent.id, actorId: this.id, hidden: token.hidden }
+        : { actorId: this.id };
+      try {
+        [combatant] = await combat.createEmbeddedDocuments("Combatant", [combatantData]);
+      } catch (err) {
+        console.error(err);
+        ui.notifications.error(game.i18n.localize("D616.Roll.CannotJoinCombat"));
+        return total;
+      }
+    }
+
+    await combat.setInitiative(combatant.id, total);
 
     return total;
   }

@@ -29,8 +29,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   actor's Focus automatically, with a warning if there isn't enough.
 - **Initiative**: click the dice icon next to Speed/Initiative on the header to roll it with this
   system's own 2d6 + Marvel Die engine (Fantastic/Green and all) rather than a flat number — it
-  posts the usual chat card and, if the actor has a Combatant in the active Combat, pushes the
-  result straight into the tracker so turn order updates immediately. Rolling directly from
+  posts the usual chat card and pushes the result straight into the active Combat's tracker so
+  turn order updates immediately. If the actor isn't already a Combatant in the encounter, it's
+  added automatically (using its current token if one is placed on the scene); if there's no
+  active Combat at all, an error is shown instead of silently doing nothing. Rolling directly from
   Foundry's own Combat Tracker button also now actually rolls dice (`2d6 + 1d6 + @initiative`,
   set via `system.json`) instead of just restating the flat modifier as if it were the whole roll.
 - **Gear**: a second item type alongside Powers, for mundane/tech equipment —
@@ -60,6 +62,14 @@ publisher — built for homebrew/original characters and personal home-game use.
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.5.19 — Auto-join combat on Initiative roll
+
+Rolling Initiative from the character sheet now joins the active Combat automatically instead of silently doing nothing when the actor wasn't already tracked: if the actor doesn't have a Combatant yet, one is created (using its placed token on the scene when there is one) and its initiative is set to the roll's total, the same as if it had been added by hand first. If there's no active Combat encounter at all, rolling Initiative now shows an error telling you to start one in the Combat Tracker, rather than rolling and posting a chat card that has nowhere to go.
+
+## 1.5.18 hotfix
+
+Fixed a manifest error Foundry reports on load: `The "D616 Marvel Multiverse Role-Playing" system's manifest contained the following unknown keys: "gridDistance", "gridUnits"`. Foundry V13+ replaced those top-level fields with a nested `grid: {distance, units}` object; `system.json` already had that nested object but still carried the old flat keys alongside it. Removed the deprecated duplicates — same values, no behavior change.
 
 ## 1.5.17 — More visible theme toggle
 
