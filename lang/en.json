@@ -235,15 +235,17 @@
     "TNCalc": {
       "Title": "TN Calculator",
       "Rank": "Rank",
-      "Adjective": "Adjective",
+      "AdjectiveLabel": "Adjective",
       "ResultNote": "Target Number for a {adjective} Rank {rank} action check: <strong>{tn}</strong>.",
-      "Adjective.trivial": "Trivial",
-      "Adjective.easy": "Easy",
-      "Adjective.routine": "Routine",
-      "Adjective.challenging": "Challenging",
-      "Adjective.difficult": "Difficult",
-      "Adjective.ridiculous": "Ridiculous",
-      "Adjective.absurd": "Absurd"
+      "Adjective": {
+        "trivial": "Trivial",
+        "easy": "Easy",
+        "routine": "Routine",
+        "challenging": "Challenging",
+        "difficult": "Difficult",
+        "ridiculous": "Ridiculous",
+        "absurd": "Absurd"
+      }
     },
     "TeamManeuver": {
       "DialogTitle": "Team Maneuver",

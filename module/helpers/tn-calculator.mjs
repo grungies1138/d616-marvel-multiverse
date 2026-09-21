@@ -33,7 +33,7 @@ export async function openTNCalculatorDialog() {
         <input type="number" name="rank" value="2" min="1" />
       </div>
       <div class="form-group">
-        <label>${game.i18n.localize("D616.TNCalc.Adjective")}</label>
+        <label>${game.i18n.localize("D616.TNCalc.AdjectiveLabel")}</label>
         <select name="adjective">
           ${adjectives.map((a) => `<option value="${a}"${a === "challenging" ? " selected" : ""}>${game.i18n.localize(`D616.TNCalc.Adjective.${a}`)} (${ADJECTIVE_MODIFIERS[a] >= 0 ? "+" : ""}${ADJECTIVE_MODIFIERS[a]})</option>`).join("")}
         </select>

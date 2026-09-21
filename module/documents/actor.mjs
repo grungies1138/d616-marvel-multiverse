@@ -492,12 +492,19 @@ export default class D616Actor extends Actor {
     let attackTotal = null, targetNumber = null, success = null, abilityValue = null;
     let sizeModifier = 0;
     const isCloseAttack = isCloseRangeAttack(item);
+    // What actually got applied to the dice — may differ from the raw
+    // `edgeTrouble` argument once standing sources/Conditions are tallied in
+    // (see _resolveEdgeTrouble) — this, not the raw argument, is what gets
+    // shown on the card and stored so "Add Edge"/"Add Trouble" correctly
+    // treat it as already-applied.
+    let effectiveEdgeTrouble = edgeTrouble;
 
     if (sys.attack?.enabled) {
       const ability = sys.attack.ability;
       abilityValue = ABILITIES.includes(ability) ? this.system.abilities[ability].value : 0;
 
       const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks", { ability, isCloseAttack, targetActor: primaryTarget });
+      effectiveEdgeTrouble = resolved.mode;
 
       const dice = await rollMarvelDice({ edgeTrouble: resolved.mode, stacks: resolved.stacks });
       d1 = dice.d1; d2 = dice.d2; marvelValue = dice.marvelValue; rawMarvel = dice.rawMarvel;
@@ -614,7 +621,7 @@ export default class D616Actor extends Actor {
       fantasticEffect,
       focusCost,
       focusRemaining,
-      edgeTroubleApplied: edgeTrouble
+      edgeTroubleApplied: effectiveEdgeTrouble
     });
 
     return ChatMessage.create({
@@ -641,7 +648,7 @@ export default class D616Actor extends Actor {
             fantasticEffect,
             focusCost,
             focusRemaining,
-            edgeTroubleApplied: edgeTrouble
+            edgeTroubleApplied: effectiveEdgeTrouble
           }
         }
       }
