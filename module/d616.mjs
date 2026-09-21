@@ -2,6 +2,7 @@ import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
 import { registerConditions, syncAutomaticConditions } from "./helpers/conditions.mjs";
 import { openTeamManeuverDialog } from "./helpers/team-maneuver.mjs";
+import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import CharacterData from "./data/actor-character.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
@@ -100,6 +101,21 @@ Hooks.once("ready", async () => {
         openTeamManeuverDialog(actor);
       `,
       flags: { d616: { isTeamManeuverMacro: true } }
+    });
+  }
+
+  // --- A "TN Calculator" macro (book p.13-14): Rank + Adjective -> Target
+  // Number, posted to chat so the whole table sees it, not just the GM.
+  if (game.user.isGM && !game.macros.find((m) => m.getFlag("d616", "isTNCalculatorMacro"))) {
+    await Macro.create({
+      name: game.i18n.localize("D616.TNCalc.Title"),
+      type: "script",
+      img: "icons/svg/d20-black.svg",
+      command: `
+        const { openTNCalculatorDialog } = await import("/systems/d616/module/helpers/tn-calculator.mjs");
+        openTNCalculatorDialog();
+      `,
+      flags: { d616: { isTNCalculatorMacro: true } }
     });
   }
 

@@ -28,6 +28,15 @@ export default class D616Actor extends Actor {
 
     const sys = this.system;
 
+    // Power-pick budget (book p.67): Rank x 4 powers. A validation aid at
+    // character-creation time, not something live-enforced — nothing stops
+    // a player from adding a 17th power on a Rank-4 sheet, this just shows
+    // the count so it's easy to notice.
+    sys.powerBudget = {
+      used: this.items.filter((i) => i.type === "power").length,
+      max: sys.rank * 4
+    };
+
     // Per the book: "Powers or other things that grant bonuses to damage
     // multipliers do not stack" and the same for Damage Reduction and
     // Ability Defenses — the largest single bonus applies, the rest are

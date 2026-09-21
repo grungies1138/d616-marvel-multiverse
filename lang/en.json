@@ -94,6 +94,7 @@
       "Initiative": "Initiative",
       "DamageMultiplier": "Damage Multiplier",
       "AddPower": "Add Power",
+      "PowerBudget": "{used}/{max} powers",
       "AddTrait": "Add Trait",
       "NoPowers": "No powers yet. Click \"Add Power\" to create one.",
       "NoTraits": "No traits yet. Click \"Add Trait\" to create one.",
@@ -225,6 +226,19 @@
       "ControlledLanding": "Controlled landing (reduces multiplier by Jump Speed: {jump})",
       "FallingDamageNone": "{name} falls, but the distance is too short to cause damage.",
       "FallingDamageResult": "{name} takes falling damage: x{multiplier} multiplier, {damage} damage."
+    },
+    "TNCalc": {
+      "Title": "TN Calculator",
+      "Rank": "Rank",
+      "Adjective": "Adjective",
+      "ResultNote": "Target Number for a {adjective} Rank {rank} action check: <strong>{tn}</strong>.",
+      "Adjective.trivial": "Trivial",
+      "Adjective.easy": "Easy",
+      "Adjective.routine": "Routine",
+      "Adjective.challenging": "Challenging",
+      "Adjective.difficult": "Difficult",
+      "Adjective.ridiculous": "Ridiculous",
+      "Adjective.absurd": "Absurd"
     },
     "TeamManeuver": {
       "DialogTitle": "Team Maneuver",
