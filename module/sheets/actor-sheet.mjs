@@ -241,6 +241,7 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       { key: "teleport", label: game.i18n.localize("D616.Movement.Teleport"), value: speeds.teleport }
     ].filter((m) => m.value > 0);
 
+    context.powerBudgetLabel = game.i18n.format("D616.Sheet.PowerBudget", actor.system.powerBudget);
     context.isDodging = !!actor.getFlag("d616", "dodging");
     context.isGM = game.user.isGM;
 

@@ -49,19 +49,49 @@ publisher — built for homebrew/original characters and personal home-game use.
   (ability checks, Initiative, and any Power/Gear attack) posts its chat card with
   **Add Edge** and **Add Trouble** buttons at the bottom, so the roll doesn't have to
   be pre-committed to Edge or Trouble before you see it — decide once the result is on
-  the table. Clicking one rolls one extra d6, applies it the same way choosing
-  Edge/Trouble up front would (it replaces whichever of the two ordinary d6 it can
-  improve or worsen; the Marvel Die itself, and therefore Fantastic/Green, never
-  changes), updates that same chat card in place with the new total, and posts a
-  short follow-up note showing the extra die. Only the roll's own player or the GM can
-  click these, and it's a one-time thing per roll — once Edge or Trouble has been
-  added, the buttons are replaced with an "Edge Applied"/"Trouble Applied" tag. A
-  Power or Gear roll that already had Edge/Trouble chosen from its own pre-roll
-  prompt shows that same tag immediately instead of the buttons, since it's already
-  been applied.
+  the table. Clicking one rolls one extra d6 and applies it to whichever of the three
+  dice it can improve (Edge) or worsen (Trouble) most — including the Marvel Die
+  itself, per the book: Edge can turn a plain roll into a Fantastic one, and Trouble
+  can force a Fantastic result to be rerolled away — updates that same chat card in
+  place with the new total, and posts a short follow-up note showing the extra die.
+  Only the roll's own player or the GM can click these, and it's a one-time thing per
+  roll — once Edge or Trouble has been added, the buttons are replaced with an "Edge
+  Applied"/"Trouble Applied" tag. A Power or Gear roll that already had Edge/Trouble
+  chosen from its own pre-roll prompt shows that same tag immediately instead of the
+  buttons, since it's already been applied. Multiple Edge/Trouble sources on the same
+  roll (a standing Edge, Conditions, Team Maneuvers, an explicit choice, a target's
+  Dodge...) net out 1-for-1 per the book rather than one simply overriding another.
+- **Conditions**: the book's full Conditions vocabulary registers as real token-HUD
+  status icons, and most now carry their actual mechanical teeth instead of being pure
+  reminders — Prone/Blinded/Grabbed/Pinned/Stunned adjust Edge/Trouble on attacks in
+  and out; Unconscious and Paralyzed force close attacks to auto-hit and cap the
+  relevant Defense at 10; Stunned/Unconscious/Shattered block the affected character
+  from acting at all (Paralyzed blocks just Melee/Agility-based actions); Ablaze and
+  Bleeding deal 5 Health at the end of the affected character's turn automatically.
+  What's still left to the table: Deafened's hearing-specific checks, Surprised's
+  bonus-round timing, and Grabbed/Pinned's full "might hit either entangled character"
+  redirect (approximated here as flat Trouble on attacks against either one).
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.6.0 — Conditions get mechanical teeth, book-accurate Edge/Trouble, and two GM conveniences
+
+The biggest mechanics pass since the system started, driven by an actual page-by-page
+read of the Core Rule Book rather than an approximation. Edge/Trouble was rebuilt to
+match the book exactly: a reroll can now land on the Marvel Die itself (so Edge can
+create a Fantastic result and Trouble can destroy one), and multiple Edge/Trouble
+sources on the same roll cancel out 1-for-1 instead of one silently overriding
+another. Most of the book's Conditions (Prone, Blinded, Grabbed, Pinned, Stunned,
+Unconscious, Paralyzed, Demoralized, Ablaze, Bleeding) now carry their real mechanical
+effect once toggled on a token — adjusting Edge/Trouble on attacks, forcing auto-hits
+and Defense caps, blocking incapacitated characters from acting, and dealing
+automatic end-of-turn damage — instead of being pure visual reminders. Also added: a
+TN-by-Rank/Adjective calculator (Narrator-facing macro) and a live power-pick budget
+counter ("used/max", Rank x 4) on the Powers tab. Deafened's hearing-specific checks,
+Surprised's bonus-round timing, and Grabbed/Pinned's full multi-target redirect rule
+are still left to the table — see the README's "What's automated" section for exactly
+where the line is drawn.
 
 ## 1.5.19 — Auto-join combat on Initiative roll
 
