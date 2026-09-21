@@ -1,6 +1,6 @@
 import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
-import { registerConditions, syncAutomaticConditions } from "./helpers/conditions.mjs";
+import { registerConditions, syncAutomaticConditions, applyEndOfTurnConditionDamage } from "./helpers/conditions.mjs";
 import { openTeamManeuverDialog } from "./helpers/team-maneuver.mjs";
 import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import CharacterData from "./data/actor-character.mjs";
@@ -80,6 +80,17 @@ Hooks.once("init", () => {
 // keep the four automatic Conditions in sync any time an actor updates.
 Hooks.on("updateActor", (actor) => {
   syncAutomaticConditions(actor);
+});
+
+// Ablaze/Bleeding's flat end-of-turn damage (book p.37): `Combat#previous`
+// (set by core just before this fires) still points at the combatant whose
+// turn just ended, whether that's a normal turn advance or the last turn of
+// a round rolling over into the next one.
+Hooks.on("updateCombat", (combat, changes) => {
+  if (!("turn" in changes) && !("round" in changes)) return;
+  const prevId = combat.previous?.combatantId;
+  const prevActor = prevId ? combat.combatants.get(prevId)?.actor : null;
+  if (prevActor) applyEndOfTurnConditionDamage(prevActor);
 });
 
 Hooks.once("ready", async () => {

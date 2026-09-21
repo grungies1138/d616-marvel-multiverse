@@ -16,7 +16,7 @@
  *   Defensive L1/L2/L3 -> flat Health Damage Reduction (2/4/8) this round
  *                       — folded into prepareDerivedData's DR pool.
  *   Rally L1        -> Trouble on all attacks made against team members
- *                       this round — read by _incomingAttackModifier.
+ *                       this round — read by D616Actor#_targetConditionModifiers.
  *   Rally L2        -> every member immediately makes a free Karma-style
  *                       recovery roll (no Karma spent) for Health or Focus.
  *   Rally L3        -> revives one Killed or Shattered team member back to

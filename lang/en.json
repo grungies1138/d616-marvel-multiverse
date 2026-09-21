@@ -183,7 +183,12 @@
       "Stunned": "Stunned",
       "Surprised": "Surprised",
       "Unconscious": "Unconscious",
-      "KilledNotice": "has been Killed (Health at or below -max Health) — removed from play per the book, at the GM's discretion."
+      "KilledNotice": "has been Killed (Health at or below -max Health) — removed from play per the book, at the GM's discretion.",
+      "EndOfTurnDamage": "{name} takes {amount} Health from being {conditions} at the end of their turn.",
+      "BlockedStunned": "{name} is Stunned and cannot take any actions.",
+      "BlockedUnconscious": "{name} is Unconscious and cannot take any actions.",
+      "BlockedShattered": "{name} is Shattered and cannot take any actions.",
+      "BlockedParalyzed": "{name} is Paralyzed and cannot take actions that require a Melee or Agility check."
     },
     "Karma": {
       "NotEnough": "Not enough Karma remaining.",

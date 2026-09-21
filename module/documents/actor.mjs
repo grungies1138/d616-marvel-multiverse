@@ -20,6 +20,23 @@ function getTargets(max = 1) {
   return Array.from(game.user.targets).slice(0, max).map((t) => t.actor).filter(Boolean);
 }
 
+/**
+ * Whether a Power/Gear attack counts as "close"/melee for the Conditions
+ * rules below (book p.37-38 repeatedly distinguishes close/Melee attacks
+ * from ranged ones — e.g. Unconscious/Paralyzed auto-hit only to close
+ * attacks, Prone gives an edge to close attackers but trouble to ranged
+ * ones). Gear has an explicit category for this; Powers don't, so this
+ * falls back to reading the free-text Range field the same way the sheet's
+ * own default ("Melee") already implies.
+ */
+function isCloseRangeAttack(item) {
+  const sys = item.system;
+  if (item.type === "gear" && sys.category === "weaponRanged") return false;
+  if (item.type === "gear" && sys.category === "weaponMelee") return true;
+  const range = (sys.range ?? "").trim().toLowerCase();
+  return range === "" || range === "melee" || range === "self" || range === "touch" || range.startsWith("melee");
+}
+
 export default class D616Actor extends Actor {
   /** Layer item-driven passive bonuses on top of the base derived data. */
   prepareDerivedData() {
@@ -93,6 +110,13 @@ export default class D616Actor extends Actor {
 
     sys.standingEdges = standingEdges;
     sys.initiativeHasStandingEdge = standingEdges.has("initiative");
+
+    // Blinded (book p.37): "speed is reduced by half for all modes of travel."
+    if (this.statuses?.has("d616-blinded") && sys.speeds) {
+      for (const key of Object.keys(sys.speeds)) {
+        sys.speeds[key] = Math.floor(sys.speeds[key] / 2);
+      }
+    }
   }
 
   /**
@@ -110,47 +134,126 @@ export default class D616Actor extends Actor {
   }
 
   /**
-   * Works out the effective Edge/Trouble (and any stacking) for a roll,
-   * folding together: an explicit pre-roll choice, a standing Edge from a
-   * passive Power/Gear (e.g. Spider-Sense on Initiative), a one-shot "Help"
-   * Edge from a teammate (consumed once used), and an active Team Maneuver.
-   * None of this attempts full book-accurate stacking math (multiple
-   * independent Edges/Troubles canceling out 1-for-1, p.16) — this system
-   * still models Edge/Trouble as a single resolved state per roll, just one
-   * that can now come from more sources than a pre-roll dialog choice.
+   * Works out the effective Edge/Trouble (and any stacking) for a roll by
+   * tallying every source as +1 Edge or +1 Trouble and netting them out
+   * (book p.16: "these things cancel each other out in equal measure, so
+   * you only need to deal with what's left"). Sources folded in: an
+   * explicit pre-roll choice, a standing Edge from a passive Power/Gear
+   * (e.g. Spider-Sense on Initiative), a one-shot "Help" Edge from a
+   * teammate (consumed once used), an active Team Maneuver, this actor's
+   * own active Conditions (e.g. Demoralized), and — for attacks — the
+   * target's Conditions and Dodge/Rally state.
+   *
+   * `ability` is the actual ability being used (defaults to `standingKey`,
+   * which already IS the ability key for a plain ability check); attacks
+   * pass "attacks" as `standingKey` and their real ability separately, plus
+   * `isCloseAttack` and `targetActor` so target-side Conditions can apply.
    */
-  async _resolveEdgeTrouble(explicit, standingKey) {
-    let mode = explicit && explicit !== "none" ? explicit : "none";
-    let stacks = 1;
+  async _resolveEdgeTrouble(explicit, standingKey, { ability = standingKey, isCloseAttack = false, targetActor = null } = {}) {
+    let edges = 0;
+    let troubles = 0;
     let consumedHelp = false;
+    let tmBonusStacks = 0;
 
-    if (mode === "none" && standingKey && this.system.standingEdges?.has(standingKey)) {
-      mode = "edge";
-    }
-    if (mode === "none" && this.getFlag("d616", "helpedEdge")) {
-      mode = "edge";
+    if (explicit === "edge") edges++;
+    else if (explicit === "trouble") troubles++;
+
+    if (standingKey && this.system.standingEdges?.has(standingKey)) edges++;
+    if (this.getFlag("d616", "helpedEdge")) {
+      edges++;
       consumedHelp = true;
     }
+
     const teamManeuver = this._activeTeamManeuver();
     if (teamManeuver?.type === "offensive" && standingKey === "attacks") {
-      if (mode === "none") mode = "edge";
-      if (mode === "edge") stacks = Math.max(stacks, teamManeuver.level >= 2 ? 2 : 1);
+      edges++;
+      if (teamManeuver.level >= 2) tmBonusStacks = 1;
+    }
+
+    const self = this._selfConditionModifiers(ability, standingKey === "attacks");
+    edges += self.edges;
+    troubles += self.troubles;
+
+    if (targetActor) {
+      const target = targetActor._targetConditionModifiers(isCloseAttack);
+      edges += target.edges;
+      troubles += target.troubles;
     }
 
     if (consumedHelp) await this.unsetFlag("d616", "helpedEdge");
+
+    const net = edges - troubles;
+    const mode = net > 0 ? "edge" : net < 0 ? "trouble" : "none";
+    const stacks = mode === "none" ? 1 : Math.abs(net) + (mode === "edge" ? tmBonusStacks : 0);
     return { mode, stacks, teamManeuver };
   }
 
   /**
-   * Checks whether an attack against this actor should have Trouble imposed
-   * on the attacker — from actively Dodging (book p.30) or from a
-   * teammate's Rally Team Maneuver Level 1 (book p.39, "all actions taken
-   * against team members have trouble this round").
+   * This actor's own active Conditions that add Edge/Trouble to a roll it
+   * is making (book p.37-38). `ability` is the ability being used;
+   * `isAttack` distinguishes an attack roll from a plain ability check,
+   * since a couple of these are worded around attacks specifically.
+   * Deafened/Blinded's other, non-attack "requires hearing/sight" checks
+   * aren't singled out here — there's no per-check flag for that in this
+   * system yet, so those remain a manual GM call, same as before.
    */
-  _incomingAttackModifier() {
-    if (this.getFlag("d616", "dodging")) return "trouble";
+  _selfConditionModifiers(ability, isAttack) {
+    const statuses = this.statuses;
+    let edges = 0;
+    let troubles = 0;
+    if (!statuses || statuses.size === 0) return { edges, troubles };
+
+    if (statuses.has("d616-demoralized")) troubles++; // "trouble on all action checks"
+    if (isAttack && statuses.has("d616-blinded")) troubles++; // approximates "trouble on checks requiring line of sight"
+    if (isAttack && ability === "melee" && statuses.has("d616-prone")) troubles++; // "trouble on all Melee attacks"
+    if ((ability === "melee" || ability === "agility") && statuses.has("d616-pinned")) troubles++; // "trouble on Melee and Agility checks"
+
+    return { edges, troubles };
+  }
+
+  /**
+   * Edge/Trouble this actor's active Conditions (plus Dodge/Rally) impose on
+   * an attacker targeting it (book p.30, p.37-39). Unconscious/Paralyzed
+   * aren't handled here — those force an outright hit/defense override,
+   * applied directly in rollItem — and Grabbed/Pinned's full "attack against
+   * the entangled pair might hit either one" rule (p.37) is approximated
+   * here as flat Trouble on attacks against either member of the pair.
+   */
+  _targetConditionModifiers(isCloseAttack) {
+    const statuses = this.statuses;
+    let edges = 0;
+    let troubles = 0;
+
+    if (this.getFlag("d616", "dodging")) troubles++;
     const tm = this._activeTeamManeuver();
-    if (tm?.type === "rally" && tm.level >= 1) return "trouble";
+    if (tm?.type === "rally" && tm.level >= 1) troubles++;
+
+    if (statuses?.has("d616-prone")) {
+      if (isCloseAttack) edges++; // "close attacks against the character have an edge"
+      else troubles++; // "ranged attacks against a prone character have trouble"
+    }
+    if (statuses?.has("d616-blinded")) edges++; // approximates "edge on checks against the character that require sight to defend"
+    if (statuses?.has("d616-grabbed") || statuses?.has("d616-pinned")) troubles++;
+    if (statuses?.has("d616-stunned")) edges++; // "all attacks against them have an edge"
+
+    return { edges, troubles };
+  }
+
+  /**
+   * Whether this actor's Conditions flat-out prevent it from taking the
+   * action check it's about to make (book p.37-38) — Stunned, Unconscious
+   * and Shattered block any action; Paralyzed blocks only Melee/Agility-
+   * requiring ones. Returns a localization key to show, or null if allowed.
+   * (Karma-fueled recovery is a separate code path — recoverPool — and
+   * isn't gated by this, matching the book's explicit exception for it.)
+   */
+  _actionBlockReason(abilityKey = null) {
+    const statuses = this.statuses;
+    if (!statuses || statuses.size === 0) return null;
+    if (statuses.has("d616-stunned")) return "D616.Condition.BlockedStunned";
+    if (statuses.has("d616-unconscious")) return "D616.Condition.BlockedUnconscious";
+    if (statuses.has("d616-shattered")) return "D616.Condition.BlockedShattered";
+    if (statuses.has("d616-paralyzed") && (abilityKey === "melee" || abilityKey === "agility")) return "D616.Condition.BlockedParalyzed";
     return null;
   }
 
@@ -162,6 +265,11 @@ export default class D616Actor extends Actor {
   async rollAbilityCheck(abilityKey, { targetNumber = null, flavor = null, edgeTrouble = "none" } = {}) {
     if (!ABILITIES.includes(abilityKey)) {
       ui.notifications.error(`Unknown ability: ${abilityKey}`);
+      return;
+    }
+    const blockReason = this._actionBlockReason(abilityKey);
+    if (blockReason) {
+      ui.notifications.warn(game.i18n.format(blockReason, { name: this.name }));
       return;
     }
     const abilityValue = this.system.abilities[abilityKey].value;
@@ -354,6 +462,12 @@ export default class D616Actor extends Actor {
     }
     const sys = item.system;
 
+    const blockReason = this._actionBlockReason(sys.attack?.enabled ? sys.attack.ability : null);
+    if (blockReason) {
+      ui.notifications.warn(game.i18n.format(blockReason, { name: this.name }));
+      return;
+    }
+
     // --- Focus cost ---
     let focusCost = sys.cost.flat ?? 0;
     let bonusModifier = 0;
@@ -377,17 +491,15 @@ export default class D616Actor extends Actor {
     let d1 = null, d2 = null, marvelValue = null, rawMarvel = null, isFantastic = false, isGreen = false, isUltimate = false;
     let attackTotal = null, targetNumber = null, success = null, abilityValue = null;
     let sizeModifier = 0;
-    let incomingModifier = null;
+    const isCloseAttack = isCloseRangeAttack(item);
 
     if (sys.attack?.enabled) {
       const ability = sys.attack.ability;
       abilityValue = ABILITIES.includes(ability) ? this.system.abilities[ability].value : 0;
 
-      const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks");
-      incomingModifier = primaryTarget?._incomingAttackModifier?.() ?? null;
-      const finalMode = incomingModifier === "trouble" && resolved.mode !== "edge" ? "trouble" : resolved.mode;
+      const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks", { ability, isCloseAttack, targetActor: primaryTarget });
 
-      const dice = await rollMarvelDice({ edgeTrouble: finalMode, stacks: resolved.stacks });
+      const dice = await rollMarvelDice({ edgeTrouble: resolved.mode, stacks: resolved.stacks });
       d1 = dice.d1; d2 = dice.d2; marvelValue = dice.marvelValue; rawMarvel = dice.rawMarvel;
       isFantastic = dice.isFantastic; isGreen = dice.isGreen; isUltimate = dice.isUltimate;
 
@@ -407,7 +519,21 @@ export default class D616Actor extends Actor {
       } else if (ABILITIES.includes(sys.attack.defenseTarget)) {
         targetNumber = primaryTarget ? primaryTarget.system.defenses?.[sys.attack.defenseTarget] ?? null : null;
       }
-      success = resolveSuccess({ total: attackTotal, targetNumber, isUltimate });
+
+      // Unconscious (book: "defenses are all reduced to 10") and Paralyzed
+      // (book: "Agility defense reduced to 10 against ranged attacks") both
+      // cap the relevant Defense at 10 for this attack, and either
+      // Condition means a close attack automatically hits regardless.
+      const targetStatuses = primaryTarget?.statuses;
+      const targetUnconscious = !!targetStatuses?.has("d616-unconscious");
+      const targetParalyzed = !!targetStatuses?.has("d616-paralyzed");
+      if (targetNumber !== null && targetNumber !== undefined) {
+        if (targetUnconscious) targetNumber = Math.min(targetNumber, 10);
+        else if (targetParalyzed && sys.attack.defenseTarget === "agility" && !isCloseAttack) targetNumber = Math.min(targetNumber, 10);
+      }
+      const forcedHit = !!primaryTarget && isCloseAttack && (targetUnconscious || targetParalyzed);
+
+      success = forcedHit || resolveSuccess({ total: attackTotal, targetNumber, isUltimate });
     }
 
     // --- Damage (if applicable) ---
@@ -695,6 +821,11 @@ export default class D616Actor extends Actor {
   async meleeContest(targetActor, { mode = "grab" } = {}) {
     if (!targetActor) {
       ui.notifications.warn(game.i18n.localize("D616.Action.NeedsTarget"));
+      return;
+    }
+    const blockReason = this._actionBlockReason("melee");
+    if (blockReason) {
+      ui.notifications.warn(game.i18n.format(blockReason, { name: this.name }));
       return;
     }
     const abilityValue = this.system.abilities.melee.value;

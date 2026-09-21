@@ -9,12 +9,20 @@
  * automatically (see syncAutomaticConditions, called from an `updateActor`
  * hook in d616.mjs): Unconscious, Demoralized, Killed, Shattered. The rest
  * (Ablaze, Bleeding, Blinded, Deafened, Grabbed, Paralyzed, Pinned, Prone,
- * Stunned, Surprised) are toggled by hand from the token HUD like any other
- * status — registering them here is what makes that possible at all, but
- * this system does not yet intercept rolls to auto-apply each one's specific
- * numeric effect (Trouble on Melee while Prone, halved speed while Blinded,
- * and so on). That's a real follow-up, not something silently pretended to
- * be automatic.
+ * Stunned, Surprised) are toggled by hand from the token HUD.
+ *
+ * Most Conditions' specific numeric effects ARE now automated once toggled:
+ * Trouble on Melee while Prone, halved speed while Blinded, Stunned/
+ * Unconscious/Shattered blocking actions outright, Unconscious/Paralyzed
+ * forcing close attacks to auto-hit, Ablaze/Bleeding's end-of-turn damage,
+ * and more — see D616Actor#_selfConditionModifiers, #_targetConditionModifiers,
+ * #_actionBlockReason (documents/actor.mjs), and applyEndOfTurnConditionDamage
+ * below. What's still left to the table: Deafened's "requires hearing"
+ * checks (no per-check flag exists to key off), Surprised's bonus-round
+ * timing (no bonus-round tracking exists), and Grabbed/Pinned's full
+ * "attack might hit either entangled character" redirect (approximated here
+ * as flat Trouble on attacks against either one, rather than the full
+ * pick-a-target-if-it-also-beats-their-Defense rule).
  */
 export const CONDITIONS = [
   { id: "ablaze", label: "D616.Condition.Ablaze", icon: "icons/svg/fire.svg" },
@@ -85,4 +93,29 @@ export async function syncAutomaticConditions(actor) {
   } else if (!killed && actor.getFlag("d616", "killedNotified")) {
     await actor.unsetFlag("d616", "killedNotified");
   }
+}
+
+/**
+ * Ablaze and Bleeding (book p.37) both deal a flat 5 Health at the end of
+ * each of the affected character's turns, independently of each other,
+ * until the condition ends or the character dies. Called from the
+ * `updateCombat` hook in d616.mjs for whichever combatant's turn just
+ * ended — there's no other "a turn just ended" moment to hang this off of
+ * in Foundry, so nothing happens for these conditions outside of combat.
+ */
+export async function applyEndOfTurnConditionDamage(actor) {
+  if (!actor || actor.type !== "character") return;
+  const labels = [];
+  if (actor.statuses?.has("d616-ablaze")) labels.push(game.i18n.localize("D616.Condition.Ablaze"));
+  if (actor.statuses?.has("d616-bleeding")) labels.push(game.i18n.localize("D616.Condition.Bleeding"));
+  if (!labels.length) return;
+
+  const amount = 5 * labels.length;
+  await actor.update({ "system.health.value": actor.system.health.value - amount });
+  ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Condition.EndOfTurnDamage", {
+      name: actor.name, amount, conditions: labels.join(" & ")
+    })}</p>`
+  });
 }
