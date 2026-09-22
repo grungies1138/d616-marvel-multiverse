@@ -75,6 +75,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.6.2 — Dodge auto-clears
+
+Dodge now wears off automatically at the start of the dodging character's own next turn (book p.30's "until their next turn"), instead of relying on someone remembering to click the sheet's manual "Clear Dodge" button. Uses the same end-of-turn combat hook that already drives Ablaze/Bleeding's automatic damage.
+
 ## 1.6.1 — Conditions Reference journal
 
 Adds a new "Conditions Reference — Core Rulebook" entry to the Journals compendium: a Conditions Summary page with the book-accurate mechanical facts for all 13 Conditions, plus a "What d616 Automates For You" page mapping each one to exactly what the system now handles automatically (as of 1.6.0) versus what's still a table judgment call. Also fixes a paragraph on the How to Play journal's Health, Focus & Conditions page that had gone stale after 1.6.0 landed — it still said Conditions were "reminders, not automation," which stopped being true for most of them.
