@@ -82,15 +82,20 @@ Hooks.on("updateActor", (actor) => {
   syncAutomaticConditions(actor);
 });
 
-// Ablaze/Bleeding's flat end-of-turn damage (book p.37): `Combat#previous`
-// (set by core just before this fires) still points at the combatant whose
-// turn just ended, whether that's a normal turn advance or the last turn of
-// a round rolling over into the next one.
+// Ablaze/Bleeding's flat end-of-turn damage (book p.37) and Dodge wearing
+// off "until their next turn" (book p.30) both key off the same turn/round
+// change: `Combat#previous` (set by core just before this fires) still
+// points at the combatant whose turn just ended, whether that's a normal
+// turn advance or the last turn of a round rolling over into the next one;
+// `combat.combatant` is already the combatant whose turn is starting.
 Hooks.on("updateCombat", (combat, changes) => {
   if (!("turn" in changes) && !("round" in changes)) return;
   const prevId = combat.previous?.combatantId;
   const prevActor = prevId ? combat.combatants.get(prevId)?.actor : null;
   if (prevActor) applyEndOfTurnConditionDamage(prevActor);
+
+  const currentActor = combat.combatant?.actor;
+  if (currentActor) currentActor.clearDodge();
 });
 
 Hooks.once("ready", async () => {

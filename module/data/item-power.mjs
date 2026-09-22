@@ -61,7 +61,12 @@ export default class PowerData extends foundry.abstract.TypeDataModel {
           blank: true,
           initial: "",
           choices: ["", "initiative", "attacks", ...ABILITY_CHOICES.filter((a) => a)]
-        })
+        }),
+        // The book ties Knockback to "a character with the Mighty power"
+        // (p.34) — check this on whichever Power represents that (Mighty,
+        // or a similar raw-strength power) so a Fantastic close attack
+        // shows the option. See D616Actor#rollItem.
+        grantsKnockback: new BooleanField({ required: true, initial: false })
       }),
 
       effect: new HTMLField({ required: false })

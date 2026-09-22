@@ -44,6 +44,10 @@
   <p class="roll-damage"><strong>{{localize "D616.Roll.Damage"}}: {{damage}}</strong></p>
   {{/if}}
 
+  {{#if knockbackNote}}
+  <p class="callout fantastic-callout">{{knockbackNote}}</p>
+  {{/if}}
+
   {{#if focusCost}}
   <p class="roll-cost">Spent {{focusCost}} Focus (Focus remaining: {{focusRemaining}})</p>
   {{/if}}

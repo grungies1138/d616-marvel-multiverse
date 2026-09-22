@@ -64,6 +64,7 @@ export default class D616Actor extends Actor {
     const bestDefenseBonus = Object.fromEntries(ABILITIES.map((a) => [a, 0]));
     let bestDRBonus = 0;
     const standingEdges = new Set();
+    let hasKnockback = false;
 
     for (const item of this.items) {
       // Powers and Gear (weapons/armor/gadgets) share the same passive-bonus
@@ -88,6 +89,12 @@ export default class D616Actor extends Actor {
       if (passive.standingEdgeOn) {
         standingEdges.add(passive.standingEdgeOn);
       }
+      // Book p.34: Knockback is only available to "a character with the
+      // Mighty power" — whichever Power/Gear item represents that gets
+      // this checked, surfacing the option on a Fantastic close attack.
+      if (passive.grantsKnockback) {
+        hasKnockback = true;
+      }
     }
 
     for (const ability of ABILITIES) {
@@ -110,6 +117,7 @@ export default class D616Actor extends Actor {
 
     sys.standingEdges = standingEdges;
     sys.initiativeHasStandingEdge = standingEdges.has("initiative");
+    sys.hasKnockback = hasKnockback;
 
     // Blinded (book p.37): "speed is reduced by half for all modes of travel."
     if (this.statuses?.has("d616-blinded") && sys.speeds) {
@@ -554,6 +562,7 @@ export default class D616Actor extends Actor {
     let damage = null;
     let damageParams = null;
     let drApplied = 0;
+    let knockbackNote = null;
     if (dealsDamageFlag) {
       const ability = sys.attack.ability;
       let multiplier = this.system.damageMultipliers?.[ability] ?? this.system.rank;
@@ -572,6 +581,16 @@ export default class D616Actor extends Actor {
         if (primaryTarget) drApplied = primaryTarget.system.health?.damageReduction ?? 0;
         const effectiveMultiplier = multiplier - drApplied;
         damage = effectiveMultiplier < 1 ? 0 : computeDamage({ marvelValue, multiplier: effectiveMultiplier, modifier, isFantastic });
+
+        // Knockback (book p.34): on a Fantastic close attack, a character
+        // with the Mighty power can choose knockback instead of the
+        // power's own Fantastic effect — 5 spaces per damage multiplier
+        // point, using the same DR-reduced multiplier as the damage above.
+        // This only surfaces the option (and the distance); it's the
+        // player's choice, so nothing here is auto-applied.
+        if (isFantastic && isCloseAttack && this.system.hasKnockback && effectiveMultiplier >= 1) {
+          knockbackNote = game.i18n.format("D616.Roll.KnockbackAvailable", { distance: effectiveMultiplier * 5 });
+        }
       }
     }
 
@@ -619,6 +638,7 @@ export default class D616Actor extends Actor {
       damage,
       damageType,
       fantasticEffect,
+      knockbackNote,
       focusCost,
       focusRemaining,
       edgeTroubleApplied: effectiveEdgeTrouble
@@ -646,6 +666,7 @@ export default class D616Actor extends Actor {
             damage,
             damageType,
             fantasticEffect,
+            knockbackNote,
             focusCost,
             focusRemaining,
             edgeTroubleApplied: effectiveEdgeTrouble
@@ -801,9 +822,20 @@ export default class D616Actor extends Actor {
     });
   }
 
-  /** Clears the Dodge flag — call at the start of this actor's next turn. */
+  /**
+   * Clears the Dodge flag — called automatically at the start of this
+   * actor's next turn (book: "until their next turn"; see the
+   * `updateCombat` hook in d616.mjs), or by hand via the sheet's "Clear
+   * Dodge" button. A no-op (and silent) if Dodge isn't actually active, so
+   * the automatic call doesn't spam a chat note every single turn.
+   */
   async clearDodge() {
+    if (!this.getFlag("d616", "dodging")) return;
     await this.unsetFlag("d616", "dodging");
+    ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.DodgeClearedNote", { name: this.name })}</p>`
+    });
   }
 
   /** Help: the targeted ally gets a one-shot Edge on their next action check. */

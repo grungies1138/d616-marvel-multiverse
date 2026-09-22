@@ -61,7 +61,8 @@ export default class GearData extends foundry.abstract.TypeDataModel {
           blank: true,
           initial: "",
           choices: ["", "initiative", "attacks", ...ABILITY_CHOICES.filter((a) => a)]
-        })
+        }),
+        grantsKnockback: new BooleanField({ required: true, initial: false })
       }),
 
       effect: new HTMLField({ required: false })
