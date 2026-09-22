@@ -218,6 +218,7 @@
       "Dodge": "Dodge",
       "ClearDodge": "Clear Dodge",
       "DodgeNote": "{name} is Dodging — attacks against them have Trouble until their next turn.",
+      "DodgeClearedNote": "{name}'s turn begins — their Dodge wears off.",
       "Help": "Help",
       "HelpNeedsTarget": "Target the ally you want to Help first.",
       "HelpNote": "{name} Helps {target} — they get an Edge on their next action.",

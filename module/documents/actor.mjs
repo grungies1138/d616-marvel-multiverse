@@ -801,9 +801,20 @@ export default class D616Actor extends Actor {
     });
   }
 
-  /** Clears the Dodge flag — call at the start of this actor's next turn. */
+  /**
+   * Clears the Dodge flag — called automatically at the start of this
+   * actor's next turn (book: "until their next turn"; see the
+   * `updateCombat` hook in d616.mjs), or by hand via the sheet's "Clear
+   * Dodge" button. A no-op (and silent) if Dodge isn't actually active, so
+   * the automatic call doesn't spam a chat note every single turn.
+   */
   async clearDodge() {
+    if (!this.getFlag("d616", "dodging")) return;
     await this.unsetFlag("d616", "dodging");
+    ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.DodgeClearedNote", { name: this.name })}</p>`
+    });
   }
 
   /** Help: the targeted ally gets a one-shot Edge on their next action check. */
