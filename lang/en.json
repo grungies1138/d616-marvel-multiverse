@@ -122,6 +122,7 @@
       "NonAttackCheckBonus": "Non-Attack Check Bonus",
       "DefenseBonus": "Defense Bonus",
       "StandingEdgeOn": "Standing Edge On",
+      "GrantsKnockback": "Grants Knockback (Mighty power)",
       "AllAttacks": "All Attacks",
       "MultiTarget": "Hits Multiple Targets (Shotgun/SMG-style)",
       "MaxTargets": "Max Targets Hit",
@@ -283,6 +284,7 @@
         "focus": "Focus damage"
       },
       "Damage": "Damage",
+      "KnockbackAvailable": "Knockback available instead of the power's own Fantastic effect: {distance} spaces straight back (choose one).",
       "SpendFocus": "Spend extra Focus?",
       "SpendFocusHint": "Enter additional Focus to spend beyond the base cost (must be a multiple of the scaling ratio).",
       "EdgeTrouble": "Edge / Trouble",

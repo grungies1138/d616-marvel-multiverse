@@ -45,6 +45,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   automatically takes the single largest one. The same is true for Health Damage
   Reduction (from armor or a passive Power like Sturdy). This is handled for you in
   `prepareDerivedData()`/`rollItem()` — you don't need to do this math by hand.
+- **Knockback**: a Power or Gear flagged "Grants Knockback (Mighty power)" shows the
+  knockback distance (book p.34: 5 spaces per Damage-Reduction-adjusted multiplier
+  point) on a Fantastic close attack's chat card, as an alternative to the power's
+  own Fantastic effect — the choice stays with the player, this just does the math.
 - **Add Edge / Add Trouble from the chat card**: every roll that actually rolls dice
   (ability checks, Initiative, and any Power/Gear attack) posts its chat card with
   **Add Edge** and **Add Trouble** buttons at the bottom, so the roll doesn't have to
@@ -74,6 +78,10 @@ publisher — built for homebrew/original characters and personal home-game use.
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.6.3 — Knockback
+
+Powers and Gear can now be flagged "Grants Knockback (Mighty power)" on their Passive Bonus block. On a Fantastic close attack from an item with that flag, the roll's chat card now shows the knockback distance available as an alternative to the power's own Fantastic effect (book p.34: 5 spaces per damage multiplier point, using the same Damage-Reduction-adjusted multiplier as the damage roll) — the choice between the two stays with the player, this just does the math. Ranged attacks and characters without a knockback-granting power never show the option.
 
 ## 1.6.2 — Dodge auto-clears
 

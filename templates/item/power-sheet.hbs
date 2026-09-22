@@ -122,6 +122,10 @@
           {{/each}}
         </select>
       </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.passive.grantsKnockback" {{#if system.passive.grantsKnockback}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.GrantsKnockback"}}
+      </label>
     </fieldset>
 
     <label class="full-width">{{localize "D616.Sheet.Effect"}}
