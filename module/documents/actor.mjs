@@ -520,7 +520,14 @@ export default class D616Actor extends Actor {
       bonusModifier = Math.floor(extraFocus / ratio);
       focusCost += extraFocus;
     }
-    if (focusCost > this.system.focus.value) {
+    // Spending Focus (book p.81): no more than 5 x Rank at once, and never
+    // voluntarily down below 1.
+    const maxSpend = 5 * this.system.rank;
+    if (focusCost > maxSpend) {
+      ui.notifications.warn(game.i18n.format("D616.Roll.FocusOverLimit", { cost: focusCost, max: maxSpend, rank: this.system.rank }));
+      return;
+    }
+    if (focusCost > 0 && this.system.focus.value - focusCost < 1) {
       ui.notifications.warn(game.i18n.localize("D616.Roll.InsufficientFocus"));
       return;
     }

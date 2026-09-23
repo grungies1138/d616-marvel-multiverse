@@ -311,12 +311,12 @@
       "Damage": "Damage",
       "KnockbackAvailable": "Knockback available instead of the power's own Fantastic effect: {distance} spaces straight back (choose one).",
       "SpendFocus": "Spend extra Focus?",
-      "SpendFocusHint": "Enter additional Focus to spend beyond the base cost (must be a multiple of the scaling ratio).",
+      "SpendFocusHint": "Extra Focus to spend beyond the base cost, in multiples of the scaling ratio. The whole spend can't exceed 5 x Rank or leave you below 1 Focus.",
       "EdgeTrouble": "Edge / Trouble",
       "None": "None",
       "Edge": "Edge (reroll one d6, keep higher)",
       "Trouble": "Trouble (reroll one d6, keep lower)",
-      "InsufficientFocus": "Not enough Focus remaining to use this power.",
+      "InsufficientFocus": "Not enough Focus: using this would leave you below 1 Focus, which the book does not allow (p.81).",
       "AddEdge": "Add Edge",
       "AddTrouble": "Add Trouble",
       "EdgeApplied": "Edge Applied",
@@ -329,7 +329,8 @@
       "DifficultyOption": "{adjective} (TN {tn})",
       "NoTN": "No target number",
       "CustomTN": "Custom target number",
-      "CustomTNValue": "Custom TN"
+      "CustomTNValue": "Custom TN",
+      "FocusOverLimit": "Can't spend {cost} Focus at once: the limit is 5 x Rank ({max} at Rank {rank})."
     },
     "Damage": {
       "Apply": "Apply Damage",

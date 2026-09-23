@@ -119,6 +119,20 @@ This release applies the Core Rulebook errata (July 2025) where it touches this 
   - Shield of the Seraphim gains its trigger.
   - Three powers that were missing are added: **Winds of Watoomb** (Magic), plus **Wisdom** and **Wisecracker** (Basic, also open to Special Training characters).
 - The **How to Play** journal's Karma recovery formula is updated to match.
+- **Focus spending limits** (p.81): a Power or Gear roll can't spend more than 5 × Rank Focus at once, or leave the character below 1 Focus.
+- **Compendium coverage pass**: every mechanic, feature and option the system has is now documented in the Journals compendium.
+  - How to Play gains a **Sheet & Table Tools** page. It covers tooltips, Traits, Shift-click, Condition icons and active-state tags, the power budget, movement, size, Heroic and Team, the portrait cropper, the Light/Dark theme, the macros and the Random Tables, plus a field-by-field guide to the Power, Gear and Trait sheets.
+  - How to Play's existing pages now also cover:
+    - Close vs. ranged Defenses, multi-target splitting, knockback, and lethal/nonlethal/holding back.
+    - Which player actions need a GM logged in.
+    - Concentration and the Focus limits.
+    - Stop Bleeding, Put Out Fire, Wake and Rally.
+    - The Falling calculator, Reactions, and the TN Calculator macro.
+  - Stale lines are corrected:
+    - Edge/Trouble can reroll the Marvel die, not just a white die.
+    - The compendium names are updated.
+    - Weapons are no longer described as ready-made items.
+  - Character Creation points to the Random Tables and the power budget.
 
 ## 1.10.0 — Concentration, nonlethal damage, ending Conditions, and weapon special rules
 
