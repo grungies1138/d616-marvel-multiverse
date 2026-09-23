@@ -100,7 +100,11 @@
     {{#if activeList.length}}
     <ul class="mm-active-row">
       {{#each activeList}}
+      {{#if this.action}}
+      <li><a data-action="{{this.action}}" data-item-id="{{this.itemId}}" data-kind="{{this.kind}}" data-tooltip="{{this.tooltip}}"><i class="fa-solid {{this.icon}}"></i> {{this.label}}</a></li>
+      {{else}}
       <li><i class="fa-solid {{this.icon}}"></i> {{this.label}}</li>
+      {{/if}}
       {{/each}}
     </ul>
     {{/if}}

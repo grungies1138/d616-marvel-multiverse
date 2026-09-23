@@ -11,6 +11,18 @@ import { damageFromRoll } from "../dice/marvel-roll.mjs";
  * what Undo reverses.
  */
 
+/**
+ * Nonlethal damage (book p.36) stops when the target's Health reaches
+ * 1 point away from dying: Killed is Health <= -max, so it floors at
+ * 1 - max. `before` is the target's Health before this hit, if not current.
+ */
+export function nonlethalCap(actor, amount, pool, nonlethal, before = null) {
+  if (!nonlethal || pool !== "health" || !amount) return amount;
+  const health = before ?? actor.system.health.value;
+  const floor = 1 - actor.system.health.max;
+  return Math.max(0, Math.min(amount, health - floor));
+}
+
 /** Tokens the user has targeted, falling back to the ones they've selected. */
 function chosenActors() {
   const targeted = Array.from(game.user.targets);
@@ -55,7 +67,8 @@ export async function reconcileAppliedDamage(data) {
       continue;
     }
     const hit = data.success !== false && data.damage !== null && data.damageParams;
-    const amount = hit ? Math.floor(damageAgainst(data, actor) / (entry.divisor ?? 1)) : 0;
+    const raw = hit ? Math.floor(damageAgainst(data, actor) / (entry.divisor ?? 1)) : 0;
+    const amount = nonlethalCap(actor, raw, entry.pool, data.nonlethal, actor.system[entry.pool].value + entry.amount);
     const delta = amount - entry.amount;
     if (delta) {
       await actor.update({ [`system.${entry.pool}.value`]: actor.system[entry.pool].value - delta });
@@ -96,7 +109,7 @@ export async function applyDamageFromMessage(message) {
       ui.notifications.warn(game.i18n.format("D616.Damage.NoPermissionActor", { name: actor.name }));
       continue;
     }
-    const amount = damageAgainst(data, actor);
+    const amount = nonlethalCap(actor, damageAgainst(data, actor), pool, data.nonlethal);
     if (amount > 0) {
       await actor.update({ [`system.${pool}.value`]: actor.system[pool].value - amount });
       applied.push({ uuid: actor.uuid, amount, pool });

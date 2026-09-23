@@ -1,5 +1,8 @@
 import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor } from "../dice/marvel-roll.mjs";
 import { updateAnywhere, toggleStatusAnywhere, applyEdgeTroubleRouted } from "../helpers/gm-relay.mjs";
+import { nonlethalCap } from "../helpers/damage.mjs";
+import { isConcentrationPower, concentratingOn, startConcentration } from "../helpers/concentration.mjs";
+import { computeTN } from "../helpers/tn-calculator.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
 
@@ -35,6 +38,31 @@ function isCloseRangeAttack(item) {
   if (item.type === "gear" && sys.category === "weaponMelee") return true;
   const range = (sys.range ?? "").trim().toLowerCase();
   return range === "" || range === "melee" || range === "self" || range === "touch" || range.startsWith("melee");
+}
+
+/**
+ * Lethal vs. nonlethal (book p.36): weaponless attacks are nonlethal unless
+ * declared otherwise, weapon attacks are lethal. On "auto", Gear weapons and
+ * powers from the Melee Weapons / Ranged Weapons sets count as weapons.
+ */
+function isNonlethalAttack(item) {
+  const choice = item.system.attack?.lethality ?? "auto";
+  if (choice !== "auto") return choice === "nonlethal";
+  if (item.type === "gear") return !["weaponMelee", "weaponRanged"].includes(item.system.category);
+  return !/\b(melee|ranged) weapons\b/i.test(item.system.powerSet ?? "");
+}
+
+/** Grid spaces between this user's token for `actor` and a targeted token, or null off-canvas. */
+function spacesBetween(actor, targetToken) {
+  const own = actor.getActiveTokens()[0];
+  if (!own || !targetToken || !canvas?.grid) return null;
+  // From the saved positions, not the drawn ones, which lag during a move animation.
+  const center = (t) => {
+    const d = t.document;
+    return { x: d.x + (d.width * canvas.grid.sizeX) / 2, y: d.y + (d.height * canvas.grid.sizeY) / 2 };
+  };
+  const path = canvas.grid.measurePath([center(own), center(targetToken)]);
+  return path.spaces ?? Math.round(path.distance / canvas.grid.distance);
 }
 
 export default class D616Actor extends Actor {
@@ -157,9 +185,9 @@ export default class D616Actor extends Actor {
    * pass "attacks" as `standingKey` and their real ability separately, plus
    * `isCloseAttack` and `targetActor` so target-side Conditions can apply.
    */
-  async _resolveEdgeTrouble(explicit, standingKey, { ability = standingKey, isCloseAttack = false, targetActor = null } = {}) {
+  async _resolveEdgeTrouble(explicit, standingKey, { ability = standingKey, isCloseAttack = false, targetActor = null, extraTroubles = 0 } = {}) {
     let edges = 0;
-    let troubles = 0;
+    let troubles = extraTroubles;
     let consumedHelp = false;
 
     if (explicit === "edge") edges++;
@@ -268,7 +296,7 @@ export default class D616Actor extends Actor {
    * target Defense/DC. Used for non-attack checks (Edge/Trouble from
    * Traits should be chosen by the roller when prompted).
    */
-  async rollAbilityCheck(abilityKey, { targetNumber = null, flavor = null, edgeTrouble = "none" } = {}) {
+  async rollAbilityCheck(abilityKey, { targetNumber = null, flavor = null, edgeTrouble = "none", helperAction = null } = {}) {
     if (!ABILITIES.includes(abilityKey)) {
       ui.notifications.error(`Unknown ability: ${abilityKey}`);
       return;
@@ -306,13 +334,18 @@ export default class D616Actor extends Actor {
       edgeTroubleApplied: resolved.mode
     });
 
-    return ChatMessage.create({
+    const message = await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content,
       flags: {
         d616: {
           roll: {
             kind: "ability",
+            total,
+            success,
+            // Stop Bleeding / Wake / Rally and the like: what a success does,
+            // carried out now or when Edge added later turns it into one.
+            helperAction,
             title,
             subtitle: null,
             d1: dice.d1,
@@ -337,6 +370,11 @@ export default class D616Actor extends Actor {
         }
       }
     });
+    if (helperAction && success) {
+      const { resolveHelperAction } = await import("../helpers/helper-checks.mjs");
+      await resolveHelperAction(message);
+    }
+    return message;
   }
 
   /**
@@ -487,11 +525,34 @@ export default class D616Actor extends Actor {
       return;
     }
 
+    // Concentration (book p.81): one power per point of Rank, each a
+    // different power. Using one already held just re-uses it.
+    const concentrates = isConcentrationPower(item);
+    if (concentrates) {
+      const held = concentratingOn(this);
+      if (!held.some((c) => c.id === item.id) && held.length >= this.system.rank) {
+        ui.notifications.warn(game.i18n.format("D616.Concentration.AtLimit", { name: this.name, rank: this.system.rank }));
+        return;
+      }
+    }
+
     // --- Targets (for auto-Defense lookup, size modifier, and Damage
     // Reduction / auto-damage-application) ---
     const isMultiTarget = item.type === "gear" && sys.attack?.multiTarget;
     const targets = isMultiTarget ? getTargets(sys.attack.maxTargets || 1) : [getSingleTarget()].filter(Boolean);
     const primaryTarget = targets[0] ?? null;
+    const notes = [];
+
+    // Rifle / Submachine Gun (book p.36): Trouble against targets this close.
+    let extraTroubles = 0;
+    const closeLimit = item.type === "gear" ? sys.attack?.closeRangeTrouble ?? 0 : 0;
+    if (sys.attack?.enabled && closeLimit > 0 && primaryTarget) {
+      const spaces = spacesBetween(this, Array.from(game.user.targets)[0]);
+      if (spaces !== null && spaces <= closeLimit) {
+        extraTroubles = 1;
+        notes.push(game.i18n.format("D616.Weapon.CloseRangeNote", { spaces, limit: closeLimit }));
+      }
+    }
 
     // --- Attack roll (if this power makes one) ---
     let d1 = null, d2 = null, marvelValue = null, rawMarvel = null, isFantastic = false, isGreen = false, isUltimate = false;
@@ -511,7 +572,7 @@ export default class D616Actor extends Actor {
       const ability = sys.attack.ability;
       abilityValue = ABILITIES.includes(ability) ? this.system.abilities[ability].value : 0;
 
-      const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks", { ability, isCloseAttack, targetActor: primaryTarget });
+      const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks", { ability, isCloseAttack, targetActor: primaryTarget, extraTroubles });
       effectiveEdgeTrouble = resolved.mode;
 
       if (primaryTarget) sizeModifier = SIZE_ATTACK_MODIFIER[primaryTarget.system.size] ?? 0;
@@ -568,6 +629,16 @@ export default class D616Actor extends Actor {
       ({ d1, d2, marvelValue, rawMarvel, isFantastic, isGreen, isUltimate } = roll.dice);
       attackTotal = roll.total;
       success = roll.success;
+
+      // Grenades (book p.36): the same roll is the Challenging Agility check
+      // to land in the chosen space; short of that, it scatters 1d6 spaces.
+      if (item.type === "gear" && sys.attack.scatters) {
+        const landTN = computeTN(this.system.rank, "challenging");
+        if (attackTotal < landTN) {
+          const scatter = await new Roll("1d6").evaluate();
+          notes.push(game.i18n.format("D616.Weapon.ScatterNote", { tn: landTN, spaces: scatter.total }));
+        }
+      }
     }
 
     // --- Damage (if applicable) ---
@@ -577,6 +648,7 @@ export default class D616Actor extends Actor {
     // can turn a miss into a hit against a flat DC) can compute damage then
     // too, without needing to re-derive the actor's state later.
     const dealsDamageFlag = !!(sys.attack?.enabled && sys.attack?.dealsDamage);
+    const nonlethal = dealsDamageFlag && isNonlethalAttack(item);
     const damageType = sys.attack?.damageType === "focus" ? "focus" : "health";
     let damage = null;
     let damageParams = null;
@@ -592,6 +664,8 @@ export default class D616Actor extends Actor {
       if (item.type === "gear" && sys.attack.damageMultiplierBonus) {
         multiplier = Math.max(multiplier, this.system.rank + sys.attack.damageMultiplierBonus);
       }
+      // Grenades use their own multiplier in place of the attacker's (p.36).
+      if (item.type === "gear" && sys.attack.ownMultiplier > 0) multiplier = sys.attack.ownMultiplier;
       const modifier = (this.system.damageModifiers?.[ability] ?? abilityValue ?? 0) + bonusModifier;
       damageParams = { multiplier, modifier };
       if (success === null || success) {
@@ -623,21 +697,25 @@ export default class D616Actor extends Actor {
     let targetSummary = null;
     let damageNotApplied = false;
     const applied = [];
-    if (dealsDamageFlag && (success === null || success) && damage) {
+    if (dealsDamageFlag && (success === null || success) && damage !== null && (damage || isMultiTarget)) {
       const pool = damageType === "focus" ? "focus" : "health";
-      const divisor = isMultiTarget && targets.length > 1 ? targets.length : 1;
-      const hits = divisor > 1
-        ? targets.map((t) => ({ actor: t, amount: Math.floor(damage / divisor) }))
+      const split = sys.attack.splitDamage ?? true;
+      const divisor = isMultiTarget && split && targets.length > 1 ? targets.length : 1;
+      // Each target's own Damage Reduction applies to its share.
+      const againstTarget = (t) => damageFromRoll({ damageParams, drApplied: t.system.health?.damageReduction ?? 0, marvelValue, isFantastic }).damage;
+      const hits = isMultiTarget && targets.length > 1
+        ? targets.map((t) => ({ actor: t, amount: Math.floor(againstTarget(t) / divisor) }))
         : primaryTarget ? [{ actor: primaryTarget, amount: damage }] : [];
-      for (const { actor, amount } of hits) {
-        if (!actor.isOwner) {
+      for (const hit of hits) {
+        if (!hit.actor.isOwner) {
           damageNotApplied = true;
           continue;
         }
-        await this._applyDamageTo(actor, amount, damageType);
-        if (amount) applied.push({ uuid: actor.uuid, amount, pool, divisor });
+        hit.amount = nonlethalCap(hit.actor, hit.amount, pool, nonlethal);
+        await this._applyDamageTo(hit.actor, hit.amount, damageType);
+        if (hit.amount) applied.push({ uuid: hit.actor.uuid, amount: hit.amount, pool, divisor });
       }
-      if (hits.length > 1) targetSummary = hits.map((h) => h.actor.name).join(", ") + ` (${hits[0].amount} each)`;
+      if (hits.length > 1) targetSummary = hits.map((h) => `${h.actor.name} (${h.amount})`).join(", ");
       else if (hits.length === 1) targetSummary = hits[0].actor.name;
     }
     // Name the target even when no damage landed (a miss, DR soaking it all,
@@ -646,7 +724,12 @@ export default class D616Actor extends Actor {
     if (!targetSummary && primaryTarget && sys.attack?.enabled) targetSummary = primaryTarget.name;
     const canApplyDamage = dealsDamageFlag && damage !== null;
 
-    const subtitle = `${sys.range ?? ""} · ${sys.duration ?? ""}`;
+    // Concentration starts once the power has actually been used.
+    if (concentrates) await startConcentration(this, item);
+
+    const subtitle = [sys.range, sys.duration, nonlethal ? game.i18n.localize("D616.Damage.Nonlethal") : null]
+      .filter(Boolean).join(" · ");
+    const extraNote = notes.join(" ") || null;
     const defenseTargetLabel = sys.attack?.defenseTarget && sys.attack.defenseTarget !== "flat"
       ? game.i18n.localize(`D616.Ability.${sys.attack.defenseTarget}`) + " Defense"
       : null;
@@ -674,6 +757,7 @@ export default class D616Actor extends Actor {
       fantasticEffect,
       knockbackNote,
       teamRerollNote,
+      extraNote,
       canApplyDamage,
       damageNotApplied,
       focusCost,
@@ -705,6 +789,8 @@ export default class D616Actor extends Actor {
             fantasticEffect,
             knockbackNote,
             teamRerollNote,
+            extraNote,
+            nonlethal,
             applied,
             // Everything the card needs to be re-judged and re-rendered
             // identically if Edge/Trouble is added after the fact.

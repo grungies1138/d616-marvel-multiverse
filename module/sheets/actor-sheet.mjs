@@ -2,6 +2,8 @@ import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
 import { openTeamManeuverDialog } from "../helpers/team-maneuver.mjs";
 import { CONDITIONS, AUTOMATIC_CONDITIONS } from "../helpers/conditions.mjs";
 import { ADJECTIVE_MODIFIERS, computeTN } from "../helpers/tn-calculator.mjs";
+import { concentratingOn, endConcentration } from "../helpers/concentration.mjs";
+import { availableHelperChecks, openHelperCheck } from "../helpers/helper-checks.mjs";
 import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
 import D616ImageCropper from "../apps/image-cropper.mjs";
 
@@ -133,7 +135,9 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       actionEscape: D616CharacterSheet.#onActionEscape,
       openTeamManeuver: D616CharacterSheet.#onOpenTeamManeuver,
       fallingDamage: D616CharacterSheet.#onFallingDamage,
-      toggleCondition: D616CharacterSheet.#onToggleCondition
+      toggleCondition: D616CharacterSheet.#onToggleCondition,
+      endConcentration: D616CharacterSheet.#onEndConcentration,
+      helperCheck: D616CharacterSheet.#onHelperCheck
     }
   };
 
@@ -258,6 +262,20 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     if (tm) {
       const type = game.i18n.localize(`D616.TeamManeuver.${tm.type.charAt(0).toUpperCase()}${tm.type.slice(1)}`);
       context.activeList.push({ icon: "fa-people-group", label: game.i18n.format("D616.Sheet.ActiveTeamManeuver", { type, level: tm.level }) });
+    }
+    // Concentration (book p.81): each held power, clickable to end it.
+    for (const c of concentratingOn(actor)) {
+      context.activeList.push({
+        icon: "fa-bullseye", label: game.i18n.format("D616.Concentration.Tag", { power: c.name }),
+        action: "endConcentration", itemId: c.id, tooltip: game.i18n.localize("D616.Concentration.EndHint")
+      });
+    }
+    // Checks someone can make to end one of this character's Conditions.
+    for (const kind of availableHelperChecks(actor)) {
+      context.activeList.push({
+        icon: "fa-hand-holding-medical", label: game.i18n.localize(`D616.HelperCheck.${kind}.Button`),
+        action: "helperCheck", kind, tooltip: game.i18n.format(`D616.HelperCheck.${kind}.Hint`, { name: actor.name })
+      });
     }
 
     context.conditionList = CONDITIONS.map((c) => {
@@ -508,6 +526,15 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
 
   static #onOpenTeamManeuver() {
     openTeamManeuverDialog(this.document);
+  }
+
+  static #onEndConcentration(event, target) {
+    if (!this.isEditable) return;
+    endConcentration(this.document, [target.dataset.itemId]);
+  }
+
+  static #onHelperCheck(event, target) {
+    openHelperCheck(this.document, target.dataset.kind);
   }
 
   static #onToggleCondition(event, target) {

@@ -35,7 +35,12 @@ export default class PowerData extends foundry.abstract.TypeDataModel {
         // Per the book (p.34), Health damage and Focus damage are distinct —
         // physical attacks hurt Health, mental/psychic ones hurt Focus.
         damageType: new StringField({ required: true, initial: "health", choices: ["health", "focus"] }),
-        fantasticEffect: new StringField({ required: false, initial: "Double damage." })
+        fantasticEffect: new StringField({ required: false, initial: "Double damage." }),
+        // Lethal vs. nonlethal (book p.36): weaponless attacks are nonlethal
+        // unless declared otherwise, weapons are lethal. "auto" follows that
+        // rule (see isNonlethalAttack in documents/actor.mjs); a nonlethal
+        // hit stops 1 Health short of Killed.
+        lethality: new StringField({ required: true, initial: "auto", choices: ["auto", "lethal", "nonlethal"] })
       }),
 
       passive: new SchemaField({

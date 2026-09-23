@@ -221,6 +221,13 @@ export async function applyEdgeTroubleToMessage(message, mode) {
   const content = await renderRollCard(rollCardContext(updatedRollData, { staleApplied: reconciled.stale }));
   await message.update({ content, "flags.d616.roll": updatedRollData });
 
+  // A helper check (Stop Bleeding, Wake, Rally...) that Edge turned into a
+  // success does its job now.
+  if (updatedRollData.helperAction && success && !updatedRollData.helperAction.done) {
+    const { resolveHelperAction } = await import("../helpers/helper-checks.mjs");
+    await resolveHelperAction(message);
+  }
+
   const noteKey = mode === "edge" ? "D616.Roll.EdgeAppliedNote" : "D616.Roll.TroubleAppliedNote";
   ChatMessage.create({
     speaker: message.speaker,
@@ -263,6 +270,8 @@ export function rollCardContext(data, extra = {}) {
     damageType: data.damageType,
     knockbackNote: data.knockbackNote,
     teamRerollNote: data.teamRerollNote,
+    extraNote: data.extraNote,
+    helperNote: data.helperAction?.done ? data.helperAction.doneNote : null,
     canApplyDamage: !!data.dealsDamageFlag && data.damage !== null && data.damage !== undefined,
     damageNotApplied: data.damageNotApplied,
     fantasticEffect: data.fantasticEffect,

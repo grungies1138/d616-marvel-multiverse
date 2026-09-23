@@ -148,7 +148,15 @@
       "RollAbilityHint": "Roll (Shift-click to roll without the difficulty/Edge prompt)",
       "ActiveDodging": "Dodging",
       "ActiveHelped": "Helped: Edge on next roll",
-      "ActiveTeamManeuver": "{type} Team Maneuver L{level} this round"
+      "ActiveTeamManeuver": "{type} Team Maneuver L{level} this round",
+      "SplitDamage": "Split damage between targets (off for grenades)",
+      "CloseRangeTrouble": "Trouble against targets this many spaces away or closer (Rifle, SMG: 5)",
+      "OwnMultiplier": "Weapon uses its own damage multiplier (grenades: 2; 0 = attacker's)",
+      "Scatters": "Scatters on a missed landing (grenades)",
+      "Lethality": "Lethal / Nonlethal",
+      "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal)",
+      "LethalityLethal": "Lethal",
+      "LethalityNonlethal": "Nonlethal"
     },
     "ImageCropper": {
       "Title": "Crop Portrait",
@@ -195,7 +203,8 @@
       "BlockedUnconscious": "{name} is Unconscious and cannot take any actions.",
       "BlockedShattered": "{name} is Shattered and cannot take any actions.",
       "BlockedParalyzed": "{name} is Paralyzed and cannot take actions that require a Melee or Agility check.",
-      "AutomaticHint": "{label} — set automatically from Health/Focus"
+      "AutomaticHint": "{label} — set automatically from Health/Focus",
+      "BleedingStoppedByHealing": "{name} recovered Health, so the bleeding stops."
     },
     "Karma": {
       "NotEnough": "Not enough Karma remaining.",
@@ -337,11 +346,54 @@
       "NotAppliedHint": "Not applied automatically: you can't edit that target. The GM can use Apply Damage.",
       "StaleHint": "Some of this damage was applied to a token you can't edit, so it still reflects the old roll. The GM can Undo and Apply Damage again.",
       "AdjustedLine": "{name} ({from} → {to})",
-      "AdjustedNote": "Applied damage updated for the new result: {lines}."
+      "AdjustedNote": "Applied damage updated for the new result: {lines}.",
+      "Nonlethal": "Nonlethal"
     },
     "Relay": {
       "NoGM": "That changes a character you don't own, so it needs a GM connected. Nothing was changed.",
       "Failed": "The GM's client couldn't make that change ({error})."
+    },
+    "Weapon": {
+      "CloseRangeNote": "Target is {spaces} space(s) away: Trouble within {limit} spaces.",
+      "ScatterNote": "Missed the Challenging TN {tn} to land on target: the grenade lands {spaces} space(s) away (the Narrator picks the direction)."
+    },
+    "Concentration": {
+      "AtLimit": "{name} is already concentrating on {rank} power(s), their limit at Rank {rank}. End one first.",
+      "Tag": "Concentrating: {power}",
+      "EndHint": "Click to end concentration on this power",
+      "Ended": "{name} stops concentrating on {powers}.",
+      "Broken": "{name}'s concentration on {powers} breaks ({reason}).",
+      "SightReminder": "{name} is blinded: concentration ends on any of these that need line of sight: {powers}.",
+      "HearingReminder": "{name} is deafened: concentration ends on any of these that need hearing: {powers}."
+    },
+    "HelperCheck": {
+      "Who": "Who makes the check?",
+      "NoHelper": "None of your characters can make this check.",
+      "OutOfCombatOnly": "{name} can only be helped this way outside combat.",
+      "bleeding": {
+        "Button": "Stop Bleeding",
+        "Title": "Stop {name}'s Bleeding",
+        "Hint": "An action and a Logic check against TN 10 stops the bleeding. Anyone can try, including {name}.",
+        "Done": "The bleeding stops for {name}."
+      },
+      "ablaze": {
+        "Button": "Put Out Fire",
+        "Title": "Put Out {name}'s Fire",
+        "Hint": "An action and an Agility check against TN 10 smothers the fire. Anyone can try, including {name}.",
+        "Done": "The fire on {name} goes out."
+      },
+      "awaken": {
+        "Button": "Wake",
+        "Title": "Wake {name}",
+        "Hint": "Outside combat, a helper within reach makes a Challenging Logic check; on a success {name}'s Health returns to 1.",
+        "Done": "{name} wakes up with 1 Health."
+      },
+      "rally": {
+        "Button": "Rally",
+        "Title": "Rally {name}",
+        "Hint": "Outside combat, a helper who can communicate with {name} makes a Challenging Ego check; on a success their Focus returns to 1.",
+        "Done": "{name} rallies with 1 Focus."
+      }
     }
   }
 }
