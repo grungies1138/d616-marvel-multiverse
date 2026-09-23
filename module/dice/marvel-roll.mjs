@@ -262,6 +262,7 @@ export function rollCardContext(data, extra = {}) {
     damage: data.damage,
     damageType: data.damageType,
     knockbackNote: data.knockbackNote,
+    teamRerollNote: data.teamRerollNote,
     canApplyDamage: !!data.dealsDamageFlag && data.damage !== null && data.damage !== undefined,
     damageNotApplied: data.damageNotApplied,
     fantasticEffect: data.fantasticEffect,

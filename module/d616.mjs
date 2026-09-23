@@ -1,6 +1,6 @@
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
 import { registerConditions, syncAutomaticConditions, applyEndOfTurnConditionDamage } from "./helpers/conditions.mjs";
-import { openTeamManeuverDialog } from "./helpers/team-maneuver.mjs";
+import { openTeamManeuverDialog, rallyRecover } from "./helpers/team-maneuver.mjs";
 import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import { applyDamageFromMessage, undoDamageFromMessage } from "./helpers/damage.mjs";
 import { registerGMRelay, isResponsibleClient, applyEdgeTroubleRouted } from "./helpers/gm-relay.mjs";
@@ -165,7 +165,7 @@ Hooks.once("ready", async () => {
   // came from.
   document.addEventListener("click", (event) => {
     const button = event.target.closest(
-      '[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"], [data-action="d616KarmaEdge"], [data-action="d616KarmaTrouble"], [data-action="d616ApplyDamage"], [data-action="d616UndoDamage"]'
+      '[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"], [data-action="d616KarmaEdge"], [data-action="d616KarmaTrouble"], [data-action="d616ApplyDamage"], [data-action="d616UndoDamage"], [data-action="d616RallyRecover"]'
     );
     if (!button) return;
     event.preventDefault();
@@ -177,6 +177,7 @@ Hooks.once("ready", async () => {
     const action = button.dataset.action;
     if (action === "d616ApplyDamage") return applyDamageFromMessage(message);
     if (action === "d616UndoDamage") return undoDamageFromMessage(message);
+    if (action === "d616RallyRecover") return rallyRecover(message, button.dataset.actor, button.dataset.pool);
     if (action === "d616ApplyEdge" || action === "d616ApplyTrouble") {
       applyEdgeTroubleRouted(message, action === "d616ApplyEdge" ? "edge" : "trouble");
       return;

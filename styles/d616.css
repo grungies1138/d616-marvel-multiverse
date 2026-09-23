@@ -1324,3 +1324,8 @@
   background: var(--mm-dark-red);
   color: #fff;
 }
+
+/* Rally recovery choices on a Team Maneuver announcement card */
+.d616-rally ul { list-style: none; margin: 4px 0 0; padding: 0; }
+.d616-rally li { display: flex; align-items: center; gap: 4px; margin: 2px 0; }
+.d616-rally .edge-trouble-btn { flex: 0 0 auto; }

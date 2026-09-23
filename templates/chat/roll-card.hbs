@@ -44,6 +44,10 @@
   <p class="roll-damage"><strong>{{localize "D616.Roll.Damage"}}: {{damage}}</strong></p>
   {{/if}}
 
+  {{#if teamRerollNote}}
+  <p class="roll-target">{{teamRerollNote}}</p>
+  {{/if}}
+
   {{#if knockbackNote}}
   <p class="callout fantastic-callout">{{knockbackNote}}</p>
   {{/if}}

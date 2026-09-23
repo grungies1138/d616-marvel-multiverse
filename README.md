@@ -100,9 +100,11 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
-## 1.8.1 — Multiplayer fixes
+## 1.8.1 — Multiplayer fixes, and Team Maneuvers brought in line with the book
 
 The first round of testing from a real player login (with a GM connected at the same time) turned up a set of bugs that only happen when the person acting isn't the GM. Help, a successful Grab, a Team Maneuver, and Spend Karma: Trouble all need to change a character the player doesn't own, and each one failed with a permission error. Worst of all, a Team Maneuver charged the player's Focus first and then failed. Those changes are now made by the GM's client on the player's behalf (the system gains a socket channel for this); with no GM connected they refuse cleanly before anything is spent. Separately, the end-of-turn Ablaze/Bleeding damage, the Dodge auto-clear, and the Unconscious/Demoralized/Shattered auto-conditions were running on every connected client, which posted duplicate messages, could double the damage, and made players' clients throw errors whenever someone else's character crossed a threshold. They now run exactly once. Spending Karma also now checks that you own the character whose Karma it is, only deducts it once the Edge or Trouble has actually applied, and the Spend Karma: Trouble button now appears on any attack with a target, not just ones where damage landed.
+
+Team Maneuvers were also checked line by line against the book (p.38-39) and corrected in six places. The cost is now 5 Focus per member per level, so Level 1 always costs 5, instead of scaling with the team's top level (a Rank 5-6 team had been paying 15/30/45). Offensive Level 3 now works against targets of equal or *higher* Rank, not lower, and actually adds the Fantastic Marvel Die to the total. Offensive Level 2 rerolls all the dice and keeps the better result, as the book says, instead of a double Edge. Rally Level 2 lets each member choose Health or Focus from buttons on the announcement card, instead of rolling Health for everyone. Rally Level 3 heals to at least 0, not 1. A member who can't pay is now left out rather than cancelling the maneuver for everyone. Levels are treated as cumulative. A new **Team Maneuvers — Core Rulebook** journal covers the full rules and exactly what the system automates, and the How to Play journal's Team Maneuver table is corrected.
 
 ## 1.8.0 — Ability-check difficulty, active-state tags, and Add Edge/Trouble fixes
 
@@ -788,7 +790,7 @@ ones that actually matter at the table.
 
 One JournalEntry compendium, **Journals** (`marvel-d616`, previously labeled
 "Marvel D616" — see the 1.5.16 changelog entry above), holds the system-wide
-tutorials and core-rulebook reference — 5 JournalEntries, nothing one-shot-specific
+tutorials and core-rulebook reference — 6 JournalEntries, nothing one-shot-specific
 mixed in (see "Journals (Wickfield Eight folder)" above for that one — same
 pack label, different compendium, so tell them apart by which sidebar folder
 they sit in). As of 1.5.16 it sits inside its own **Marvel D616** folder in the
@@ -811,6 +813,8 @@ Compendium sidebar, alongside the new Heroes & Villains pack below:
 - **Conditions Reference — Core Rulebook** (added in 1.6.1) — all 13 Conditions'
   effects, plus a page mapping each one to exactly what this system automates
   versus what's still a table call.
+- **Team Maneuvers — Core Rulebook** (added in 1.8.1) — the full Team Maneuver
+  rules, plus a page mapping each one to what this system automates.
 - **Character Creation Tutorial** — 7 pages walking through the book's own
   5-step process (Rank → Ability Scores → Backstory → Powers/Gear → Other
   Scores) with the exact Ability Score Points and Resources-by-Rank tables,
