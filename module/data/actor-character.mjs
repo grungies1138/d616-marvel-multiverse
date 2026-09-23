@@ -15,7 +15,7 @@ const SIZE_CHOICES = [
  *   Karma (max)    = Rank, if Heroic; 0 otherwise (book p.19 — non-Heroic
  *                    characters can still earn Karma during play, they just
  *                    don't have a standing pool of it)
- *   Speed          = 5, or 6 if Agility >= 5 (+ speedBonus, +1/-1 for Big/Small size)
+ *   Speed          = 5 + 1 per full 5 Agility (+ speedBonus, +1/-1 for Big/Small size)
  *   Initiative mod = Vigilance
  *   Damage         = (Marvel Die value * Damage Multiplier) + Damage Modifier
  *     Damage Multiplier starts at Rank; Damage Modifier starts at the

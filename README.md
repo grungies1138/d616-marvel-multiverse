@@ -100,6 +100,40 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.11.0 — July 2025 errata, Holding Back, and weapon Defenses
+
+This release applies the Core Rulebook errata (July 2025) where it touches this system, and fixes what turned up while checking it.
+
+- **Karma recovery** now heals (Marvel die × Rank) **+ the ability score** (Resilience for Health, Vigilance for Focus), like a damage roll, as in the errata's corrected Black Panther example. Before, the ability score was left out. A Rally Team Maneuver's free recovery gets the same fix.
+- **Holding Back** (p.34): a character with the Heroic tag now leaves a target 1 point short of Killed (Health) or Shattered (Focus). Set the attack to Lethal to override this. The chat card's subtitle says "Holding back" when it applies.
+- **Weapon Defenses**: per the book (p.30), close attacks go against **Melee** Defense and ranged attacks against **Agility** Defense.
+  - New Powers and Gear now default to Melee Defense instead of Resilience.
+  - These pack items were corrected to match, along with their effect text and their Wickfield journal entries: Bulwark's Mighty 1 / Mighty 2 / Banging Heads, The Latch's baton attacks, Circuit's Stopping Power, Nightglass's Shadow Snare, Permafrost's Elemental Blast / Burst / Push, Brownout's powers and Kade's Enforcer's Pistol.
+- **Gear Reference journal**, rewritten:
+  - Every weapon now lists the right Defense.
+  - The frag and flash-bang grenade entries are corrected to follow the errata: 2-space blast, blinded or stunned.
+  - The Rifle, Shotgun and SMG special rules are added.
+  - It no longer claims ready-made weapon items exist; instead it lists the Gear sheet settings to build each one.
+- **Powers Reference journal**:
+  - Time-Out, Time-Out Bubble and Time-Out Tag now cost "15 Focus per round", paid each round and stoppable at any time.
+  - Shield of the Seraphim gains its trigger.
+  - Three powers that were missing are added: **Winds of Watoomb** (Magic), plus **Wisdom** and **Wisecracker** (Basic, also open to Special Training characters).
+- The **How to Play** journal's Karma recovery formula is updated to match.
+- **Focus spending limits** (p.81): a Power or Gear roll can't spend more than 5 × Rank Focus at once, or leave the character below 1 Focus.
+- **Compendium coverage pass**: every mechanic, feature and option the system has is now documented in the Journals compendium.
+  - How to Play gains a **Sheet & Table Tools** page. It covers tooltips, Traits, Shift-click, Condition icons and active-state tags, the power budget, movement, size, Heroic and Team, the portrait cropper, the Light/Dark theme, the macros and the Random Tables, plus a field-by-field guide to the Power, Gear and Trait sheets.
+  - How to Play's existing pages now also cover:
+    - Close vs. ranged Defenses, multi-target splitting, knockback, and lethal/nonlethal/holding back.
+    - Which player actions need a GM logged in.
+    - Concentration and the Focus limits.
+    - Stop Bleeding, Put Out Fire, Wake and Rally.
+    - The Falling calculator, Reactions, and the TN Calculator macro.
+  - Stale lines are corrected:
+    - Edge/Trouble can reroll the Marvel die, not just a white die.
+    - The compendium names are updated.
+    - Weapons are no longer described as ready-made items.
+  - Character Creation points to the Random Tables and the power budget.
+
 ## 1.10.0 — Concentration, nonlethal damage, ending Conditions, and weapon special rules
 
 A second pass over the rules chapters turned up five places where the book has a firm rule the system didn't follow yet.
@@ -585,8 +619,8 @@ read of the Core Rule Book, not memory). Grouped by how confident the automation
 
 **New subsystems**
 - **Karma spending** (p.19, p.36): buttons on the header let you spend 1 Karma for a
-  free Recovery roll (Resilience for Health, Vigilance for Focus, TN 10, heals Marvel
-  Die × Rank, doubled on Fantastic); every attack roll's chat card also gets a
+  free Recovery roll (Resilience for Health, Vigilance for Focus, TN 10, heals (Marvel
+  Die × Rank) + that ability since 1.11.0, doubled on Fantastic); every attack roll's chat card also gets a
   "Spend Karma: Edge" button for the roller and a "Spend Karma: Trouble" button for
   its recorded target, on top of the existing free Add-Edge/Add-Trouble buttons.
   Resting resets Karma to its standard value and applies natural Health/Focus recovery

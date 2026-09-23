@@ -154,8 +154,8 @@
       "OwnMultiplier": "Weapon uses its own damage multiplier (grenades: 2; 0 = attacker's)",
       "Scatters": "Scatters on a missed landing (grenades)",
       "Lethality": "Lethal / Nonlethal",
-      "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal)",
-      "LethalityLethal": "Lethal",
+      "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal; Heroic attackers hold back)",
+      "LethalityLethal": "Lethal (also overrides Heroic holding back)",
       "LethalityNonlethal": "Nonlethal"
     },
     "ImageCropper": {
@@ -311,12 +311,12 @@
       "Damage": "Damage",
       "KnockbackAvailable": "Knockback available instead of the power's own Fantastic effect: {distance} spaces straight back (choose one).",
       "SpendFocus": "Spend extra Focus?",
-      "SpendFocusHint": "Enter additional Focus to spend beyond the base cost (must be a multiple of the scaling ratio).",
+      "SpendFocusHint": "Extra Focus to spend beyond the base cost, in multiples of the scaling ratio. The whole spend can't exceed 5 x Rank or leave you below 1 Focus.",
       "EdgeTrouble": "Edge / Trouble",
       "None": "None",
       "Edge": "Edge (reroll one d6, keep higher)",
       "Trouble": "Trouble (reroll one d6, keep lower)",
-      "InsufficientFocus": "Not enough Focus remaining to use this power.",
+      "InsufficientFocus": "Not enough Focus: using this would leave you below 1 Focus, which the book does not allow (p.81).",
       "AddEdge": "Add Edge",
       "AddTrouble": "Add Trouble",
       "EdgeApplied": "Edge Applied",
@@ -329,7 +329,8 @@
       "DifficultyOption": "{adjective} (TN {tn})",
       "NoTN": "No target number",
       "CustomTN": "Custom target number",
-      "CustomTNValue": "Custom TN"
+      "CustomTNValue": "Custom TN",
+      "FocusOverLimit": "Can't spend {cost} Focus at once: the limit is 5 x Rank ({max} at Rank {rank})."
     },
     "Damage": {
       "Apply": "Apply Damage",
@@ -347,7 +348,8 @@
       "StaleHint": "Some of this damage was applied to a token you can't edit, so it still reflects the old roll. The GM can Undo and Apply Damage again.",
       "AdjustedLine": "{name} ({from} → {to})",
       "AdjustedNote": "Applied damage updated for the new result: {lines}.",
-      "Nonlethal": "Nonlethal"
+      "Nonlethal": "Nonlethal",
+      "HoldingBack": "Holding back"
     },
     "Relay": {
       "NoGM": "That changes a character you don't own, so it needs a GM connected. Nothing was changed.",
