@@ -1,5 +1,6 @@
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
-import { registerConditions, syncAutomaticConditions, applyEndOfTurnConditionDamage } from "./helpers/conditions.mjs";
+import { registerConditions, syncAutomaticConditions, applyEndOfTurnConditionDamage, endBleedingOnRecovery } from "./helpers/conditions.mjs";
+import { breakConcentrationFor } from "./helpers/concentration.mjs";
 import { openTeamManeuverDialog, rallyRecover } from "./helpers/team-maneuver.mjs";
 import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import { applyDamageFromMessage, undoDamageFromMessage } from "./helpers/damage.mjs";
@@ -85,6 +86,23 @@ Hooks.once("init", () => {
 Hooks.on("updateActor", (actor, changes, options, userId) => {
   if (!isResponsibleClient(userId)) return;
   syncAutomaticConditions(actor);
+  // Bleeding ends any time the victim recovers 1 or more Health (book p.37).
+  const before = options.d616HealthBefore;
+  const after = foundry.utils.getProperty(changes, "system.health.value");
+  if (typeof before === "number" && typeof after === "number" && after > before) endBleedingOnRecovery(actor);
+});
+
+// Stash Health before the change so updateActor can tell a recovery from
+// damage; update options travel with the change to every client.
+Hooks.on("preUpdateActor", (actor, changes, options) => {
+  if (foundry.utils.hasProperty(changes, "system.health.value")) options.d616HealthBefore = actor.system.health.value;
+});
+
+// A Condition that breaks concentration (book p.81) ends the powers held.
+Hooks.on("createActiveEffect", (effect, options, userId) => {
+  const actor = effect.parent;
+  if (!(actor instanceof Actor) || !effect.statuses?.size || !isResponsibleClient(userId)) return;
+  breakConcentrationFor(actor, Array.from(effect.statuses));
 });
 
 // Ablaze/Bleeding's flat end-of-turn damage (book p.37) and Dodge wearing

@@ -48,6 +48,14 @@
   <p class="roll-target">{{teamRerollNote}}</p>
   {{/if}}
 
+  {{#if extraNote}}
+  <p class="roll-target">{{extraNote}}</p>
+  {{/if}}
+
+  {{#if helperNote}}
+  <p class="roll-damage"><strong>{{helperNote}}</strong></p>
+  {{/if}}
+
   {{#if knockbackNote}}
   <p class="callout fantastic-callout">{{knockbackNote}}</p>
   {{/if}}

@@ -87,6 +87,27 @@
       <label>{{localize "D616.Sheet.MaxTargets"}}
         <input type="number" name="system.attack.maxTargets" value="{{system.attack.maxTargets}}" min="1" {{#unless editable}}disabled{{/unless}} />
       </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.attack.splitDamage" {{#if system.attack.splitDamage}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.SplitDamage"}}
+      </label>
+      <label>{{localize "D616.Sheet.CloseRangeTrouble"}}
+        <input type="number" name="system.attack.closeRangeTrouble" value="{{system.attack.closeRangeTrouble}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.OwnMultiplier"}}
+        <input type="number" name="system.attack.ownMultiplier" value="{{system.attack.ownMultiplier}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.attack.scatters" {{#if system.attack.scatters}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Sheet.Scatters"}}
+      </label>
+      <label>{{localize "D616.Sheet.Lethality"}}
+        <select name="system.attack.lethality" {{#unless editable}}disabled{{/unless}}>
+          <option value="auto" {{#if (eq system.attack.lethality "auto")}}selected{{/if}}>{{localize "D616.Sheet.LethalityAuto"}}</option>
+          <option value="lethal" {{#if (eq system.attack.lethality "lethal")}}selected{{/if}}>{{localize "D616.Sheet.LethalityLethal"}}</option>
+          <option value="nonlethal" {{#if (eq system.attack.lethality "nonlethal")}}selected{{/if}}>{{localize "D616.Sheet.LethalityNonlethal"}}</option>
+        </select>
+      </label>
     </fieldset>
 
     <fieldset>

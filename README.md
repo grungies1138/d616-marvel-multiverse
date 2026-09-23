@@ -100,6 +100,27 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.10.0 — Concentration, nonlethal damage, ending Conditions, and weapon special rules
+
+A second pass over the rules chapters turned up five places where the book has a firm rule the system didn't follow yet.
+
+- **Concentration** (p.81): using a power whose Duration is Concentration marks it as held. It shows as a tag in the sheet header; click the tag to end it. A character can hold one such power per point of Rank. Becoming Unconscious, Demoralized, Shattered, Stunned or Prone ends every held power, and Paralyzed ends the ones that attack with Melee or Agility. Blinded and Deafened only end powers that need sight or hearing, so a chat reminder lists what's held and the table decides.
+- **Nonlethal damage** (p.36): attacks without a weapon are nonlethal, so their damage stops 1 Health short of Killed. Gear weapons and Melee/Ranged Weapons powers stay lethal. Each Power and Gear item has a Lethal / Nonlethal setting to override this, and the card's subtitle says "Nonlethal" when it applies. Apply Damage and after-the-fact Edge/Trouble respect the cap too.
+- **Ending Conditions** (p.36-37): a character's sheet now shows a button while one of these Conditions applies:
+  - **Stop Bleeding**: a Logic check against TN 10.
+  - **Put Out Fire**: an Agility check against TN 10.
+  - **Wake**: a helper's Challenging Logic check; outside combat only.
+  - **Rally**: a helper's Challenging Ego check; outside combat only.
+
+  You pick who makes the check. A success clears the Condition, or sets Health or Focus to 1, and so does a failure that Add Edge later turns into a success. Bleeding also ends by itself when the character recovers any Health.
+- **Weapon special rules** (p.36): Gear has four new attack settings:
+  - Trouble against targets within N spaces (Rifle and SMG: 5), measured on the grid.
+  - A fixed damage multiplier of the weapon's own, in place of the attacker's (grenades: ×2).
+  - Scattering: a grenade that misses the Challenging TN lands 1d6 spaces off target.
+  - Split damage between targets, which you switch off for grenades so everyone in the blast takes full damage.
+- **Fix**: multi-target attacks (Shotgun, SMG, grenades) now apply each target's own Damage Reduction to its share. Previously every target used the first target's DR.
+- The **Conditions Reference** journal's "What d616 Automates For You" page covers all of the above.
+
 ## 1.9.0 — Random Tables
 
 A new **Random Tables** compendium (in the Marvel D616 folder) with five roll tables for quick NPC or hero inspiration, one entry per option in the Core Rulebook: **Random Origin** (1d30, p.52-56, sub-origins like "Mythic: Asgardian" as their own entries), **Random Occupation** (1d18, p.57-59), **Random Trait** (1d57, p.59-63), **Random Tag** (1d48, p.63-65), and **Random Power Set** (1d20, p.67). Names only; some Traits and Tags carry restrictions (God Heritage needs a mythic origin, for instance), so check the book before keeping a result.

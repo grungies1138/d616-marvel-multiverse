@@ -102,6 +102,16 @@ export async function syncAutomaticConditions(actor) {
   }
 }
 
+/** Bleeding ends any time the victim recovers 1 or more Health (book p.37). */
+export async function endBleedingOnRecovery(actor) {
+  if (!actor.statuses?.has("d616-bleeding")) return;
+  await actor.toggleStatusEffect("d616-bleeding", { active: false });
+  ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Condition.BleedingStoppedByHealing", { name: actor.name })}</p>`
+  });
+}
+
 /**
  * Ablaze and Bleeding (book p.37) both deal a flat 5 Health at the end of
  * each of the affected character's turns, independently of each other,

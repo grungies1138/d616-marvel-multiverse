@@ -45,7 +45,21 @@ export default class GearData extends foundry.abstract.TypeDataModel {
         // whoever it hits. maxTargets caps how many of the user's current
         // targets it can actually affect (2 for Shotgun, 3 for SMG).
         multiTarget: new BooleanField({ required: true, initial: false }),
-        maxTargets: new NumberField({ required: true, integer: true, initial: 1, min: 1 })
+        maxTargets: new NumberField({ required: true, integer: true, initial: 1, min: 1 }),
+        // Grenades (p.36) don't split: everyone caught in the blast takes
+        // full damage.
+        splitDamage: new BooleanField({ required: true, initial: true }),
+        // Rifle and Submachine Gun (p.36): Trouble on attacks against targets
+        // this many spaces away or closer. 0 = no such penalty.
+        closeRangeTrouble: new NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+        // Grenades use their own damage multiplier (x2) instead of the
+        // attacker's. 0 = use the attacker's as normal.
+        ownMultiplier: new NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+        // Grenades: the attack roll doubles as the Challenging Agility check
+        // to land on target; if it falls short, the grenade scatters 1d6 spaces.
+        scatters: new BooleanField({ required: true, initial: false }),
+        // Lethal vs. nonlethal (p.36) — see item-power.mjs.
+        lethality: new StringField({ required: true, initial: "auto", choices: ["auto", "lethal", "nonlethal"] })
       }),
 
       passive: new SchemaField({

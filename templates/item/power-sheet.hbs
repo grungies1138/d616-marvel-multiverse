@@ -82,6 +82,13 @@
       <label>{{localize "D616.Sheet.FantasticEffect"}}
         <input type="text" name="system.attack.fantasticEffect" value="{{system.attack.fantasticEffect}}" {{#unless editable}}disabled{{/unless}} />
       </label>
+      <label>{{localize "D616.Sheet.Lethality"}}
+        <select name="system.attack.lethality" {{#unless editable}}disabled{{/unless}}>
+          <option value="auto" {{#if (eq system.attack.lethality "auto")}}selected{{/if}}>{{localize "D616.Sheet.LethalityAuto"}}</option>
+          <option value="lethal" {{#if (eq system.attack.lethality "lethal")}}selected{{/if}}>{{localize "D616.Sheet.LethalityLethal"}}</option>
+          <option value="nonlethal" {{#if (eq system.attack.lethality "nonlethal")}}selected{{/if}}>{{localize "D616.Sheet.LethalityNonlethal"}}</option>
+        </select>
+      </label>
     </fieldset>
 
     <fieldset>
