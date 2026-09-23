@@ -22,9 +22,12 @@
  *   Rally L3        -> revives one Killed or Shattered team member back to
  *                       1 Health/Focus (book: "one unconscious or dying
  *                       teammate returns to the fight").
- * This only requires one member to have targeted the rest of the team with
- * Foundry's normal targeting before opening the dialog; the actor opening
- * the dialog is always included as a participant even if not self-targeted.
+ * Participants come from the initiator's Team / Affiliation field: every
+ * character sharing a team name with them (comma-separated for characters
+ * on several teams, matched case-insensitively) is offered in a checklist,
+ * pre-checked if they're in the active combat. Anyone currently targeted is
+ * added too, for team-ups with outsiders (book p.38). With no team set, it
+ * falls back to the initiator plus whoever's targeted.
  */
 
 const LEVEL_TABLE = [
@@ -37,12 +40,76 @@ function levelInfoFor(averageRank) {
   return LEVEL_TABLE.find((row) => averageRank <= row.maxAvgRank) ?? LEVEL_TABLE[LEVEL_TABLE.length - 1];
 }
 
-function gatherParticipants(initiator) {
-  const targeted = Array.from(game.user.targets).map((t) => t.actor).filter((a) => a && a.type === "character");
-  const set = new Map();
-  if (initiator) set.set(initiator.id, initiator);
-  for (const a of targeted) set.set(a.id, a);
-  return Array.from(set.values());
+function teamNames(actor) {
+  return (actor.system.identity?.team ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/**
+ * The actor whose Focus/Karma a member's share should come from: the copy
+ * actually fighting (a combatant's or placed token's actor — which differs
+ * from the sidebar actor for unlinked tokens), else the sidebar actor.
+ */
+function fightingCopy(actor) {
+  const combatant = game.combat?.combatants.find((c) => c.actor?.id === actor.id);
+  if (combatant?.actor) return combatant.actor;
+  return actor.getActiveTokens?.(false, true)[0]?.actor ?? actor;
+}
+
+/**
+ * Candidate participants and whether each starts checked. Keyed by actor id
+ * so a teammate who's also targeted only appears once.
+ */
+function gatherCandidates(initiator) {
+  const candidates = new Map();
+  const inCombat = (a) => !!game.combat?.combatants.some((c) => c.actor?.id === a.id);
+  if (initiator) candidates.set(initiator.id, { actor: initiator, checked: true });
+
+  const mine = new Set(teamNames(initiator));
+  if (mine.size) {
+    for (const a of game.actors) {
+      if (a.type !== "character" || candidates.has(a.id)) continue;
+      if (!teamNames(a).some((t) => mine.has(t))) continue;
+      candidates.set(a.id, { actor: fightingCopy(a), checked: !game.combat || inCombat(a) });
+    }
+  }
+  for (const t of game.user.targets) {
+    const a = t.actor;
+    if (a?.type === "character") candidates.set(a.id, { actor: a, checked: true });
+  }
+  return { list: Array.from(candidates.values()), hasTeam: mine.size > 0 };
+}
+
+async function chooseParticipants(initiator) {
+  const { list, hasTeam } = gatherCandidates(initiator);
+  if (list.length < 2) {
+    ui.notifications.warn(game.i18n.localize("D616.TeamManeuver.NeedsTargets"));
+    return null;
+  }
+  // No team roster to choose from — same as before: initiator + targets.
+  if (!hasTeam) return list.map((c) => c.actor);
+
+  const rows = list.map((c, i) => `
+    <label>
+      <input type="checkbox" name="m${i}" ${c.checked ? "checked" : ""} ${c.actor === initiator ? "disabled checked" : ""} />
+      <span>${Handlebars.escapeExpression(c.actor.name)}</span>
+      <span class="d616-roster-rank">${game.i18n.localize("D616.Sheet.Rank")} ${c.actor.system.rank ?? 1}</span>
+    </label>`).join("");
+  const result = await foundry.applications.api.DialogV2.prompt({
+    window: { title: game.i18n.localize("D616.TeamManeuver.DialogTitle") },
+    content: `<p>${game.i18n.localize("D616.TeamManeuver.ChooseMembers")}</p><div class="d616-team-roster">${rows}</div>`,
+    ok: { label: game.i18n.localize("D616.TeamManeuver.Next"), callback: (event, button) => new FormDataExtended(button.form).object }
+  }).catch(() => null);
+  if (!result) return null;
+
+  const chosen = list.filter((c, i) => c.actor === initiator || result[`m${i}`]).map((c) => c.actor);
+  if (chosen.length < 2) {
+    ui.notifications.warn(game.i18n.localize("D616.TeamManeuver.NeedsTwo"));
+    return null;
+  }
+  return chosen;
 }
 
 /**
@@ -68,11 +135,8 @@ async function payShare(actor, focusCost) {
 }
 
 export async function openTeamManeuverDialog(initiator) {
-  const participants = gatherParticipants(initiator);
-  if (participants.length < 2) {
-    ui.notifications.warn(game.i18n.localize("D616.TeamManeuver.NeedsTargets"));
-    return;
-  }
+  const participants = await chooseParticipants(initiator);
+  if (!participants) return;
   const averageRank = participants.reduce((sum, a) => sum + (a.system.rank ?? 1), 0) / participants.length;
   const info = levelInfoFor(averageRank);
 

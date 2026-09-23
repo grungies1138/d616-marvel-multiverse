@@ -65,8 +65,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   buttons, since it's already been applied. Multiple Edge/Trouble sources on the same
   roll (a standing Edge, Conditions, Team Maneuvers, an explicit choice, a target's
   Dodge...) net out 1-for-1 per the book rather than one simply overriding another.
-- **Conditions**: the book's full Conditions vocabulary registers as real token-HUD
-  status icons, and most now carry their actual mechanical teeth instead of being pure
+- **Conditions**: the book's full Conditions vocabulary registers as real status
+  icons, toggleable from the token HUD or from the row of icons in the character
+  sheet's header (Unconscious/Demoralized/Shattered show there read-only, since
+  they follow Health/Focus), and most now carry their actual mechanical teeth instead of being pure
   reminders — Prone/Blinded/Grabbed/Pinned/Stunned adjust Edge/Trouble on attacks in
   and out; Unconscious and Paralyzed force close attacks to auto-hit and cap the
   relevant Defense at 10; Stunned/Unconscious/Shattered block the affected character
@@ -75,9 +77,24 @@ publisher — built for homebrew/original characters and personal home-game use.
   What's still left to the table: Deafened's hearing-specific checks, Surprised's
   bonus-round timing, and Grabbed/Pinned's full "might hit either entangled character"
   redirect (approximated here as flat Trouble on attacks against either one).
+- **Apply Damage / Undo**: every damaging hit's chat card carries an **Apply Damage**
+  button (applies to your targeted tokens, or selected ones if nothing's targeted,
+  recomputing with each one's own Damage Reduction) and an **Undo** that reverses
+  everything that card applied, automatically or by button. A hit only applies
+  itself automatically to a target you're allowed to edit, so a player hitting a
+  GM-owned villain leaves the damage on the card for the GM to apply.
+- **Shift-click to skip the prompt**: Shift-clicking a Power or Gear's roll icon
+  rolls immediately with no Edge/Trouble, instead of opening the pre-roll dialog.
+- **Team Maneuvers**: the dialog lists everyone who shares your Team / Affiliation
+  (comma-separate multiple teams), pre-checking whoever's in the current combat, so
+  there's no re-targeting the whole team every time. Anyone targeted is added too.
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.7.0 — Quality-of-life: Apply Damage, sheet Conditions, Shift-click, team rosters
+
+Four table-speed improvements. Every damaging hit's chat card now has **Apply Damage** and **Undo** buttons: forget to target before rolling, or hit a villain you don't own, and the damage no longer just sits in chat for someone to subtract by hand. Apply uses each target's own Damage Reduction, and Undo reverses everything that card applied. That also fixes a real bug: a player attacking a GM-owned token used to hit a permission error and lose the roll entirely, and now the hit posts normally and leaves the damage for the GM to apply. The character sheet header has a row of **Condition icons** for toggling Prone, Stunned and the rest without hunting through the token HUD. **Shift-click** a Power or Gear's roll icon to skip the Edge/Trouble prompt. And **Team Maneuvers** now build their roster from the Team / Affiliation field, so you pick from a pre-checked list instead of targeting every teammate each time. The How to Play and Conditions Reference journals are updated to match, including an Edge & Trouble page that still described the pre-1.6.0 rules.
 
 ## 1.6.3 — Knockback
 
@@ -582,9 +599,9 @@ since it needs the book's own table transcribed carefully rather than approximat
 - **Traits** are reference cards, not automated bonuses — the book's traits are too
   varied (Edge on a specific kind of check, a scene-long condition, a Karma-award
   hook) to encode generically. Click a Trait to post its effect to chat as a reminder.
-- **Edge/Trouble** is implemented as "reroll one of the two ordinary d6, keep the
-  better/worse total" — a reasonable table-friendly reading, not a verbatim rules
-  citation. Adjust `module/dice/marvel-roll.mjs` if your table plays it differently.
+- **Which die Edge/Trouble rerolls** is chosen automatically (Edge the lowest die,
+  Trouble the highest), where the book lets the player pick. Adjust
+  `module/dice/marvel-roll.mjs` if your table wants that choice back.
 - **Biography/effect text fields** are plain textareas rather than the rich-text
   (ProseMirror) editor, to keep the build reliable without a live Foundry instance to
   test the editor wiring against.
@@ -755,7 +772,7 @@ ones that actually matter at the table.
 
 One JournalEntry compendium, **Journals** (`marvel-d616`, previously labeled
 "Marvel D616" — see the 1.5.16 changelog entry above), holds the system-wide
-tutorials and core-rulebook reference — 4 JournalEntries, nothing one-shot-specific
+tutorials and core-rulebook reference — 5 JournalEntries, nothing one-shot-specific
 mixed in (see "Journals (Wickfield Eight folder)" above for that one — same
 pack label, different compendium, so tell them apart by which sidebar folder
 they sit in). As of 1.5.16 it sits inside its own **Marvel D616** folder in the
@@ -775,6 +792,9 @@ Compendium sidebar, alongside the new Heroes & Villains pack below:
   documents what this Foundry system actually automates for you — including
   the parts (Traits, most Conditions' numeric effects) it deliberately leaves
   manual (see "What's intentionally manual" below).
+- **Conditions Reference — Core Rulebook** (added in 1.6.1) — all 13 Conditions'
+  effects, plus a page mapping each one to exactly what this system automates
+  versus what's still a table call.
 - **Character Creation Tutorial** — 7 pages walking through the book's own
   5-step process (Rank → Ability Scores → Backstory → Powers/Gear → Other
   Scores) with the exact Ability Score Points and Resources-by-Rank tables,

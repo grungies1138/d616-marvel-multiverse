@@ -600,17 +600,30 @@ export default class D616Actor extends Actor {
     }
 
     // --- Apply damage to target(s), automatically ---
+    // Only to targets this user may edit: a player can't update a GM-owned
+    // villain, and trying would throw before the chat card got posted.
+    // Anything skipped is left to the card's Apply Damage button. Whatever
+    // is applied is recorded on the message so the card's Undo can reverse it.
     let targetSummary = null;
+    let damageNotApplied = false;
+    const applied = [];
     if (dealsDamageFlag && (success === null || success) && damage) {
-      if (isMultiTarget && targets.length > 1) {
-        const share = Math.floor(damage / targets.length);
-        for (const t of targets) await this._applyDamageTo(t, share, damageType);
-        targetSummary = targets.map((t) => t.name).join(", ") + ` (${share} each)`;
-      } else if (primaryTarget) {
-        await this._applyDamageTo(primaryTarget, damage, damageType);
-        targetSummary = primaryTarget.name;
+      const pool = damageType === "focus" ? "focus" : "health";
+      const hits = isMultiTarget && targets.length > 1
+        ? targets.map((t) => ({ actor: t, amount: Math.floor(damage / targets.length) }))
+        : primaryTarget ? [{ actor: primaryTarget, amount: damage }] : [];
+      for (const { actor, amount } of hits) {
+        if (!actor.isOwner) {
+          damageNotApplied = true;
+          continue;
+        }
+        await this._applyDamageTo(actor, amount, damageType);
+        if (amount) applied.push({ uuid: actor.uuid, amount, pool });
       }
+      if (hits.length > 1) targetSummary = hits.map((h) => h.actor.name).join(", ") + ` (${hits[0].amount} each)`;
+      else if (hits.length === 1) targetSummary = hits[0].actor.name;
     }
+    const canApplyDamage = dealsDamageFlag && damage !== null;
 
     const subtitle = `${sys.range ?? ""} · ${sys.duration ?? ""}`;
     const defenseTargetLabel = sys.attack?.defenseTarget && sys.attack.defenseTarget !== "flat"
@@ -639,6 +652,8 @@ export default class D616Actor extends Actor {
       damageType,
       fantasticEffect,
       knockbackNote,
+      canApplyDamage,
+      damageNotApplied,
       focusCost,
       focusRemaining,
       edgeTroubleApplied: effectiveEdgeTrouble
@@ -667,6 +682,7 @@ export default class D616Actor extends Actor {
             damageType,
             fantasticEffect,
             knockbackNote,
+            applied,
             focusCost,
             focusRemaining,
             edgeTroubleApplied: effectiveEdgeTrouble
