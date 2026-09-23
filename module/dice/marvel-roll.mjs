@@ -157,16 +157,16 @@ function pickTroubleTarget(d1, d2, marvelValue, isFantastic) {
  */
 export async function applyEdgeTroubleToMessage(message, mode) {
   const data = message.getFlag("d616", "roll");
-  if (!data) return;
+  if (!data) return false;
 
   if (data.edgeTroubleApplied && data.edgeTroubleApplied !== "none") {
     ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleAlreadyApplied"));
-    return;
+    return false;
   }
   const canModify = game.user.isGM || message.isOwner || message.author?.id === game.user.id;
   if (!canModify) {
     ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleNoPermission"));
-    return;
+    return false;
   }
 
   const state = {
@@ -232,6 +232,7 @@ export async function applyEdgeTroubleToMessage(message, mode) {
       content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Damage.AdjustedNote", { lines: reconciled.lines.join(", ") })}</p>`
     });
   }
+  return true;
 }
 
 /**

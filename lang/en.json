@@ -214,7 +214,8 @@
       "ResetTitle": "Reset Karma to standard (Rank, if Heroic)",
       "AwardTitle": "Award Karma",
       "AwardAmount": "Amount",
-      "Awarded": "{name} is awarded {amount} Karma."
+      "Awarded": "{name} is awarded {amount} Karma.",
+      "NotYours": "Only {name}'s owner can spend their Karma."
     },
     "Action": {
       "standard": "Standard Action",
@@ -331,6 +332,10 @@
       "StaleHint": "Some of this damage was applied to a token you can't edit, so it still reflects the old roll. The GM can Undo and Apply Damage again.",
       "AdjustedLine": "{name} ({from} → {to})",
       "AdjustedNote": "Applied damage updated for the new result: {lines}."
+    },
+    "Relay": {
+      "NoGM": "That changes a character you don't own, so it needs a GM connected. Nothing was changed.",
+      "Failed": "The GM's client couldn't make that change ({error})."
     }
   }
 }

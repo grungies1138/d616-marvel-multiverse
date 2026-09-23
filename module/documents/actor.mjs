@@ -1,5 +1,5 @@
 import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor } from "../dice/marvel-roll.mjs";
-import { syncAutomaticConditions } from "../helpers/conditions.mjs";
+import { updateAnywhere, toggleStatusAnywhere, applyEdgeTroubleRouted } from "../helpers/gm-relay.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
 
@@ -622,6 +622,10 @@ export default class D616Actor extends Actor {
       if (hits.length > 1) targetSummary = hits.map((h) => h.actor.name).join(", ") + ` (${hits[0].amount} each)`;
       else if (hits.length === 1) targetSummary = hits[0].actor.name;
     }
+    // Name the target even when no damage landed (a miss, DR soaking it all,
+    // or a non-damaging attack) — the card's "Spend Karma: Trouble" button,
+    // for the target's owner, only shows when a target is named.
+    if (!targetSummary && primaryTarget && sys.attack?.enabled) targetSummary = primaryTarget.name;
     const canApplyDamage = dealsDamageFlag && damage !== null;
 
     const subtitle = `${sys.range ?? ""} · ${sys.duration ?? ""}`;
@@ -699,13 +703,16 @@ export default class D616Actor extends Actor {
     });
   }
 
-  /** Subtracts damage from a target's Health or Focus and syncs its conditions. */
+  /**
+   * Subtracts damage from a target's Health or Focus. The resulting
+   * Unconscious/Demoralized/etc. sync happens in the updateActor hook, on a
+   * single client — calling it here too would race that.
+   */
   async _applyDamageTo(targetActor, amount, pool = "health") {
     if (!targetActor || !amount) return;
     const path = pool === "focus" ? "system.focus.value" : "system.health.value";
     const current = pool === "focus" ? targetActor.system.focus.value : targetActor.system.health.value;
     await targetActor.update({ [path]: current - amount });
-    await syncAutomaticConditions(targetActor);
   }
 
   /** @deprecated Back-compat alias — use rollItem(), which also handles Gear. */
@@ -719,7 +726,20 @@ export default class D616Actor extends Actor {
 
   /** Spend 1 Karma to add Edge to a roll already posted to chat. */
   async spendKarmaForEdgeOnMessage(message) {
-    const { applyEdgeTroubleToMessage } = await import("../dice/marvel-roll.mjs");
+    return this._spendKarmaOnMessage(message, "edge", "D616.Karma.SpentForEdge");
+  }
+
+  /**
+   * Shared by both Karma buttons: only this actor's owner may spend its
+   * Karma; the Edge/Trouble is applied first — through the GM when the card
+   * isn't this user's (e.g. Trouble on the GM's own attack card) — and the
+   * Karma is only deducted once that has actually happened.
+   */
+  async _spendKarmaOnMessage(message, mode, noteKey) {
+    if (!this.isOwner) {
+      ui.notifications.warn(game.i18n.format("D616.Karma.NotYours", { name: this.name }));
+      return;
+    }
     if (this.system.karma.value < 1) {
       ui.notifications.warn(game.i18n.localize("D616.Karma.NotEnough"));
       return;
@@ -729,11 +749,12 @@ export default class D616Actor extends Actor {
       ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleAlreadyApplied"));
       return;
     }
+    const applied = await applyEdgeTroubleRouted(message, mode, { othersCard: mode === "trouble" });
+    if (!applied) return;
     await this.update({ "system.karma.value": this.system.karma.value - 1 });
-    await applyEdgeTroubleToMessage(message, "edge");
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Karma.SpentForEdge", { name: this.name })}</p>`
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format(noteKey, { name: this.name })}</p>`
     });
   }
 
@@ -744,22 +765,7 @@ export default class D616Actor extends Actor {
    * target (see rollItem's targetActorId flag).
    */
   async imposeKarmaTrouble(message) {
-    const { applyEdgeTroubleToMessage } = await import("../dice/marvel-roll.mjs");
-    if (this.system.karma.value < 1) {
-      ui.notifications.warn(game.i18n.localize("D616.Karma.NotEnough"));
-      return;
-    }
-    const data = message.getFlag("d616", "roll");
-    if (data?.edgeTroubleApplied && data.edgeTroubleApplied !== "none") {
-      ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleAlreadyApplied"));
-      return;
-    }
-    await this.update({ "system.karma.value": this.system.karma.value - 1 });
-    await applyEdgeTroubleToMessage(message, "trouble");
-    ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Karma.SpentForTrouble", { name: this.name })}</p>`
-    });
+    return this._spendKarmaOnMessage(message, "trouble", "D616.Karma.SpentForTrouble");
   }
 
   /**
@@ -867,7 +873,8 @@ export default class D616Actor extends Actor {
       ui.notifications.warn(game.i18n.localize("D616.Action.HelpNeedsTarget"));
       return;
     }
-    await targetActor.setFlag("d616", "helpedEdge", true);
+    // The ally is usually someone else's character — relayed through the GM if so.
+    if (!(await updateAnywhere(targetActor, { "flags.d616.helpedEdge": true }))) return;
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.HelpNote", { name: this.name, target: targetActor.name })}</p>`
@@ -898,8 +905,10 @@ export default class D616Actor extends Actor {
 
     if (success) {
       if (mode === "grab") {
+        // The target is usually someone else's — relayed through the GM if
+        // so. If that isn't possible the roll still posts; the relay has warned.
         const statusId = dice.isFantastic ? "d616-pinned" : "d616-grabbed";
-        await targetActor.toggleStatusEffect(statusId, { active: true });
+        await toggleStatusAnywhere(targetActor, statusId, true);
       } else {
         await this.toggleStatusEffect("d616-grabbed", { active: false });
         await this.toggleStatusEffect("d616-pinned", { active: false });

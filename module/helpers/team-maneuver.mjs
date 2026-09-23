@@ -30,6 +30,8 @@
  * falls back to the initiator plus whoever's targeted.
  */
 
+import { asGM, updateAnywhere } from "./gm-relay.mjs";
+
 const LEVEL_TABLE = [
   { maxAvgRank: 2, level: 1, cost: 5 },
   { maxAvgRank: 4, level: 2, cost: 10 },
@@ -112,26 +114,24 @@ async function chooseParticipants(initiator) {
   return chosen;
 }
 
-/**
- * Attempts to pay a member's Focus share; if they're short, falls back to
- * spending 1 Karma instead (book p.39). Returns false (and warns) only if
- * the member can afford neither.
- */
+/** A member can cover their share with Focus, or 1 Karma if short (book p.39). */
+function canAfford(actor, focusCost) {
+  return actor.system.focus.value >= focusCost || actor.system.karma.value >= 1;
+}
+
+/** Charges a member's share (Focus, or 1 Karma if short). Call only after canAfford. */
 async function payShare(actor, focusCost) {
   if (actor.system.focus.value >= focusCost) {
-    await actor.update({ "system.focus.value": actor.system.focus.value - focusCost });
-    return true;
+    return updateAnywhere(actor, { "system.focus.value": actor.system.focus.value - focusCost });
   }
-  if (actor.system.karma.value >= 1) {
-    await actor.update({ "system.karma.value": actor.system.karma.value - 1 });
+  const ok = await updateAnywhere(actor, { "system.karma.value": actor.system.karma.value - 1 });
+  if (ok) {
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
       content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.TeamManeuver.PaidWithKarma", { name: actor.name })}</p>`
     });
-    return true;
   }
-  ui.notifications.warn(game.i18n.format("D616.TeamManeuver.CantAfford", { name: actor.name }));
-  return false;
+  return ok;
 }
 
 export async function openTeamManeuverDialog(initiator) {
@@ -170,10 +170,21 @@ export async function openTeamManeuverDialog(initiator) {
   const type = result.type;
   const cost = info.cost * level;
 
+  // Everything that could stop the maneuver is checked before anyone is
+  // charged: other players' characters need a GM connected to relay the
+  // change, and every member must be able to pay.
+  const needsGM = !game.user.isGM && participants.some((a) => !a.isOwner);
+  if (needsGM && !game.users.activeGM) {
+    ui.notifications.warn(game.i18n.localize("D616.Relay.NoGM"));
+    return;
+  }
+  const broke = participants.find((a) => !canAfford(a, cost));
+  if (broke) {
+    ui.notifications.warn(game.i18n.format("D616.TeamManeuver.CantAfford", { name: broke.name }));
+    return;
+  }
   for (const actor of participants) {
-    const ok = await payShare(actor, cost);
-    if (!ok) return; // one member couldn't pay — abort before anyone else is charged... in
-    // practice this checks in participant order; a GM adjudicates edge cases.
+    if (!(await payShare(actor, cost))) return;
   }
 
   const round = game.combat?.round ?? null;
@@ -181,14 +192,15 @@ export async function openTeamManeuverDialog(initiator) {
   if (type === "rally" && level >= 2) {
     // Rally L2 resolves immediately: everyone makes a free recovery roll.
     for (const actor of participants) {
-      await actor.recoverPool("health", { free: true });
+      if (actor.isOwner) await actor.recoverPool("health", { free: true });
+      else await asGM("recoverPool", { uuid: actor.uuid, pool: "health", free: true });
     }
     if (level >= 3) {
       const downed = participants.find(
         (a) => a.system.health.value <= -a.system.health.max || a.system.focus.value <= -a.system.focus.max
       );
       if (downed) {
-        await downed.update({
+        await updateAnywhere(downed, {
           "system.health.value": Math.max(downed.system.health.value, 1),
           "system.focus.value": Math.max(downed.system.focus.value, 1)
         });
@@ -204,7 +216,7 @@ export async function openTeamManeuverDialog(initiator) {
   // last for the round — stored as a flag every participant carries, read
   // by D616Actor's own helper methods.
   for (const actor of participants) {
-    await actor.setFlag("d616", "teamManeuver", { type, level, round });
+    await updateAnywhere(actor, { "flags.d616.teamManeuver": { type, level, round } });
   }
 
   ChatMessage.create({
