@@ -100,6 +100,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.9.0 — Random Tables
+
+A new **Random Tables** compendium (in the Marvel D616 folder) with five roll tables for quick NPC or hero inspiration, one entry per option in the Core Rulebook: **Random Origin** (1d30, p.52-56, sub-origins like "Mythic: Asgardian" as their own entries), **Random Occupation** (1d18, p.57-59), **Random Trait** (1d57, p.59-63), **Random Tag** (1d48, p.63-65), and **Random Power Set** (1d20, p.67). Names only; some Traits and Tags carry restrictions (God Heritage needs a mythic origin, for instance), so check the book before keeping a result.
+
 ## 1.8.1 — Multiplayer fixes, and Team Maneuvers brought in line with the book
 
 The first round of testing from a real player login (with a GM connected at the same time) turned up a set of bugs that only happen when the person acting isn't the GM. Help, a successful Grab, a Team Maneuver, and Spend Karma: Trouble all need to change a character the player doesn't own, and each one failed with a permission error. Worst of all, a Team Maneuver charged the player's Focus first and then failed. Those changes are now made by the GM's client on the player's behalf (the system gains a socket channel for this); with no GM connected they refuse cleanly before anything is spent. Separately, the end-of-turn Ablaze/Bleeding damage, the Dodge auto-clear, and the Unconscious/Demoralized/Shattered auto-conditions were running on every connected client, which posted duplicate messages, could double the damage, and made players' clients throw errors whenever someone else's character crossed a threshold. They now run exactly once. Spending Karma also now checks that you own the character whose Karma it is, only deducts it once the Edge or Trouble has actually applied, and the Spend Karma: Trouble button now appears on any attack with a target, not just ones where damage landed.
