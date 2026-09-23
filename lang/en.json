@@ -144,7 +144,11 @@
       "MovementHint": "Run/Climb/Jump/Swim are automatic (Climb/Jump/Swim default to half Run Speed). Glide/Swingline/Fly/Teleport only appear once a power grants them (set on the actor's movement fields).",
       "StandardActions": "Standard Actions",
       "StandardActionsHint": "Dodge/Help/Grab/Escape and Team Maneuvers per the book (p.29-31, p.38-39). Grab/Escape/Help use your current target(s) via normal Foundry targeting.",
-      "TeamPlaceholder": "Separate multiple teams with commas"
+      "TeamPlaceholder": "Separate multiple teams with commas",
+      "RollAbilityHint": "Roll (Shift-click to roll without the difficulty/Edge prompt)",
+      "ActiveDodging": "Dodging",
+      "ActiveHelped": "Helped: Edge on next roll",
+      "ActiveTeamManeuver": "{type} Team Maneuver L{level} this round"
     },
     "ImageCropper": {
       "Title": "Crop Portrait",
@@ -304,7 +308,12 @@
       "EdgeAppliedNote": "Edge added: rolled an extra d6 ({die}) — new total: {total}.",
       "TroubleAppliedNote": "Trouble added: rolled an extra d6 ({die}) — new total: {total}.",
       "EdgeTroubleAlreadyApplied": "Edge or Trouble has already been added to this roll.",
-      "EdgeTroubleNoPermission": "Only the person who made this roll, or the GM, can add Edge or Trouble to it."
+      "EdgeTroubleNoPermission": "Only the person who made this roll, or the GM, can add Edge or Trouble to it.",
+      "Difficulty": "Difficulty",
+      "DifficultyOption": "{adjective} (TN {tn})",
+      "NoTN": "No target number",
+      "CustomTN": "Custom target number",
+      "CustomTNValue": "Custom TN"
     },
     "Damage": {
       "Apply": "Apply Damage",
@@ -318,7 +327,10 @@
       "AppliedNote": "Applied {pool}: {lines}.",
       "UndoNote": "Undid damage: {lines}.",
       "NothingToUndo": "No damage from this roll has been applied yet.",
-      "NotAppliedHint": "Not applied automatically: you can't edit that target. The GM can use Apply Damage."
+      "NotAppliedHint": "Not applied automatically: you can't edit that target. The GM can use Apply Damage.",
+      "StaleHint": "Some of this damage was applied to a token you can't edit, so it still reflects the old roll. The GM can Undo and Apply Damage again.",
+      "AdjustedLine": "{name} ({from} → {to})",
+      "AdjustedNote": "Applied damage updated for the new result: {lines}."
     }
   }
 }

@@ -1,4 +1,4 @@
-import { rollMarvelDice, computeDamage, renderRollCard, resolveSuccess } from "../dice/marvel-roll.mjs";
+import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor } from "../dice/marvel-roll.mjs";
 import { syncAutomaticConditions } from "../helpers/conditions.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
@@ -499,6 +499,7 @@ export default class D616Actor extends Actor {
     let d1 = null, d2 = null, marvelValue = null, rawMarvel = null, isFantastic = false, isGreen = false, isUltimate = false;
     let attackTotal = null, targetNumber = null, success = null, abilityValue = null;
     let sizeModifier = 0;
+    let forcedHit = false;
     const isCloseAttack = isCloseRangeAttack(item);
     // What actually got applied to the dice — may differ from the raw
     // `edgeTrouble` argument once standing sources/Conditions are tallied in
@@ -546,7 +547,7 @@ export default class D616Actor extends Actor {
         if (targetUnconscious) targetNumber = Math.min(targetNumber, 10);
         else if (targetParalyzed && sys.attack.defenseTarget === "agility" && !isCloseAttack) targetNumber = Math.min(targetNumber, 10);
       }
-      const forcedHit = !!primaryTarget && isCloseAttack && (targetUnconscious || targetParalyzed);
+      forcedHit = !!primaryTarget && isCloseAttack && (targetUnconscious || targetParalyzed);
 
       success = forcedHit || resolveSuccess({ total: attackTotal, targetNumber, isUltimate });
     }
@@ -563,6 +564,7 @@ export default class D616Actor extends Actor {
     let damageParams = null;
     let drApplied = 0;
     let knockbackNote = null;
+    const knockbackEligible = isCloseAttack && !!this.system.hasKnockback;
     if (dealsDamageFlag) {
       const ability = sys.attack.ability;
       let multiplier = this.system.damageMultipliers?.[ability] ?? this.system.rank;
@@ -579,18 +581,14 @@ export default class D616Actor extends Actor {
         // itself, before the ability-score add; if that drops the
         // multiplier below 1, the attack does no damage at all.
         if (primaryTarget) drApplied = primaryTarget.system.health?.damageReduction ?? 0;
-        const effectiveMultiplier = multiplier - drApplied;
-        damage = effectiveMultiplier < 1 ? 0 : computeDamage({ marvelValue, multiplier: effectiveMultiplier, modifier, isFantastic });
+        const result = damageFromRoll({ damageParams, drApplied, marvelValue, isFantastic });
+        damage = result.damage;
 
         // Knockback (book p.34): on a Fantastic close attack, a character
-        // with the Mighty power can choose knockback instead of the
-        // power's own Fantastic effect — 5 spaces per damage multiplier
-        // point, using the same DR-reduced multiplier as the damage above.
-        // This only surfaces the option (and the distance); it's the
-        // player's choice, so nothing here is auto-applied.
-        if (isFantastic && isCloseAttack && this.system.hasKnockback && effectiveMultiplier >= 1) {
-          knockbackNote = game.i18n.format("D616.Roll.KnockbackAvailable", { distance: effectiveMultiplier * 5 });
-        }
+        // with the Mighty power can choose knockback instead of the power's
+        // own Fantastic effect. Only the option and distance are shown —
+        // the choice is the player's.
+        knockbackNote = knockbackNoteFor({ eligible: knockbackEligible, isFantastic, multiplier: result.multiplier });
       }
     }
 
@@ -609,8 +607,9 @@ export default class D616Actor extends Actor {
     const applied = [];
     if (dealsDamageFlag && (success === null || success) && damage) {
       const pool = damageType === "focus" ? "focus" : "health";
-      const hits = isMultiTarget && targets.length > 1
-        ? targets.map((t) => ({ actor: t, amount: Math.floor(damage / targets.length) }))
+      const divisor = isMultiTarget && targets.length > 1 ? targets.length : 1;
+      const hits = divisor > 1
+        ? targets.map((t) => ({ actor: t, amount: Math.floor(damage / divisor) }))
         : primaryTarget ? [{ actor: primaryTarget, amount: damage }] : [];
       for (const { actor, amount } of hits) {
         if (!actor.isOwner) {
@@ -618,7 +617,7 @@ export default class D616Actor extends Actor {
           continue;
         }
         await this._applyDamageTo(actor, amount, damageType);
-        if (amount) applied.push({ uuid: actor.uuid, amount, pool });
+        if (amount) applied.push({ uuid: actor.uuid, amount, pool, divisor });
       }
       if (hits.length > 1) targetSummary = hits.map((h) => h.actor.name).join(", ") + ` (${hits[0].amount} each)`;
       else if (hits.length === 1) targetSummary = hits[0].actor.name;
@@ -683,6 +682,14 @@ export default class D616Actor extends Actor {
             fantasticEffect,
             knockbackNote,
             applied,
+            // Everything the card needs to be re-judged and re-rendered
+            // identically if Edge/Trouble is added after the fact.
+            targetName: targetSummary,
+            drApplied,
+            sizeModifier,
+            forcedHit,
+            knockbackEligible,
+            damageNotApplied,
             focusCost,
             focusRemaining,
             edgeTroubleApplied: effectiveEdgeTrouble
@@ -791,7 +798,7 @@ export default class D616Actor extends Actor {
     const content = await renderRollCard({
       actor: this, title, d1: dice.d1, d2: dice.d2, marvelValue: dice.marvelValue, rawMarvel: dice.rawMarvel,
       abilityValue, checkBonus: 0, total, targetNumber: 10, success, isFantastic: dice.isFantastic, isGreen: dice.isGreen,
-      isAttack: false, edgeTroubleApplied: "none",
+      isAttack: false, edgeTroubleApplied: "none", noEdgeTrouble: true,
       healed
     });
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content });
@@ -903,7 +910,7 @@ export default class D616Actor extends Actor {
     const content = await renderRollCard({
       actor: this, title, d1: dice.d1, d2: dice.d2, marvelValue: dice.marvelValue, rawMarvel: dice.rawMarvel,
       abilityValue, checkBonus: 0, total, targetNumber, defenseTargetLabel: "Melee Defense", success,
-      isFantastic: dice.isFantastic, isGreen: dice.isGreen, isAttack: false, edgeTroubleApplied: "none"
+      isFantastic: dice.isFantastic, isGreen: dice.isGreen, isAttack: false, edgeTroubleApplied: "none", noEdgeTrouble: true
     });
     return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content });
   }

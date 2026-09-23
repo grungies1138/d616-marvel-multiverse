@@ -1,6 +1,7 @@
 import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
 import { openTeamManeuverDialog } from "../helpers/team-maneuver.mjs";
 import { CONDITIONS, AUTOMATIC_CONDITIONS } from "../helpers/conditions.mjs";
+import { ADJECTIVE_MODIFIERS, computeTN } from "../helpers/tn-calculator.mjs";
 import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
 import D616ImageCropper from "../apps/image-cropper.mjs";
 
@@ -245,6 +246,20 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
 
     context.powerBudgetLabel = game.i18n.format("D616.Sheet.PowerBudget", actor.system.powerBudget);
 
+    // Temporary states that otherwise leave no trace on the sheet.
+    context.activeList = [];
+    if (actor.getFlag("d616", "dodging")) {
+      context.activeList.push({ icon: "fa-shield", label: game.i18n.localize("D616.Sheet.ActiveDodging") });
+    }
+    if (actor.getFlag("d616", "helpedEdge")) {
+      context.activeList.push({ icon: "fa-hands-holding-circle", label: game.i18n.localize("D616.Sheet.ActiveHelped") });
+    }
+    const tm = actor._activeTeamManeuver?.();
+    if (tm) {
+      const type = game.i18n.localize(`D616.TeamManeuver.${tm.type.charAt(0).toUpperCase()}${tm.type.slice(1)}`);
+      context.activeList.push({ icon: "fa-people-group", label: game.i18n.format("D616.Sheet.ActiveTeamManeuver", { type, level: tm.level }) });
+    }
+
     context.conditionList = CONDITIONS.map((c) => {
       const automatic = AUTOMATIC_CONDITIONS.has(c.id);
       const label = game.i18n.localize(c.label);
@@ -268,9 +283,57 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     this.render({ parts: ["tabs", "main", "powers", "gear", "traits", "biography"] });
   }
 
-  static #onRollAbility(event, target) {
+  /**
+   * Ability check. A plain click asks for a difficulty (book p.13-14: the
+   * Challenging TN for this character's Rank, shifted by an Adjective) or a
+   * custom TN, and Edge/Trouble; Shift-click rolls straight away with
+   * neither, the same shortcut Power/Gear rolls use.
+   */
+  static async #onRollAbility(event, target) {
     const ability = target.dataset.ability;
-    this.document.rollAbilityCheck(ability);
+    if (event.shiftKey) return this.document.rollAbilityCheck(ability);
+
+    const rank = this.document.system.rank ?? 1;
+    const adjectiveOptions = Object.keys(ADJECTIVE_MODIFIERS).map((a) =>
+      `<option value="${a}">${game.i18n.format("D616.Roll.DifficultyOption", {
+        adjective: game.i18n.localize(`D616.TNCalc.Adjective.${a}`), tn: computeTN(rank, a)
+      })}</option>`).join("");
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.format("D616.Roll.AbilityCheck", { ability: game.i18n.localize(`D616.Ability.${ability}`) }) },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Roll.Difficulty")}</label>
+          <select name="difficulty">
+            <option value="">${game.i18n.localize("D616.Roll.NoTN")}</option>
+            ${adjectiveOptions}
+            <option value="custom">${game.i18n.localize("D616.Roll.CustomTN")}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Roll.CustomTNValue")}</label>
+          <input type="number" name="tn" min="0" placeholder="${computeTN(rank, "challenging")}" />
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("D616.Roll.EdgeTrouble")}</label>
+          <select name="edgeTrouble">
+            <option value="none">${game.i18n.localize("D616.Roll.None")}</option>
+            <option value="edge">${game.i18n.localize("D616.Roll.Edge")}</option>
+            <option value="trouble">${game.i18n.localize("D616.Roll.Trouble")}</option>
+          </select>
+        </div>
+      `,
+      ok: { callback: (event, button) => new FormDataExtended(button.form).object }
+    }).catch(() => null);
+    if (!result) return;
+
+    let targetNumber = null;
+    if (result.difficulty === "custom") {
+      const tn = Number(result.tn);
+      targetNumber = result.tn === "" || result.tn === null || Number.isNaN(tn) ? null : tn;
+    } else if (result.difficulty) {
+      targetNumber = computeTN(rank, result.difficulty);
+    }
+    this.document.rollAbilityCheck(ability, { targetNumber, edgeTrouble: result.edgeTrouble ?? "none" });
   }
 
   static #onRollInitiative() {

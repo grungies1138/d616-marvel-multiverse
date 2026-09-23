@@ -96,5 +96,13 @@
       </ul>
       <a data-action="restRecover"><i class="fa-solid fa-bed"></i> {{localize "D616.Karma.RestRecoverTitle"}}</a>
     </div>
+
+    {{#if activeList.length}}
+    <ul class="mm-active-row">
+      {{#each activeList}}
+      <li><i class="fa-solid {{this.icon}}"></i> {{this.label}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
   </div>
 </header>
