@@ -1,3 +1,5 @@
-2026/09/10-13:29:18.076 a330 Recovering log #17
-2026/09/10-13:29:18.080 a330 Delete type=0 #17
-2026/09/10-13:29:18.080 a330 Delete type=3 #16
+2026/09/23-12:19:30.634 7ed0 Delete type=3 #1
+2026/09/23-12:19:30.650 3d8c Level-0 table #5: started
+2026/09/23-12:19:30.653 3d8c Level-0 table #5: 34464 bytes OK
+2026/09/23-12:19:30.654 3d8c Delete type=0 #3
+2026/09/23-12:19:30.655 3d8c Manual compaction at level-0 from '!actors!ASSymxrYCFfGxg78' @ 72057594037927935 : 1 .. '!actors.items!pOuNvHoTIEgCcCPk.yLIHknYtTKh3pI2l' @ 0 : 0; will stop at (end)

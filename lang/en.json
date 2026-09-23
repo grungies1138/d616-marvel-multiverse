@@ -154,8 +154,8 @@
       "OwnMultiplier": "Weapon uses its own damage multiplier (grenades: 2; 0 = attacker's)",
       "Scatters": "Scatters on a missed landing (grenades)",
       "Lethality": "Lethal / Nonlethal",
-      "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal)",
-      "LethalityLethal": "Lethal",
+      "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal; Heroic attackers hold back)",
+      "LethalityLethal": "Lethal (also overrides Heroic holding back)",
       "LethalityNonlethal": "Nonlethal"
     },
     "ImageCropper": {
@@ -347,7 +347,8 @@
       "StaleHint": "Some of this damage was applied to a token you can't edit, so it still reflects the old roll. The GM can Undo and Apply Damage again.",
       "AdjustedLine": "{name} ({from} → {to})",
       "AdjustedNote": "Applied damage updated for the new result: {lines}.",
-      "Nonlethal": "Nonlethal"
+      "Nonlethal": "Nonlethal",
+      "HoldingBack": "Holding back"
     },
     "Relay": {
       "NoGM": "That changes a character you don't own, so it needs a GM connected. Nothing was changed.",

@@ -29,7 +29,7 @@ export default class GearData extends foundry.abstract.TypeDataModel {
       attack: new SchemaField({
         enabled: new BooleanField({ required: true, initial: false }),
         ability: new StringField({ required: false, blank: true, initial: "melee", choices: ABILITY_CHOICES }),
-        defenseTarget: new StringField({ required: false, blank: true, initial: "resilience", choices: [...ABILITY_CHOICES, "flat"] }),
+        defenseTarget: new StringField({ required: false, blank: true, initial: "melee", choices: [...ABILITY_CHOICES, "flat"] }),
         flatDC: new NumberField({ required: true, integer: true, initial: 10, min: 0 }),
         dealsDamage: new BooleanField({ required: true, initial: true }),
         damageType: new StringField({ required: true, initial: "health", choices: ["health", "focus"] }),

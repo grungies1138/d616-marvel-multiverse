@@ -12,15 +12,21 @@ import { damageFromRoll } from "../dice/marvel-roll.mjs";
  */
 
 /**
- * Nonlethal damage (book p.36) stops when the target's Health reaches
- * 1 point away from dying: Killed is Health <= -max, so it floors at
- * 1 - max. `before` is the target's Health before this hit, if not current.
+ * Damage that stops 1 point short of the worst outcome. Killed is
+ * Health <= -max and Shattered is Focus <= -max, so the floor is 1 - max.
+ *   - Nonlethal attacks (book p.36) stop short of Killed (Health only).
+ *   - Holding Back (p.34): an attacker with the Heroic tag stops short of
+ *     Killed and of Shattered, unless the player declared the attack lethal.
+ * `caps` is { nonlethal, holdBack } (a bare boolean means nonlethal);
+ * `before` is the target's value before this hit, if not the current one.
  */
-export function nonlethalCap(actor, amount, pool, nonlethal, before = null) {
-  if (!nonlethal || pool !== "health" || !amount) return amount;
-  const health = before ?? actor.system.health.value;
-  const floor = 1 - actor.system.health.max;
-  return Math.max(0, Math.min(amount, health - floor));
+export function nonlethalCap(actor, amount, pool, caps, before = null) {
+  const { nonlethal = false, holdBack = false } = typeof caps === "object" && caps ? caps : { nonlethal: !!caps };
+  const applies = (pool === "health" && (nonlethal || holdBack)) || (pool === "focus" && holdBack);
+  if (!applies || !amount) return amount;
+  const current = before ?? actor.system[pool].value;
+  const floor = 1 - actor.system[pool].max;
+  return Math.max(0, Math.min(amount, current - floor));
 }
 
 /** Tokens the user has targeted, falling back to the ones they've selected. */
@@ -68,7 +74,7 @@ export async function reconcileAppliedDamage(data) {
     }
     const hit = data.success !== false && data.damage !== null && data.damageParams;
     const raw = hit ? Math.floor(damageAgainst(data, actor) / (entry.divisor ?? 1)) : 0;
-    const amount = nonlethalCap(actor, raw, entry.pool, data.nonlethal, actor.system[entry.pool].value + entry.amount);
+    const amount = nonlethalCap(actor, raw, entry.pool, { nonlethal: data.nonlethal, holdBack: data.holdBack }, actor.system[entry.pool].value + entry.amount);
     const delta = amount - entry.amount;
     if (delta) {
       await actor.update({ [`system.${entry.pool}.value`]: actor.system[entry.pool].value - delta });
@@ -109,7 +115,7 @@ export async function applyDamageFromMessage(message) {
       ui.notifications.warn(game.i18n.format("D616.Damage.NoPermissionActor", { name: actor.name }));
       continue;
     }
-    const amount = nonlethalCap(actor, damageAgainst(data, actor), pool, data.nonlethal);
+    const amount = nonlethalCap(actor, damageAgainst(data, actor), pool, { nonlethal: data.nonlethal, holdBack: data.holdBack });
     if (amount > 0) {
       await actor.update({ [`system.${pool}.value`]: actor.system[pool].value - amount });
       applied.push({ uuid: actor.uuid, amount, pool });

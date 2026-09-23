@@ -649,6 +649,9 @@ export default class D616Actor extends Actor {
     // too, without needing to re-derive the actor's state later.
     const dealsDamageFlag = !!(sys.attack?.enabled && sys.attack?.dealsDamage);
     const nonlethal = dealsDamageFlag && isNonlethalAttack(item);
+    // Holding Back (book p.34): a Heroic attacker leaves the target 1 point
+    // short of Killed or Shattered unless the attack was declared lethal.
+    const holdBack = dealsDamageFlag && !!this.system.isHeroic && sys.attack?.lethality !== "lethal";
     const damageType = sys.attack?.damageType === "focus" ? "focus" : "health";
     let damage = null;
     let damageParams = null;
@@ -711,7 +714,7 @@ export default class D616Actor extends Actor {
           damageNotApplied = true;
           continue;
         }
-        hit.amount = nonlethalCap(hit.actor, hit.amount, pool, nonlethal);
+        hit.amount = nonlethalCap(hit.actor, hit.amount, pool, { nonlethal, holdBack });
         await this._applyDamageTo(hit.actor, hit.amount, damageType);
         if (hit.amount) applied.push({ uuid: hit.actor.uuid, amount: hit.amount, pool, divisor });
       }
@@ -727,7 +730,8 @@ export default class D616Actor extends Actor {
     // Concentration starts once the power has actually been used.
     if (concentrates) await startConcentration(this, item);
 
-    const subtitle = [sys.range, sys.duration, nonlethal ? game.i18n.localize("D616.Damage.Nonlethal") : null]
+    const capLabel = nonlethal ? "D616.Damage.Nonlethal" : holdBack ? "D616.Damage.HoldingBack" : null;
+    const subtitle = [sys.range, sys.duration, capLabel ? game.i18n.localize(capLabel) : null]
       .filter(Boolean).join(" · ");
     const extraNote = notes.join(" ") || null;
     const defenseTargetLabel = sys.attack?.defenseTarget && sys.attack.defenseTarget !== "flat"
@@ -791,6 +795,7 @@ export default class D616Actor extends Actor {
             teamRerollNote,
             extraNote,
             nonlethal,
+            holdBack,
             applied,
             // Everything the card needs to be re-judged and re-rendered
             // identically if Edge/Trouble is added after the fact.
@@ -895,7 +900,8 @@ export default class D616Actor extends Actor {
 
     let healed = 0;
     if (success) {
-      healed = dice.marvelValue * this.system.rank;
+      // Like a damage roll (errata p.19, p.36): Marvel die x Rank + the ability.
+      healed = dice.marvelValue * this.system.rank + abilityValue;
       if (dice.isFantastic) healed *= 2;
       const path = pool === "focus" ? "focus" : "health";
       const current = this.system[path].value;
