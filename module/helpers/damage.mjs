@@ -1,4 +1,4 @@
-import { computeDamage } from "../dice/marvel-roll.mjs";
+import { damageFromRoll } from "../dice/marvel-roll.mjs";
 
 /**
  * Chat-card Apply Damage / Undo. A hit only applies itself automatically
@@ -26,15 +26,44 @@ function chosenActors() {
  * (book p.36: DR comes off the multiplier; below 1 means no damage at all).
  */
 function damageAgainst(data, actor) {
-  const dr = actor.system.health?.damageReduction ?? 0;
-  const multiplier = data.damageParams.multiplier - dr;
-  if (multiplier < 1) return 0;
-  return computeDamage({
+  return damageFromRoll({
+    damageParams: data.damageParams,
+    drApplied: actor.system.health?.damageReduction ?? 0,
     marvelValue: data.marvelValue,
-    multiplier,
-    modifier: data.damageParams.modifier,
     isFantastic: data.isFantastic
-  });
+  }).damage;
+}
+
+/**
+ * After Edge/Trouble changes a roll, move any damage this card already
+ * applied to match the new result — the difference comes off (or goes back
+ * onto) each target, and a hit that became a miss refunds it entirely.
+ * `divisor` is set on entries from a multi-target (Shotgun/SMG) hit, which
+ * split the damage between targets. Targets this user can't edit are left
+ * as they were and reported as `stale`, so the card can say so.
+ */
+export async function reconcileAppliedDamage(data) {
+  const entries = data.applied ?? [];
+  const applied = [];
+  const lines = [];
+  let stale = false;
+  for (const entry of entries) {
+    const actor = await fromUuid(entry.uuid);
+    if (!actor?.isOwner) {
+      applied.push(entry);
+      stale = true;
+      continue;
+    }
+    const hit = data.success !== false && data.damage !== null && data.damageParams;
+    const amount = hit ? Math.floor(damageAgainst(data, actor) / (entry.divisor ?? 1)) : 0;
+    const delta = amount - entry.amount;
+    if (delta) {
+      await actor.update({ [`system.${entry.pool}.value`]: actor.system[entry.pool].value - delta });
+      lines.push(game.i18n.format("D616.Damage.AdjustedLine", { name: actor.name, from: entry.amount, to: amount }));
+    }
+    if (amount > 0) applied.push({ ...entry, amount });
+  }
+  return { applied, lines, stale };
 }
 
 function canEditMessage(message) {

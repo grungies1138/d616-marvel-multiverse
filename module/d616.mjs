@@ -97,6 +97,14 @@ Hooks.on("updateCombat", (combat, changes) => {
 
   const currentActor = combat.combatant?.actor;
   if (currentActor) currentActor.clearDodge();
+
+  // A Team Maneuver lasts for the round it was used in, and expires just by
+  // the round number moving on — refresh open sheets so its tag disappears.
+  if ("round" in changes) {
+    for (const c of combat.combatants) {
+      if (c.actor?.getFlag("d616", "teamManeuver") && c.actor.sheet?.rendered) c.actor.sheet.render();
+    }
+  }
 });
 
 Hooks.once("ready", async () => {

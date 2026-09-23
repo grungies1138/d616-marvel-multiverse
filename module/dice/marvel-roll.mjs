@@ -77,6 +77,24 @@ export function computeDamage({ marvelValue, multiplier, modifier, isFantastic }
   return isFantastic ? base * 2 : base;
 }
 
+/**
+ * An attack's damage against the target recorded on the roll: Damage
+ * Reduction comes off the multiplier first, and below 1 means no damage at
+ * all (book p.36). Shared by rollItem and by adding Edge/Trouble after the
+ * fact, so both land on the same number.
+ */
+export function damageFromRoll({ damageParams, drApplied = 0, marvelValue, isFantastic }) {
+  const multiplier = damageParams.multiplier - drApplied;
+  if (multiplier < 1) return { damage: 0, multiplier };
+  return { damage: computeDamage({ marvelValue, multiplier, modifier: damageParams.modifier, isFantastic }), multiplier };
+}
+
+/** Book p.34: 5 spaces per point of (DR-reduced) damage multiplier. */
+export function knockbackNoteFor({ eligible, isFantastic, multiplier }) {
+  if (!eligible || !isFantastic || multiplier < 1) return null;
+  return game.i18n.format("D616.Roll.KnockbackAvailable", { distance: multiplier * 5 });
+}
+
 export async function renderRollCard(context) {
   const renderFn = foundry.applications?.handlebars?.renderTemplate ?? renderTemplate;
   return renderFn("systems/d616/templates/chat/roll-card.hbs", context);
@@ -161,22 +179,21 @@ export async function applyEdgeTroubleToMessage(message, mode) {
   };
   const { rerollRaw } = await applyEdgeTroubleAdjustment(state, mode);
 
-  const total = state.d1 + state.d2 + state.marvelValue + (data.abilityValue ?? 0) + (data.checkBonus ?? 0);
+  // Everything the original roll folded in is on the flags, so the new
+  // result is judged exactly like the original: the attack's size modifier,
+  // a forced hit (close attack on an Unconscious/Paralyzed target), and the
+  // target's Damage Reduction.
+  const total = state.d1 + state.d2 + state.marvelValue
+    + (data.abilityValue ?? 0) + (data.checkBonus ?? 0) + (data.sizeModifier ?? 0);
   const isUltimate = state.isFantastic && state.d1 === 6 && state.d2 === 6;
-  const success = resolveSuccess({ total, targetNumber: data.targetNumber ?? null, isUltimate });
+  const success = data.forcedHit || resolveSuccess({ total, targetNumber: data.targetNumber ?? null, isUltimate });
 
-  let damage = data.damage ?? null;
-  if (data.isAttack && data.dealsDamageFlag && (success === null || success) && data.damageParams) {
-    damage = computeDamage({
-      marvelValue: state.marvelValue,
-      multiplier: data.damageParams.multiplier,
-      modifier: data.damageParams.modifier,
-      isFantastic: state.isFantastic
-    });
-  } else if (success === false) {
-    // An Edge/Trouble application can flip a hit into a miss (or vice
-    // versa) — don't leave a stale damage value from the original roll.
-    damage = null;
+  let damage = null;
+  let knockbackNote = null;
+  if (data.isAttack && data.dealsDamageFlag && data.damageParams && success !== false) {
+    const result = damageFromRoll({ damageParams: data.damageParams, drApplied: data.drApplied, marvelValue: state.marvelValue, isFantastic: state.isFantastic });
+    damage = result.damage;
+    knockbackNote = knockbackNoteFor({ eligible: data.knockbackEligible, isFantastic: state.isFantastic, multiplier: result.multiplier });
   }
 
   const updatedRollData = {
@@ -190,37 +207,18 @@ export async function applyEdgeTroubleToMessage(message, mode) {
     total,
     success,
     damage,
+    knockbackNote,
     edgeTroubleApplied: mode,
     extraDie: rerollRaw
   };
 
-  const content = await renderRollCard({
-    title: data.title,
-    subtitle: data.subtitle,
-    d1: state.d1,
-    d2: state.d2,
-    marvelValue: state.marvelValue,
-    rawMarvel: state.rawMarvel,
-    abilityValue: data.abilityValue,
-    checkBonus: data.checkBonus,
-    total,
-    targetNumber: data.targetNumber,
-    defenseTargetLabel: data.defenseTargetLabel,
-    success,
-    isFantastic: state.isFantastic,
-    isGreen: state.isGreen,
-    damage,
-    damageType: data.damageType,
-    // Anything the original roll already applied stays applied at the old
-    // number — use Undo, then Apply Damage, to re-apply at the new one.
-    canApplyDamage: !!data.dealsDamageFlag && damage !== null,
-    fantasticEffect: data.fantasticEffect,
-    focusCost: data.focusCost,
-    focusRemaining: data.focusRemaining,
-    isAttack: data.isAttack,
-    edgeTroubleApplied: mode
-  });
+  // Damage already applied to targets from this card moves with the new
+  // result (including back to nothing if the hit became a miss).
+  const { reconcileAppliedDamage } = await import("../helpers/damage.mjs");
+  const reconciled = await reconcileAppliedDamage(updatedRollData);
+  updatedRollData.applied = reconciled.applied;
 
+  const content = await renderRollCard(rollCardContext(updatedRollData, { staleApplied: reconciled.stale }));
   await message.update({ content, "flags.d616.roll": updatedRollData });
 
   const noteKey = mode === "edge" ? "D616.Roll.EdgeAppliedNote" : "D616.Roll.TroubleAppliedNote";
@@ -228,4 +226,48 @@ export async function applyEdgeTroubleToMessage(message, mode) {
     speaker: message.speaker,
     content: `<p class="d616-edge-trouble-note">${game.i18n.format(noteKey, { die: rerollRaw, total })}</p>`
   });
+  if (reconciled.lines.length) {
+    ChatMessage.create({
+      speaker: message.speaker,
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Damage.AdjustedNote", { lines: reconciled.lines.join(", ") })}</p>`
+    });
+  }
+}
+
+/**
+ * The roll-card template context for a roll, built purely from its stored
+ * flags — used when re-rendering a card after the fact so it shows the same
+ * lines (target, DR, knockback, Apply/Undo) as when it was first posted.
+ */
+export function rollCardContext(data, extra = {}) {
+  return {
+    title: data.title,
+    subtitle: data.subtitle,
+    d1: data.d1,
+    d2: data.d2,
+    marvelValue: data.marvelValue,
+    rawMarvel: data.rawMarvel,
+    abilityValue: data.abilityValue,
+    checkBonus: data.checkBonus,
+    sizeModifier: data.sizeModifier,
+    total: data.total,
+    targetNumber: data.targetNumber,
+    defenseTargetLabel: data.defenseTargetLabel,
+    targetName: data.targetName,
+    drApplied: data.drApplied,
+    success: data.success,
+    isFantastic: data.isFantastic,
+    isGreen: data.isGreen,
+    damage: data.damage,
+    damageType: data.damageType,
+    knockbackNote: data.knockbackNote,
+    canApplyDamage: !!data.dealsDamageFlag && data.damage !== null && data.damage !== undefined,
+    damageNotApplied: data.damageNotApplied,
+    fantasticEffect: data.fantasticEffect,
+    focusCost: data.focusCost,
+    focusRemaining: data.focusRemaining,
+    isAttack: data.isAttack,
+    edgeTroubleApplied: data.edgeTroubleApplied,
+    ...extra
+  };
 }

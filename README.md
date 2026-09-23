@@ -9,9 +9,11 @@ publisher — built for homebrew/original characters and personal home-game use.
 ## What's automated
 
 - **Ability checks**: click the dice icon next to any ability to roll 2d6 + Marvel Die +
-  that ability. Powers/Gear rolls prompt for Edge/Trouble before rolling; every roll's
-  chat card also carries **Add Edge**/**Add Trouble** buttons so it can be applied
-  after the fact instead (see below).
+  that ability. You're asked for a difficulty (the book's Trivial-to-Absurd adjectives,
+  turned into a target number for the character's Rank) or a custom TN, and for
+  Edge/Trouble; Shift-click skips the question. Powers/Gear rolls prompt for
+  Edge/Trouble the same way, and every roll's chat card also carries **Add Edge**/
+  **Add Trouble** buttons so it can be applied after the fact instead (see below).
 - **Powers**: each Power item can define an attack roll (ability vs. a Defense or flat
   target number), whether it deals damage, and a Focus cost (flat, or scaling — spend
   extra Focus for +1 Damage Modifier per N Focus, matching the book's "5 or more Focus"
@@ -65,6 +67,9 @@ publisher — built for homebrew/original characters and personal home-game use.
   buttons, since it's already been applied. Multiple Edge/Trouble sources on the same
   roll (a standing Edge, Conditions, Team Maneuvers, an explicit choice, a target's
   Dodge...) net out 1-for-1 per the book rather than one simply overriding another.
+  Adding Edge/Trouble after the fact re-judges the card exactly as the original roll
+  was (size modifier, the target's Damage Reduction, automatic hits, knockback), and
+  moves any damage the card already applied to match the new result.
 - **Conditions**: the book's full Conditions vocabulary registers as real status
   icons, toggleable from the token HUD or from the row of icons in the character
   sheet's header (Unconscious/Demoralized/Shattered show there read-only, since
@@ -83,14 +88,21 @@ publisher — built for homebrew/original characters and personal home-game use.
   everything that card applied, automatically or by button. A hit only applies
   itself automatically to a target you're allowed to edit, so a player hitting a
   GM-owned villain leaves the damage on the card for the GM to apply.
-- **Shift-click to skip the prompt**: Shift-clicking a Power or Gear's roll icon
-  rolls immediately with no Edge/Trouble, instead of opening the pre-roll dialog.
+- **Shift-click to skip the prompt**: Shift-clicking an ability, Power, or Gear roll
+  icon rolls immediately with no difficulty or Edge/Trouble, instead of opening the
+  pre-roll dialog.
+- **Active states**: while a character is Dodging, holding a teammate's Help Edge, or
+  under a Team Maneuver, a tag says so under the Condition icons in the sheet header.
 - **Team Maneuvers**: the dialog lists everyone who shares your Team / Affiliation
   (comma-separate multiple teams), pre-checking whoever's in the current combat, so
   there's no re-targeting the whole team every time. Anyone targeted is added too.
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.8.0 — Ability-check difficulty, active-state tags, and Add Edge/Trouble fixes
+
+Clicking an ability now asks for a difficulty — the book's Trivial-to-Absurd adjectives, already converted to a target number for the character's Rank — or a custom TN, and for Edge/Trouble, so ability checks finally report Success or Failure. Shift-click still rolls instantly. The sheet header now shows a tag while a character is Dodging, holding a teammate's Help Edge, or under a Team Maneuver, instead of those being invisible. And adding Edge or Trouble to a roll after the fact got a real overhaul: it used to ignore the target's Damage Reduction, drop the size modifier from the total (which could flip a hit into a miss), turn automatic hits on Unconscious or Paralyzed targets into possible misses, and strip the target, DR and knockback lines off the card. It now re-judges the roll exactly as the original was and adjusts any damage already applied to a token to match. The Karma recovery and Grab/Escape cards also no longer show Add Edge/Add Trouble buttons that never did anything.
 
 ## 1.7.0 — Quality-of-life: Apply Damage, sheet Conditions, Shift-click, team rosters
 

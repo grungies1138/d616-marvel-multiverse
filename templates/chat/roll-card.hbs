@@ -50,6 +50,7 @@
 
   {{#if canApplyDamage}}
   {{#if damageNotApplied}}<p class="roll-target">{{localize "D616.Damage.NotAppliedHint"}}</p>{{/if}}
+  {{#if staleApplied}}<p class="roll-target">{{localize "D616.Damage.StaleHint"}}</p>{{/if}}
   <div class="roll-damage-actions">
     <button type="button" class="edge-trouble-btn" data-action="d616ApplyDamage" data-tooltip="{{localize 'D616.Damage.ApplyHint'}}">{{localize "D616.Damage.Apply"}}</button>
     <button type="button" class="edge-trouble-btn trouble" data-action="d616UndoDamage" data-tooltip="{{localize 'D616.Damage.UndoHint'}}">{{localize "D616.Damage.Undo"}}</button>
@@ -64,7 +65,7 @@
   <p class="roll-damage"><strong>{{localize "D616.Karma.Healed"}}: {{healed}}</strong></p>
   {{/if}}
 
-  {{#if (ne total null)}}
+  {{#if (ne total null)}}{{#unless noEdgeTrouble}}
   <div class="roll-edge-trouble">
     {{#if (eq edgeTroubleApplied "none")}}
     <button type="button" class="edge-trouble-btn edge" data-action="d616ApplyEdge">{{localize "D616.Roll.AddEdge"}}</button>
@@ -79,5 +80,5 @@
     </span>
     {{/if}}
   </div>
-  {{/if}}
+  {{/unless}}{{/if}}
 </div>
