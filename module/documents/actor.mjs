@@ -1,5 +1,5 @@
 import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor } from "../dice/marvel-roll.mjs";
-import { syncAutomaticConditions } from "../helpers/conditions.mjs";
+import { updateAnywhere, toggleStatusAnywhere, applyEdgeTroubleRouted } from "../helpers/gm-relay.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
 
@@ -161,7 +161,6 @@ export default class D616Actor extends Actor {
     let edges = 0;
     let troubles = 0;
     let consumedHelp = false;
-    let tmBonusStacks = 0;
 
     if (explicit === "edge") edges++;
     else if (explicit === "trouble") troubles++;
@@ -173,10 +172,9 @@ export default class D616Actor extends Actor {
     }
 
     const teamManeuver = this._activeTeamManeuver();
-    if (teamManeuver?.type === "offensive" && standingKey === "attacks") {
-      edges++;
-      if (teamManeuver.level >= 2) tmBonusStacks = 1;
-    }
+    // Offensive Team Maneuver: Edge on attacks at every level (its Level 2
+    // reroll and Level 3 auto-Fantastic are applied in rollItem).
+    if (teamManeuver?.type === "offensive" && standingKey === "attacks") edges++;
 
     const self = this._selfConditionModifiers(ability, standingKey === "attacks");
     edges += self.edges;
@@ -192,7 +190,7 @@ export default class D616Actor extends Actor {
 
     const net = edges - troubles;
     const mode = net > 0 ? "edge" : net < 0 ? "trouble" : "none";
-    const stacks = mode === "none" ? 1 : Math.abs(net) + (mode === "edge" ? tmBonusStacks : 0);
+    const stacks = mode === "none" ? 1 : Math.abs(net);
     return { mode, stacks, teamManeuver };
   }
 
@@ -500,6 +498,7 @@ export default class D616Actor extends Actor {
     let attackTotal = null, targetNumber = null, success = null, abilityValue = null;
     let sizeModifier = 0;
     let forcedHit = false;
+    let teamRerollNote = null;
     const isCloseAttack = isCloseRangeAttack(item);
     // What actually got applied to the dice — may differ from the raw
     // `edgeTrouble` argument once standing sources/Conditions are tallied in
@@ -515,21 +514,7 @@ export default class D616Actor extends Actor {
       const resolved = await this._resolveEdgeTrouble(edgeTrouble, "attacks", { ability, isCloseAttack, targetActor: primaryTarget });
       effectiveEdgeTrouble = resolved.mode;
 
-      const dice = await rollMarvelDice({ edgeTrouble: resolved.mode, stacks: resolved.stacks });
-      d1 = dice.d1; d2 = dice.d2; marvelValue = dice.marvelValue; rawMarvel = dice.rawMarvel;
-      isFantastic = dice.isFantastic; isGreen = dice.isGreen; isUltimate = dice.isUltimate;
-
-      // Team Maneuver Offensive Level 3: turn the Marvel Die to a Fantastic
-      // success against targets of equal or lower Rank (book p.39).
-      if (resolved.teamManeuver?.type === "offensive" && resolved.teamManeuver.level >= 3
-        && primaryTarget && (primaryTarget.system.rank ?? 1) <= this.system.rank) {
-        isFantastic = true;
-        marvelValue = 6;
-      }
-
       if (primaryTarget) sizeModifier = SIZE_ATTACK_MODIFIER[primaryTarget.system.size] ?? 0;
-      attackTotal = dice.diceTotal + abilityValue + sizeModifier;
-
       if (sys.attack.defenseTarget === "flat") {
         targetNumber = sys.attack.flatDC;
       } else if (ABILITIES.includes(sys.attack.defenseTarget)) {
@@ -549,7 +534,40 @@ export default class D616Actor extends Actor {
       }
       forcedHit = !!primaryTarget && isCloseAttack && (targetUnconscious || targetParalyzed);
 
-      success = forcedHit || resolveSuccess({ total: attackTotal, targetNumber, isUltimate });
+      // Offensive Team Maneuver (book p.39). Level 3: the Marvel Die becomes a
+      // Fantastic success on attacks against targets of equal or higher Rank.
+      // Applied to each candidate roll before judging it, so Level 2's
+      // "keep the better" choice sees the result that will actually stand.
+      const tm = resolved.teamManeuver?.type === "offensive" ? resolved.teamManeuver.level : 0;
+      const autoFantastic = tm >= 3 && !!primaryTarget && (primaryTarget.system.rank ?? 1) >= this.system.rank;
+      const judge = (raw) => {
+        const dice = { ...raw };
+        if (autoFantastic && !dice.isFantastic) {
+          dice.diceTotal += 6 - dice.marvelValue;
+          dice.isFantastic = true;
+          dice.marvelValue = 6;
+          dice.isUltimate = dice.d1 === 6 && dice.d2 === 6;
+        }
+        const total = dice.diceTotal + abilityValue + sizeModifier;
+        return { dice, total, success: forcedHit || resolveSuccess({ total, targetNumber, isUltimate: dice.isUltimate }) };
+      };
+      let roll = judge(await rollMarvelDice({ edgeTrouble: resolved.mode, stacks: resolved.stacks }));
+
+      // Level 2+: reroll all the dice and use the better result. "Better" =
+      // a hit over a miss, then a Fantastic over not, then the higher total.
+      if (tm >= 2) {
+        const second = judge(await rollMarvelDice({ edgeTrouble: resolved.mode, stacks: resolved.stacks }));
+        const score = (r) => [r.success === true ? 1 : 0, r.dice.isFantastic ? 1 : 0, r.total];
+        const [x, y] = [score(roll), score(second)];
+        const secondBetter = y[0] !== x[0] ? y[0] > x[0] : y[1] !== x[1] ? y[1] > x[1] : y[2] > x[2];
+        const kept = secondBetter ? second : roll;
+        teamRerollNote = game.i18n.format("D616.TeamManeuver.RerollNote", { kept: kept.total, other: (secondBetter ? roll : second).total });
+        roll = kept;
+      }
+
+      ({ d1, d2, marvelValue, rawMarvel, isFantastic, isGreen, isUltimate } = roll.dice);
+      attackTotal = roll.total;
+      success = roll.success;
     }
 
     // --- Damage (if applicable) ---
@@ -622,6 +640,10 @@ export default class D616Actor extends Actor {
       if (hits.length > 1) targetSummary = hits.map((h) => h.actor.name).join(", ") + ` (${hits[0].amount} each)`;
       else if (hits.length === 1) targetSummary = hits[0].actor.name;
     }
+    // Name the target even when no damage landed (a miss, DR soaking it all,
+    // or a non-damaging attack) — the card's "Spend Karma: Trouble" button,
+    // for the target's owner, only shows when a target is named.
+    if (!targetSummary && primaryTarget && sys.attack?.enabled) targetSummary = primaryTarget.name;
     const canApplyDamage = dealsDamageFlag && damage !== null;
 
     const subtitle = `${sys.range ?? ""} · ${sys.duration ?? ""}`;
@@ -651,6 +673,7 @@ export default class D616Actor extends Actor {
       damageType,
       fantasticEffect,
       knockbackNote,
+      teamRerollNote,
       canApplyDamage,
       damageNotApplied,
       focusCost,
@@ -681,6 +704,7 @@ export default class D616Actor extends Actor {
             damageType,
             fantasticEffect,
             knockbackNote,
+            teamRerollNote,
             applied,
             // Everything the card needs to be re-judged and re-rendered
             // identically if Edge/Trouble is added after the fact.
@@ -699,13 +723,16 @@ export default class D616Actor extends Actor {
     });
   }
 
-  /** Subtracts damage from a target's Health or Focus and syncs its conditions. */
+  /**
+   * Subtracts damage from a target's Health or Focus. The resulting
+   * Unconscious/Demoralized/etc. sync happens in the updateActor hook, on a
+   * single client — calling it here too would race that.
+   */
   async _applyDamageTo(targetActor, amount, pool = "health") {
     if (!targetActor || !amount) return;
     const path = pool === "focus" ? "system.focus.value" : "system.health.value";
     const current = pool === "focus" ? targetActor.system.focus.value : targetActor.system.health.value;
     await targetActor.update({ [path]: current - amount });
-    await syncAutomaticConditions(targetActor);
   }
 
   /** @deprecated Back-compat alias — use rollItem(), which also handles Gear. */
@@ -719,7 +746,20 @@ export default class D616Actor extends Actor {
 
   /** Spend 1 Karma to add Edge to a roll already posted to chat. */
   async spendKarmaForEdgeOnMessage(message) {
-    const { applyEdgeTroubleToMessage } = await import("../dice/marvel-roll.mjs");
+    return this._spendKarmaOnMessage(message, "edge", "D616.Karma.SpentForEdge");
+  }
+
+  /**
+   * Shared by both Karma buttons: only this actor's owner may spend its
+   * Karma; the Edge/Trouble is applied first — through the GM when the card
+   * isn't this user's (e.g. Trouble on the GM's own attack card) — and the
+   * Karma is only deducted once that has actually happened.
+   */
+  async _spendKarmaOnMessage(message, mode, noteKey) {
+    if (!this.isOwner) {
+      ui.notifications.warn(game.i18n.format("D616.Karma.NotYours", { name: this.name }));
+      return;
+    }
     if (this.system.karma.value < 1) {
       ui.notifications.warn(game.i18n.localize("D616.Karma.NotEnough"));
       return;
@@ -729,11 +769,12 @@ export default class D616Actor extends Actor {
       ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleAlreadyApplied"));
       return;
     }
+    const applied = await applyEdgeTroubleRouted(message, mode, { othersCard: mode === "trouble" });
+    if (!applied) return;
     await this.update({ "system.karma.value": this.system.karma.value - 1 });
-    await applyEdgeTroubleToMessage(message, "edge");
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Karma.SpentForEdge", { name: this.name })}</p>`
+      content: `<p class="d616-edge-trouble-note">${game.i18n.format(noteKey, { name: this.name })}</p>`
     });
   }
 
@@ -744,22 +785,7 @@ export default class D616Actor extends Actor {
    * target (see rollItem's targetActorId flag).
    */
   async imposeKarmaTrouble(message) {
-    const { applyEdgeTroubleToMessage } = await import("../dice/marvel-roll.mjs");
-    if (this.system.karma.value < 1) {
-      ui.notifications.warn(game.i18n.localize("D616.Karma.NotEnough"));
-      return;
-    }
-    const data = message.getFlag("d616", "roll");
-    if (data?.edgeTroubleApplied && data.edgeTroubleApplied !== "none") {
-      ui.notifications.warn(game.i18n.localize("D616.Roll.EdgeTroubleAlreadyApplied"));
-      return;
-    }
-    await this.update({ "system.karma.value": this.system.karma.value - 1 });
-    await applyEdgeTroubleToMessage(message, "trouble");
-    ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Karma.SpentForTrouble", { name: this.name })}</p>`
-    });
+    return this._spendKarmaOnMessage(message, "trouble", "D616.Karma.SpentForTrouble");
   }
 
   /**
@@ -867,7 +893,8 @@ export default class D616Actor extends Actor {
       ui.notifications.warn(game.i18n.localize("D616.Action.HelpNeedsTarget"));
       return;
     }
-    await targetActor.setFlag("d616", "helpedEdge", true);
+    // The ally is usually someone else's character — relayed through the GM if so.
+    if (!(await updateAnywhere(targetActor, { "flags.d616.helpedEdge": true }))) return;
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content: `<p class="d616-edge-trouble-note">${game.i18n.format("D616.Action.HelpNote", { name: this.name, target: targetActor.name })}</p>`
@@ -898,8 +925,10 @@ export default class D616Actor extends Actor {
 
     if (success) {
       if (mode === "grab") {
+        // The target is usually someone else's — relayed through the GM if
+        // so. If that isn't possible the roll still posts; the relay has warned.
         const statusId = dice.isFantastic ? "d616-pinned" : "d616-grabbed";
-        await targetActor.toggleStatusEffect(statusId, { active: true });
+        await toggleStatusAnywhere(targetActor, statusId, true);
       } else {
         await this.toggleStatusEffect("d616-grabbed", { active: false });
         await this.toggleStatusEffect("d616-pinned", { active: false });

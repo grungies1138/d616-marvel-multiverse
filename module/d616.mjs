@@ -1,9 +1,9 @@
-import { applyEdgeTroubleToMessage } from "./dice/marvel-roll.mjs";
 import { registerSheetThemeSetting } from "./helpers/theme.mjs";
 import { registerConditions, syncAutomaticConditions, applyEndOfTurnConditionDamage } from "./helpers/conditions.mjs";
-import { openTeamManeuverDialog } from "./helpers/team-maneuver.mjs";
+import { openTeamManeuverDialog, rallyRecover } from "./helpers/team-maneuver.mjs";
 import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import { applyDamageFromMessage, undoDamageFromMessage } from "./helpers/damage.mjs";
+import { registerGMRelay, isResponsibleClient, applyEdgeTroubleRouted } from "./helpers/gm-relay.mjs";
 import CharacterData from "./data/actor-character.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
@@ -79,7 +79,11 @@ Hooks.once("init", () => {
 // Health/Focus can change from many places (the sheet's own inputs, a GM
 // dragging a value, another module) — not just D616Actor#_applyDamageTo, so
 // keep the four automatic Conditions in sync any time an actor updates.
-Hooks.on("updateActor", (actor) => {
+// Hooks fire on every connected client; the condition sync must happen on
+// exactly one (otherwise players' clients hit permission errors on
+// characters they don't own, and two owners online can race each other).
+Hooks.on("updateActor", (actor, changes, options, userId) => {
+  if (!isResponsibleClient(userId)) return;
   syncAutomaticConditions(actor);
 });
 
@@ -89,17 +93,24 @@ Hooks.on("updateActor", (actor) => {
 // points at the combatant whose turn just ended, whether that's a normal
 // turn advance or the last turn of a round rolling over into the next one;
 // `combat.combatant` is already the combatant whose turn is starting.
-Hooks.on("updateCombat", (combat, changes) => {
+Hooks.on("updateCombat", (combat, changes, options, userId) => {
   if (!("turn" in changes) && !("round" in changes)) return;
-  const prevId = combat.previous?.combatantId;
-  const prevActor = prevId ? combat.combatants.get(prevId)?.actor : null;
-  if (prevActor) applyEndOfTurnConditionDamage(prevActor);
 
-  const currentActor = combat.combatant?.actor;
-  if (currentActor) currentActor.clearDodge();
+  // Game-state changes happen once, on one client (see isResponsibleClient);
+  // with no GM connected that's whoever advanced the turn, who can only
+  // change characters they own.
+  if (isResponsibleClient(userId)) {
+    const prevId = combat.previous?.combatantId;
+    const prevActor = prevId ? combat.combatants.get(prevId)?.actor : null;
+    if (prevActor?.isOwner) applyEndOfTurnConditionDamage(prevActor);
+
+    const currentActor = combat.combatant?.actor;
+    if (currentActor?.isOwner) currentActor.clearDodge();
+  }
 
   // A Team Maneuver lasts for the round it was used in, and expires just by
-  // the round number moving on — refresh open sheets so its tag disappears.
+  // the round number moving on — refresh open sheets (on every client, this
+  // is display only) so its tag disappears.
   if ("round" in changes) {
     for (const c of combat.combatants) {
       if (c.actor?.getFlag("d616", "teamManeuver") && c.actor.sheet?.rendered) c.actor.sheet.render();
@@ -109,6 +120,7 @@ Hooks.on("updateCombat", (combat, changes) => {
 
 Hooks.once("ready", async () => {
   console.log("d616 | Ready.");
+  registerGMRelay();
 
   // --- A ready-made "Team Maneuver" macro so the table doesn't have to dig
   // through a character sheet to find the button (book p.38-39) — targets
@@ -153,7 +165,7 @@ Hooks.once("ready", async () => {
   // came from.
   document.addEventListener("click", (event) => {
     const button = event.target.closest(
-      '[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"], [data-action="d616KarmaEdge"], [data-action="d616KarmaTrouble"], [data-action="d616ApplyDamage"], [data-action="d616UndoDamage"]'
+      '[data-action="d616ApplyEdge"], [data-action="d616ApplyTrouble"], [data-action="d616KarmaEdge"], [data-action="d616KarmaTrouble"], [data-action="d616ApplyDamage"], [data-action="d616UndoDamage"], [data-action="d616RallyRecover"]'
     );
     if (!button) return;
     event.preventDefault();
@@ -165,8 +177,9 @@ Hooks.once("ready", async () => {
     const action = button.dataset.action;
     if (action === "d616ApplyDamage") return applyDamageFromMessage(message);
     if (action === "d616UndoDamage") return undoDamageFromMessage(message);
+    if (action === "d616RallyRecover") return rallyRecover(message, button.dataset.actor, button.dataset.pool);
     if (action === "d616ApplyEdge" || action === "d616ApplyTrouble") {
-      applyEdgeTroubleToMessage(message, action === "d616ApplyEdge" ? "edge" : "trouble");
+      applyEdgeTroubleRouted(message, action === "d616ApplyEdge" ? "edge" : "trouble");
       return;
     }
 
