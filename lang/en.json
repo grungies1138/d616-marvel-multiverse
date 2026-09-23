@@ -84,7 +84,7 @@
       "WeaponDamageMultiplierBonus": "Weapon Damage Multiplier Bonus",
       "AddGear": "Add Gear",
       "NoGear": "No gear yet. Click \"Add Gear\" to create one.",
-      "UseGear": "Use",
+      "UseGear": "Use (Shift-click to skip the Edge/Trouble prompt)",
       "Abilities": "Abilities",
       "Defenses": "Defenses",
       "Health": "Health",
@@ -99,7 +99,7 @@
       "NoPowers": "No powers yet. Click \"Add Power\" to create one.",
       "NoTraits": "No traits yet. Click \"Add Trait\" to create one.",
       "RollAbility": "Roll",
-      "UsePower": "Use",
+      "UsePower": "Use (Shift-click to skip the Edge/Trouble prompt)",
       "EditItem": "Edit",
       "DeleteItem": "Delete",
       "PowerSet": "Power Set",
@@ -143,7 +143,8 @@
       "Movement": "Movement",
       "MovementHint": "Run/Climb/Jump/Swim are automatic (Climb/Jump/Swim default to half Run Speed). Glide/Swingline/Fly/Teleport only appear once a power grants them (set on the actor's movement fields).",
       "StandardActions": "Standard Actions",
-      "StandardActionsHint": "Dodge/Help/Grab/Escape and Team Maneuvers per the book (p.29-31, p.38-39). Grab/Escape/Help use your current target(s) via normal Foundry targeting."
+      "StandardActionsHint": "Dodge/Help/Grab/Escape and Team Maneuvers per the book (p.29-31, p.38-39). Grab/Escape/Help use your current target(s) via normal Foundry targeting.",
+      "TeamPlaceholder": "Separate multiple teams with commas"
     },
     "ImageCropper": {
       "Title": "Crop Portrait",
@@ -189,7 +190,8 @@
       "BlockedStunned": "{name} is Stunned and cannot take any actions.",
       "BlockedUnconscious": "{name} is Unconscious and cannot take any actions.",
       "BlockedShattered": "{name} is Shattered and cannot take any actions.",
-      "BlockedParalyzed": "{name} is Paralyzed and cannot take actions that require a Melee or Agility check."
+      "BlockedParalyzed": "{name} is Paralyzed and cannot take actions that require a Melee or Agility check.",
+      "AutomaticHint": "{label} — set automatically from Health/Focus"
     },
     "Karma": {
       "NotEnough": "Not enough Karma remaining.",
@@ -259,11 +261,14 @@
       "Participants": "Participants: {names}",
       "LevelCap": "This team's average Rank allows up to Level {level} (base cost {cost} Focus/member).",
       "LevelOption": "Level {level} ({cost} Focus/member)",
-      "NeedsTargets": "Target your teammates (in addition to yourself) before starting a Team Maneuver.",
+      "NeedsTargets": "Set a Team / Affiliation on your sheet (the same one your teammates use), or target your teammates, before starting a Team Maneuver.",
       "CantAfford": "{name} can't afford their share (not enough Focus or Karma) — the maneuver was cancelled.",
       "PaidWithKarma": "{name} covers their share with 1 Karma instead of Focus.",
       "Announce": "{names} use a Level {level} {type} Team Maneuver this round.",
-      "Revived": "{name} is revived by the team's Rally and returns to the fight at 1 Health/Focus."
+      "Revived": "{name} is revived by the team's Rally and returns to the fight at 1 Health/Focus.",
+      "ChooseMembers": "Who is taking part? Everyone sharing your Team / Affiliation is listed; those in the current combat start checked.",
+      "Next": "Next",
+      "NeedsTwo": "Pick at least one teammate besides yourself."
     },
     "Roll": {
       "AbilityCheck": "{ability} Check",
@@ -300,6 +305,20 @@
       "TroubleAppliedNote": "Trouble added: rolled an extra d6 ({die}) — new total: {total}.",
       "EdgeTroubleAlreadyApplied": "Edge or Trouble has already been added to this roll.",
       "EdgeTroubleNoPermission": "Only the person who made this roll, or the GM, can add Edge or Trouble to it."
+    },
+    "Damage": {
+      "Apply": "Apply Damage",
+      "Undo": "Undo",
+      "ApplyHint": "Apply to your targeted tokens (or selected tokens, if none are targeted), using each one's own Damage Reduction.",
+      "UndoHint": "Reverse all damage applied from this card.",
+      "NoTargets": "Target or select the token(s) to apply damage to first.",
+      "NoPermissionCard": "Only the person who made this roll, or the GM, can apply or undo its damage.",
+      "NoPermissionActor": "You don't have permission to change {name}; ask the GM to apply it.",
+      "AppliedLine": "{name} ({amount})",
+      "AppliedNote": "Applied {pool}: {lines}.",
+      "UndoNote": "Undid damage: {lines}.",
+      "NothingToUndo": "No damage from this roll has been applied yet.",
+      "NotAppliedHint": "Not applied automatically: you can't edit that target. The GM can use Apply Damage."
     }
   }
 }

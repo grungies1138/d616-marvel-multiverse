@@ -48,6 +48,14 @@
   <p class="callout fantastic-callout">{{knockbackNote}}</p>
   {{/if}}
 
+  {{#if canApplyDamage}}
+  {{#if damageNotApplied}}<p class="roll-target">{{localize "D616.Damage.NotAppliedHint"}}</p>{{/if}}
+  <div class="roll-damage-actions">
+    <button type="button" class="edge-trouble-btn" data-action="d616ApplyDamage" data-tooltip="{{localize 'D616.Damage.ApplyHint'}}">{{localize "D616.Damage.Apply"}}</button>
+    <button type="button" class="edge-trouble-btn trouble" data-action="d616UndoDamage" data-tooltip="{{localize 'D616.Damage.UndoHint'}}">{{localize "D616.Damage.Undo"}}</button>
+  </div>
+  {{/if}}
+
   {{#if focusCost}}
   <p class="roll-cost">Spent {{focusCost}} Focus (Focus remaining: {{focusRemaining}})</p>
   {{/if}}

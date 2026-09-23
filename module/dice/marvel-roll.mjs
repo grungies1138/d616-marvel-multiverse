@@ -210,6 +210,10 @@ export async function applyEdgeTroubleToMessage(message, mode) {
     isFantastic: state.isFantastic,
     isGreen: state.isGreen,
     damage,
+    damageType: data.damageType,
+    // Anything the original roll already applied stays applied at the old
+    // number — use Undo, then Apply Damage, to re-apply at the new one.
+    canApplyDamage: !!data.dealsDamageFlag && damage !== null,
     fantasticEffect: data.fantasticEffect,
     focusCost: data.focusCost,
     focusRemaining: data.focusRemaining,

@@ -85,6 +85,15 @@
     </div>
 
     <div class="mm-rest-row">
+      <ul class="mm-condition-row">
+        {{#each conditionList}}
+        <li class="mm-condition-chip {{#if this.active}}active{{/if}} {{#if this.automatic}}automatic{{/if}}"
+            data-action="toggleCondition" data-condition="{{this.id}}" data-automatic="{{this.automatic}}"
+            data-tooltip="{{this.tooltip}}">
+          <img src="{{this.icon}}" alt="{{this.tooltip}}" />
+        </li>
+        {{/each}}
+      </ul>
       <a data-action="restRecover"><i class="fa-solid fa-bed"></i> {{localize "D616.Karma.RestRecoverTitle"}}</a>
     </div>
   </div>

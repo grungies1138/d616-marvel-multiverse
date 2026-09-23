@@ -1,5 +1,6 @@
 import { applySheetTheme, toggleSheetTheme } from "../helpers/theme.mjs";
 import { openTeamManeuverDialog } from "../helpers/team-maneuver.mjs";
+import { CONDITIONS, AUTOMATIC_CONDITIONS } from "../helpers/conditions.mjs";
 import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
 import D616ImageCropper from "../apps/image-cropper.mjs";
 
@@ -130,7 +131,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       actionGrab: D616CharacterSheet.#onActionGrab,
       actionEscape: D616CharacterSheet.#onActionEscape,
       openTeamManeuver: D616CharacterSheet.#onOpenTeamManeuver,
-      fallingDamage: D616CharacterSheet.#onFallingDamage
+      fallingDamage: D616CharacterSheet.#onFallingDamage,
+      toggleCondition: D616CharacterSheet.#onToggleCondition
     }
   };
 
@@ -242,6 +244,18 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     ].filter((m) => m.value > 0);
 
     context.powerBudgetLabel = game.i18n.format("D616.Sheet.PowerBudget", actor.system.powerBudget);
+
+    context.conditionList = CONDITIONS.map((c) => {
+      const automatic = AUTOMATIC_CONDITIONS.has(c.id);
+      const label = game.i18n.localize(c.label);
+      return {
+        id: `d616-${c.id}`,
+        icon: c.icon,
+        active: actor.statuses?.has(`d616-${c.id}`) ?? false,
+        automatic,
+        tooltip: automatic ? game.i18n.format("D616.Condition.AutomaticHint", { label }) : label
+      };
+    });
     context.isDodging = !!actor.getFlag("d616", "dodging");
     context.isGM = game.user.isGM;
 
@@ -263,9 +277,14 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     this.document.rollInitiative();
   }
 
-  /** Shared Edge/Trouble (+ optional scaling-Focus) prompt for Power and Gear rolls. */
-  static async #promptRollOptions(item) {
+  /**
+   * Shared Edge/Trouble (+ optional scaling-Focus) prompt for Power and Gear
+   * rolls. Shift-click skips it and rolls straight away with neither — the
+   * chat card's Add Edge/Add Trouble buttons still cover anything after.
+   */
+  static async #promptRollOptions(item, event) {
     const sys = item.system;
+    if (event?.shiftKey) return { edgeTrouble: "none", extraFocus: 0 };
     if (!sys.cost?.scales && !sys.attack?.enabled) return { edgeTrouble: "none", extraFocus: 0 };
 
     const result = await foundry.applications.api.DialogV2.prompt({
@@ -299,7 +318,7 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!itemId) return;
     const item = this.document.items.get(itemId);
-    const options = await D616CharacterSheet.#promptRollOptions(item);
+    const options = await D616CharacterSheet.#promptRollOptions(item, event);
     if (!options) return; // cancelled
     this.document.rollItem(itemId, options);
   }
@@ -313,7 +332,7 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       // Not a weapon — just post its effect text to chat, same as a Trait.
       return item.use();
     }
-    const options = await D616CharacterSheet.#promptRollOptions(item);
+    const options = await D616CharacterSheet.#promptRollOptions(item, event);
     if (!options) return; // cancelled
     this.document.rollItem(itemId, options);
   }
@@ -426,6 +445,11 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
 
   static #onOpenTeamManeuver() {
     openTeamManeuverDialog(this.document);
+  }
+
+  static #onToggleCondition(event, target) {
+    if (!this.isEditable || target.dataset.automatic === "true") return;
+    this.document.toggleStatusEffect(target.dataset.condition);
   }
 
   /**

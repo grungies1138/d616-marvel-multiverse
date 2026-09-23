@@ -40,6 +40,13 @@ export const CONDITIONS = [
   { id: "unconscious", label: "D616.Condition.Unconscious", icon: "icons/svg/unconscious.svg" }
 ];
 
+/**
+ * Set from Health/Focus by syncAutomaticConditions rather than by hand — a
+ * manual toggle on these would just be overwritten on the actor's next
+ * update, so the sheet shows them read-only.
+ */
+export const AUTOMATIC_CONDITIONS = new Set(["unconscious", "demoralized", "shattered"]);
+
 export function registerConditions() {
   CONFIG.statusEffects = [
     ...CONFIG.statusEffects.filter((e) => !e.id?.startsWith("d616-")),
