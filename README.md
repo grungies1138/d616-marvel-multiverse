@@ -23,14 +23,12 @@ publisher — built for homebrew/original characters and personal home-game use.
   Damage Modifier starts at the relevant ability score. Passive Powers (checkbox on the
   Power sheet) can raise either automatically — no manual math needed once they're on
   the character.
-- **Fantastic / Green**: the Marvel Die is tracked specially. Rolling its marked face
-  counts as a 6 and flags **Fantastic** (bonus effect); rolling a plain 6 flags
-  **Green** (a GM-introduced complication even on a hit). Both show clearly on the
-  chat card.
+- **Fantastic**: the Marvel Die is tracked specially. Rolling its marked face counts
+  as a 6 and flags **Fantastic** (bonus effect), shown with a gold star on the chat card.
 - **Focus spending**: Power costs (including scaling costs) are deducted from the
   actor's Focus automatically, with a warning if there isn't enough.
 - **Initiative**: click the dice icon next to Speed/Initiative on the header to roll it with this
-  system's own 2d6 + Marvel Die engine (Fantastic/Green and all) rather than a flat number — it
+  system's own 2d6 + Marvel Die engine (Fantastic and all) rather than a flat number — it
   posts the usual chat card and pushes the result straight into the active Combat's tracker so
   turn order updates immediately. If the actor isn't already a Combatant in the encounter, it's
   added automatically (using its current token if one is placed on the scene); if there's no
@@ -99,6 +97,12 @@ publisher — built for homebrew/original characters and personal home-game use.
 - **Hover tooltips**: every row in the Powers, Gear, and Traits tabs shows its
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
+
+## 1.11.1 — Green results and "Focus remaining" removed from chat cards
+
+The "Green" result is gone. It flagged a plain 6 on the Marvel die as a GM complication, but that rule isn't in the Marvel Multiverse Core Rulebook, where the Marvel logo (Fantastic) is the die's only special face. A 6 on the Marvel die is now just a 6: no green outline, no "GREEN — Complication" callout. The How to Play journal's core-roll, Karma and quick-reference pages are updated to match.
+
+Power and Gear chat cards now just say "Spent N Focus", without the "Focus remaining" figure.
 
 ## 1.11.0 — July 2025 errata, Holding Back, and weapon Defenses
 

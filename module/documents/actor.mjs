@@ -329,7 +329,6 @@ export default class D616Actor extends Actor {
       targetNumber,
       success,
       isFantastic: dice.isFantastic,
-      isGreen: dice.isGreen,
       isAttack: false,
       edgeTroubleApplied: resolved.mode
     });
@@ -353,7 +352,6 @@ export default class D616Actor extends Actor {
             rawMarvel: dice.rawMarvel,
             marvelValue: dice.marvelValue,
             isFantastic: dice.isFantastic,
-            isGreen: dice.isGreen,
             abilityValue,
             checkBonus,
             targetNumber,
@@ -364,7 +362,6 @@ export default class D616Actor extends Actor {
             damage: null,
             fantasticEffect: null,
             focusCost: null,
-            focusRemaining: null,
             edgeTroubleApplied: resolved.mode
           }
         }
@@ -379,7 +376,7 @@ export default class D616Actor extends Actor {
 
   /**
    * Roll Initiative using this system's own 2d6 + Marvel Die engine (same
-   * dice and Fantastic/Green detection as every other roll here) rather
+   * dice and Fantastic detection as every other roll here) rather
    * than Foundry's generic default, add the Vigilance-based Initiative
    * modifier, post the usual chat card, and feed the total straight into
    * the active Combat's tracker so turn order updates immediately, the
@@ -413,7 +410,6 @@ export default class D616Actor extends Actor {
       targetNumber: null,
       success: null,
       isFantastic: dice.isFantastic,
-      isGreen: dice.isGreen,
       isAttack: false,
       edgeTroubleApplied: resolved.mode
     });
@@ -432,7 +428,6 @@ export default class D616Actor extends Actor {
             rawMarvel: dice.rawMarvel,
             marvelValue: dice.marvelValue,
             isFantastic: dice.isFantastic,
-            isGreen: dice.isGreen,
             abilityValue,
             checkBonus: 0,
             targetNumber: null,
@@ -443,7 +438,6 @@ export default class D616Actor extends Actor {
             damage: null,
             fantasticEffect: null,
             focusCost: null,
-            focusRemaining: null,
             edgeTroubleApplied: resolved.mode
           }
         }
@@ -562,7 +556,7 @@ export default class D616Actor extends Actor {
     }
 
     // --- Attack roll (if this power makes one) ---
-    let d1 = null, d2 = null, marvelValue = null, rawMarvel = null, isFantastic = false, isGreen = false, isUltimate = false;
+    let d1 = null, d2 = null, marvelValue = null, rawMarvel = null, isFantastic = false, isUltimate = false;
     let attackTotal = null, targetNumber = null, success = null, abilityValue = null;
     let sizeModifier = 0;
     let forcedHit = false;
@@ -633,7 +627,7 @@ export default class D616Actor extends Actor {
         roll = kept;
       }
 
-      ({ d1, d2, marvelValue, rawMarvel, isFantastic, isGreen, isUltimate } = roll.dice);
+      ({ d1, d2, marvelValue, rawMarvel, isFantastic, isUltimate } = roll.dice);
       attackTotal = roll.total;
       success = roll.success;
 
@@ -745,7 +739,6 @@ export default class D616Actor extends Actor {
       ? game.i18n.localize(`D616.Ability.${sys.attack.defenseTarget}`) + " Defense"
       : null;
     const fantasticEffect = sys.attack?.fantasticEffect;
-    const focusRemaining = this.system.focus.value;
 
     const content = await renderRollCard({
       actor: this,
@@ -762,7 +755,6 @@ export default class D616Actor extends Actor {
       drApplied,
       success,
       isFantastic,
-      isGreen,
       damage,
       damageType,
       fantasticEffect,
@@ -772,7 +764,6 @@ export default class D616Actor extends Actor {
       canApplyDamage,
       damageNotApplied,
       focusCost,
-      focusRemaining,
       edgeTroubleApplied: effectiveEdgeTrouble
     });
 
@@ -786,7 +777,7 @@ export default class D616Actor extends Actor {
             title: item.name,
             subtitle,
             d1, d2, rawMarvel, marvelValue,
-            isFantastic, isGreen,
+            isFantastic,
             abilityValue,
             checkBonus: 0,
             targetNumber,
@@ -813,7 +804,6 @@ export default class D616Actor extends Actor {
             knockbackEligible,
             damageNotApplied,
             focusCost,
-            focusRemaining,
             edgeTroubleApplied: effectiveEdgeTrouble
           }
         }
@@ -922,7 +912,7 @@ export default class D616Actor extends Actor {
     const title = game.i18n.format(pool === "focus" ? "D616.Karma.RecoverFocusTitle" : "D616.Karma.RecoverHealthTitle", { name: this.name });
     const content = await renderRollCard({
       actor: this, title, d1: dice.d1, d2: dice.d2, marvelValue: dice.marvelValue, rawMarvel: dice.rawMarvel,
-      abilityValue, checkBonus: 0, total, targetNumber: 10, success, isFantastic: dice.isFantastic, isGreen: dice.isGreen,
+      abilityValue, checkBonus: 0, total, targetNumber: 10, success, isFantastic: dice.isFantastic,
       isAttack: false, edgeTroubleApplied: "none", noEdgeTrouble: true,
       healed
     });
@@ -1038,7 +1028,7 @@ export default class D616Actor extends Actor {
     const content = await renderRollCard({
       actor: this, title, d1: dice.d1, d2: dice.d2, marvelValue: dice.marvelValue, rawMarvel: dice.rawMarvel,
       abilityValue, checkBonus: 0, total, targetNumber, defenseTargetLabel: "Melee Defense", success,
-      isFantastic: dice.isFantastic, isGreen: dice.isGreen, isAttack: false, edgeTroubleApplied: "none", noEdgeTrouble: true
+      isFantastic: dice.isFantastic, isAttack: false, edgeTroubleApplied: "none", noEdgeTrouble: true
     });
     return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content });
   }
