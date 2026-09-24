@@ -105,6 +105,37 @@
     </fieldset>
 
     <fieldset>
+      <legend>{{localize "D616.Deploy.Legend"}}</legend>
+      <label class="checkbox">
+        <input type="checkbox" name="system.deploy.enabled" {{#if system.deploy.enabled}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Deploy.Enabled"}}
+      </label>
+      <label>{{localize "D616.Deploy.Name"}}
+        <input type="text" name="system.deploy.name" value="{{system.deploy.name}}" placeholder="{{item.name}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Deploy.Img"}}
+        <input type="text" name="system.deploy.img" value="{{system.deploy.img}}" placeholder="{{item.img}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.Health"}}
+        <input type="number" name="system.deploy.health" value="{{system.deploy.health}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Deploy.Defense"}}
+        <input type="number" name="system.deploy.defense" value="{{system.deploy.defense}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.Size"}}
+        <select name="system.deploy.size" {{#unless editable}}disabled{{/unless}}>
+          {{#each sizeChoices}}
+          <option value="{{this.key}}" {{#if (eq this.key ../system.deploy.size)}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>{{localize "D616.Deploy.Speed"}}
+        <input type="number" name="system.deploy.speed" value="{{system.deploy.speed}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <p class="hint">{{localize "D616.Deploy.Hint"}}</p>
+    </fieldset>
+
+    <fieldset>
       <legend>{{localize "D616.Sheet.PassiveBonus"}}</legend>
       <label class="checkbox">
         <input type="checkbox" name="system.passive.enabled" {{#if system.passive.enabled}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />

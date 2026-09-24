@@ -1,0 +1,27 @@
+<div class="deployable-sheet">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" />
+    <input name="name" type="text" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}} />
+  </header>
+
+  <div class="form-grid">
+    <p class="hint">{{localize "D616.Deploy.DeployedBy"}}: <strong>{{ownerName}}</strong></p>
+    <label>{{localize "D616.Sheet.Health"}}
+      <input type="number" name="system.health.value" value="{{system.health.value}}" {{#unless editable}}disabled{{/unless}} />
+      / {{system.health.max}}
+    </label>
+    <label>DR
+      <input type="number" name="system.health.damageReduction" value="{{system.health.damageReduction}}" min="0" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <p>{{localize "D616.Deploy.Defense"}}: <strong>{{system.defense}}</strong> &middot; {{localize "D616.Sheet.Size"}}: <strong>{{sizeLabel}}</strong>{{#if system.speed}} &middot; {{localize "D616.Deploy.Speed"}}: <strong>{{system.speed}}</strong>{{/if}}</p>
+    {{#if system.effect}}
+    <fieldset>
+      <legend>{{localize "D616.Sheet.Effect"}}</legend>
+      <div class="effect-text">{{{system.effect}}}</div>
+    </fieldset>
+    {{/if}}
+    {{#if deployed}}
+    <button type="button" data-action="recall"><i class="fa-solid fa-arrow-rotate-left"></i> {{localize "D616.Deploy.Recall"}}</button>
+    {{/if}}
+  </div>
+</div>

@@ -31,6 +31,14 @@ const handlers = {
     const actor = await fromUuid(uuid);
     await actor?.recoverPool(pool, { free });
   },
+  async deploy(args) {
+    const { gmDeploy } = await import("./deployables.mjs");
+    await gmDeploy(args);
+  },
+  async recall(args) {
+    const { gmRecall } = await import("./deployables.mjs");
+    await gmRecall(args);
+  },
   async applyEdgeTrouble({ messageId, mode }) {
     const { applyEdgeTroubleToMessage } = await import("../dice/marvel-roll.mjs");
     const message = game.messages.get(messageId);

@@ -3,6 +3,7 @@ import { updateAnywhere, toggleStatusAnywhere, applyEdgeTroubleRouted } from "..
 import { nonlethalCap } from "../helpers/damage.mjs";
 import { isConcentrationPower, concentratingOn, startConcentration } from "../helpers/concentration.mjs";
 import { computeTN } from "../helpers/tn-calculator.mjs";
+import { deployFromItem } from "../helpers/deployables.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
 
@@ -774,7 +775,7 @@ export default class D616Actor extends Actor {
       edgeTroubleApplied: effectiveEdgeTrouble
     });
 
-    return ChatMessage.create({
+    const itemMessage = await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content,
       flags: {
@@ -816,6 +817,10 @@ export default class D616Actor extends Actor {
         }
       }
     });
+
+    // An item that deploys something (Circuit's drone) places it now.
+    if (sys.deploy?.enabled) await deployFromItem(this, item);
+    return itemMessage;
   }
 
   /**
@@ -825,6 +830,7 @@ export default class D616Actor extends Actor {
    */
   async _applyDamageTo(targetActor, amount, pool = "health") {
     if (!targetActor || !amount) return;
+    if (targetActor.type === "deployable" && pool === "focus") return; // no mind to attack
     const path = pool === "focus" ? "system.focus.value" : "system.health.value";
     const current = pool === "focus" ? targetActor.system.focus.value : targetActor.system.health.value;
     await targetActor.update({ [path]: current - amount });

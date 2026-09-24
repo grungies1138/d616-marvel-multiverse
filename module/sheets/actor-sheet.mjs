@@ -4,6 +4,7 @@ import { CONDITIONS, AUTOMATIC_CONDITIONS } from "../helpers/conditions.mjs";
 import { ADJECTIVE_MODIFIERS, computeTN } from "../helpers/tn-calculator.mjs";
 import { concentratingOn, endConcentration } from "../helpers/concentration.mjs";
 import { availableHelperChecks, openHelperCheck } from "../helpers/helper-checks.mjs";
+import { activeDeployables, recallDeployable } from "../helpers/deployables.mjs";
 import { rollMarvelDice, computeDamage } from "../dice/marvel-roll.mjs";
 import D616ImageCropper from "../apps/image-cropper.mjs";
 
@@ -137,7 +138,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       fallingDamage: D616CharacterSheet.#onFallingDamage,
       toggleCondition: D616CharacterSheet.#onToggleCondition,
       endConcentration: D616CharacterSheet.#onEndConcentration,
-      helperCheck: D616CharacterSheet.#onHelperCheck
+      helperCheck: D616CharacterSheet.#onHelperCheck,
+      recallDeployable: D616CharacterSheet.#onRecallDeployable
     }
   };
 
@@ -268,6 +270,13 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
       context.activeList.push({
         icon: "fa-bullseye", label: game.i18n.format("D616.Concentration.Tag", { power: c.name }),
         action: "endConcentration", itemId: c.id, tooltip: game.i18n.localize("D616.Concentration.EndHint")
+      });
+    }
+    // Deployables on the field (Circuit's drone): click to recall.
+    for (const d of activeDeployables(actor)) {
+      context.activeList.push({
+        icon: "fa-satellite-dish", label: game.i18n.format("D616.Deploy.Tag", { name: d.name, health: d.system.health.value, max: d.system.health.max }),
+        action: "recallDeployable", itemId: d.id, tooltip: game.i18n.localize("D616.Deploy.RecallHint")
       });
     }
     // Checks someone can make to end one of this character's Conditions.
@@ -409,8 +418,8 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
     if (!itemId) return;
     const item = this.document.items.get(itemId);
     if (!item) return;
-    if (!item.system.attack?.enabled) {
-      // Not a weapon — just post its effect text to chat, same as a Trait.
+    if (!item.system.attack?.enabled && !item.system.deploy?.enabled) {
+      // Not a weapon or deployable — just post its effect text to chat, same as a Trait.
       return item.use();
     }
     const options = await D616CharacterSheet.#promptRollOptions(item, event);
@@ -531,6 +540,11 @@ export default class D616CharacterSheet extends HandlebarsApplicationMixin(Actor
   static #onEndConcentration(event, target) {
     if (!this.isEditable) return;
     endConcentration(this.document, [target.dataset.itemId]);
+  }
+
+  static #onRecallDeployable(event, target) {
+    const deployable = game.actors.get(target.dataset.itemId);
+    if (deployable) recallDeployable(deployable);
   }
 
   static #onHelperCheck(event, target) {

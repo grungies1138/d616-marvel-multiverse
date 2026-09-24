@@ -27,7 +27,8 @@
   ],
   "documentTypes": {
     "Actor": {
-      "character": {}
+      "character": {},
+      "deployable": { "htmlFields": ["effect"] }
     },
     "Item": {
       "power": {},

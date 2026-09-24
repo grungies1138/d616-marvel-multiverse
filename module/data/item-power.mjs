@@ -80,6 +80,18 @@ export default class PowerData extends foundry.abstract.TypeDataModel {
         grantsKnockback: new BooleanField({ required: true, initial: false })
       }),
 
+      // Using this item puts something on the battlefield that its user
+      // controls, like Circuit's support drone. See helpers/deployables.mjs.
+      deploy: new SchemaField({
+        enabled: new BooleanField({ required: true, initial: false }),
+        name: new StringField({ required: false, blank: true, initial: "" }),
+        img: new StringField({ required: false, blank: true, initial: "" }),
+        health: new NumberField({ required: true, integer: true, initial: 10, min: 0 }),
+        defense: new NumberField({ required: true, integer: true, initial: 10, min: 0 }),
+        size: new StringField({ required: true, initial: "small", choices: ["microscopic", "miniature", "tiny", "little", "small", "average", "big", "huge", "gigantic", "titanic", "gargantuan"] }),
+        speed: new NumberField({ required: true, integer: true, initial: 0, min: 0 })
+      }),
+
       effect: new HTMLField({ required: false })
     };
   }

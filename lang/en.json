@@ -1,7 +1,8 @@
 {
   "D616": {
     "Actor": {
-      "Character": "Character"
+      "Character": "Character",
+      "Deployable": "Deployable"
     },
     "Item": {
       "Power": "Power",
@@ -405,6 +406,27 @@
         "Hint": "Outside combat, a helper who can communicate with {name} makes a Challenging Ego check; on a success their Focus returns to 1.",
         "Done": "{name} rallies with 1 Focus."
       }
+    },
+    "Deploy": {
+      "Legend": "Deploys Something",
+      "Enabled": "Using this places a token its user controls (drone, turret, decoy...)",
+      "Name": "Deployed Name",
+      "Img": "Token Image",
+      "Defense": "Defense",
+      "Speed": "Speed",
+      "Hint": "When used, it appears next to the user's token on the current scene, owned by the same players. One at a time: using it again brings it back at full Health. It's removed at 0 Health, or when recalled from the user's sheet.",
+      "DeployedBy": "Deployed by",
+      "Recall": "Recall",
+      "RecallHint": "Click to recall it from the field",
+      "Tag": "Deployed: {name} ({health}/{max})",
+      "NoToken": "{name} needs a token on the current scene to deploy this.",
+      "Destroyed": "{name} is destroyed."
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "deployable": "Deployable"
     }
   }
 }

@@ -6,6 +6,9 @@ import { openTNCalculatorDialog } from "./helpers/tn-calculator.mjs";
 import { applyDamageFromMessage, undoDamageFromMessage, rollDamageFromMessage } from "./helpers/damage.mjs";
 import { registerGMRelay, isResponsibleClient, applyEdgeTroubleRouted } from "./helpers/gm-relay.mjs";
 import CharacterData from "./data/actor-character.mjs";
+import DeployableData from "./data/actor-deployable.mjs";
+import D616DeployableSheet from "./sheets/deployable-sheet.mjs";
+import { checkDeployableDestroyed } from "./helpers/deployables.mjs";
 import PowerData from "./data/item-power.mjs";
 import TraitData from "./data/item-trait.mjs";
 import GearData from "./data/item-gear.mjs";
@@ -38,12 +41,13 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels ??= {};
   CONFIG.Item.dataModels ??= {};
   CONFIG.Actor.dataModels.character = CharacterData;
+  CONFIG.Actor.dataModels.deployable = DeployableData;
   CONFIG.Item.dataModels.power = PowerData;
   CONFIG.Item.dataModels.trait = TraitData;
   CONFIG.Item.dataModels.gear = GearData;
 
   // --- Default icons for new documents of each type ---
-  CONFIG.Actor.typeIcons = { character: "fa-solid fa-mask" };
+  CONFIG.Actor.typeIcons = { character: "fa-solid fa-mask", deployable: "fa-solid fa-satellite-dish" };
 
   // --- Sheets ---
   // (We deliberately do NOT call unregisterSheet on the core default sheet
@@ -58,6 +62,12 @@ Hooks.once("init", () => {
     types: ["character"],
     makeDefault: true,
     label: "D616.Actor.Character"
+  });
+
+  ActorsCollection.registerSheet("d616", D616DeployableSheet, {
+    types: ["deployable"],
+    makeDefault: true,
+    label: "D616.Actor.Deployable"
   });
 
   ItemsCollection.registerSheet("d616", D616PowerSheet, {
@@ -84,6 +94,11 @@ Hooks.once("init", () => {
 // exactly one (otherwise players' clients hit permission errors on
 // characters they don't own, and two owners online can race each other).
 Hooks.on("updateActor", (actor, changes, options, userId) => {
+  if (actor.type === "deployable") {
+    refreshDeployableOwner(actor);
+    if (isResponsibleClient(userId)) checkDeployableDestroyed(actor);
+    return;
+  }
   if (!isResponsibleClient(userId)) return;
   syncAutomaticConditions(actor);
   // Bleeding ends any time the victim recovers 1 or more Health (book p.37).
@@ -91,6 +106,14 @@ Hooks.on("updateActor", (actor, changes, options, userId) => {
   const after = foundry.utils.getProperty(changes, "system.health.value");
   if (typeof before === "number" && typeof after === "number" && after > before) endBleedingOnRecovery(actor);
 });
+
+// A deployable coming onto or off the field updates its owner's sheet tag.
+function refreshDeployableOwner(actor) {
+  const owner = actor?.type === "deployable" && actor.system.ownerUuid ? fromUuidSync(actor.system.ownerUuid) : null;
+  if (owner?.sheet?.rendered) owner.sheet.render();
+}
+Hooks.on("createToken", (token) => refreshDeployableOwner(token.actor));
+Hooks.on("deleteToken", (token) => refreshDeployableOwner(token.actor));
 
 // Stash Health before the change so updateActor can tell a recovery from
 // damage; update options travel with the change to every client.
