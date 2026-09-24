@@ -74,6 +74,19 @@
           <option value="focus" {{#if (eq system.attack.damageType "focus")}}selected{{/if}}>{{localize "D616.Sheet.Focus"}}</option>
         </select>
       </label>
+      <label>{{localize "D616.Sheet.DamageMode"}}
+        <select name="system.attack.damageMode" {{#unless editable}}disabled{{/unless}}>
+          <option value="formula" {{#if (eq system.attack.damageMode "formula")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeFormula"}}</option>
+          <option value="static" {{#if (eq system.attack.damageMode "static")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeStatic"}}</option>
+          <option value="roll" {{#if (eq system.attack.damageMode "roll")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeRoll"}}</option>
+        </select>
+      </label>
+      <label>{{localize "D616.Sheet.StaticDamage"}}
+        <input type="number" name="system.attack.staticDamage" value="{{system.attack.staticDamage}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.DamageRoll"}}
+        <input type="text" name="system.attack.damageRoll" value="{{system.attack.damageRoll}}" placeholder="2d6+3" {{#unless editable}}disabled{{/unless}} />
+      </label>
       <label>{{localize "D616.Sheet.WeaponDamageMultiplierBonus"}}
         <input type="number" name="system.attack.damageMultiplierBonus" value="{{system.attack.damageMultiplierBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
       </label>

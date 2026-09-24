@@ -33,6 +33,12 @@ export default class GearData extends foundry.abstract.TypeDataModel {
         flatDC: new NumberField({ required: true, integer: true, initial: 10, min: 0 }),
         dealsDamage: new BooleanField({ required: true, initial: true }),
         damageType: new StringField({ required: true, initial: "health", choices: ["health", "focus"] }),
+        // How damage is worked out: "formula" is the book's (Marvel die x
+        // multiplier) + modifier; "static" is a fixed amount; "roll" is a dice
+        // formula rolled from the chat card's Roll Damage button.
+        damageMode: new StringField({ required: true, initial: "formula", choices: ["formula", "static", "roll"] }),
+        staticDamage: new NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+        damageRoll: new StringField({ required: false, blank: true, initial: "" }),
         fantasticEffect: new StringField({ required: false, initial: "Double damage." }),
         // A weapon's own bonus to the wielder's damage multiplier for THIS
         // attack only (e.g. a Sword's +2) — per the book, this does not

@@ -98,6 +98,18 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.12.0 — Static and rolled damage on chat cards
+
+Power and Gear attacks have a new **Damage** setting, next to Damage Type:
+
+- **Book formula** (the default): (Marvel die × multiplier) + modifier, as before.
+- **Static amount**: a fixed number. The card shows it and applies it on a hit, just like formula damage (auto-applied to targets you can edit, otherwise Apply Damage).
+- **Rolled**: a dice formula such as `2d6+3`. On a hit the card shows a **Roll Damage** button. Clicking it rolls the formula (with Dice So Nice if installed), and the card then shows the result and its Apply Damage / Undo buttons. Only the card's roller or the GM can click it, and only once.
+
+Static and rolled damage don't use the multiplier, so Damage Reduction and knockback don't apply to them. A Fantastic doubles them only if the item's Fantastic effect mentions "double".
+
+The Wickfield Eight's homebrew attacks, which all say "A hit deals N damage", are now set to Static with that N, so their damage shows on the card. That's 17 pregen powers and gear, their Homebrew copies, and Brownout's Drain Current (15 Focus), Kinetic Backlash (14) and Full Strength (25). The How to Play journal documents the new options.
+
 ## 1.11.1 — Green results and "Focus remaining" removed from chat cards
 
 The "Green" result is gone. It flagged a plain 6 on the Marvel die as a GM complication, but that rule isn't in the Marvel Multiverse Core Rulebook, where the Marvel logo (Fantastic) is the die's only special face. A 6 on the Marvel die is now just a 6: no green outline, no "GREEN — Complication" callout. The How to Play journal's core-roll, Karma and quick-reference pages are updated to match.
