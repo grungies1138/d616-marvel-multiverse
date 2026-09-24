@@ -803,7 +803,6 @@
   padding: 8px 10px;
 }
 .d616-roll-card.fantastic { border-color: #c8962c; background: #fff8e6; }
-.d616-roll-card.green { border-left: 6px solid #2c7a3d; }
 
 .roll-card-header {
   display: flex;
@@ -820,16 +819,10 @@
   width: 32px;
   height: 32px;
 }
-.roll-card-dice .marvel-die-icon.green {
-  filter: drop-shadow(0 0 0 2px #2c7a3d);
-  outline: 2px solid #2c7a3d;
-  border-radius: 6px;
-}
 .roll-card-dice .roll-total { font-size: 1.5rem; font-weight: 800; margin-left: 6px; color: var(--mm-dark-red); }
 
 .callout { font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; margin-bottom: 4px; }
 .fantastic-callout { background: #fff2cc; color: #8a6415; }
-.green-callout { background: #e2f3e5; color: #2c7a3d; }
 .success { color: #2c7a3d; }
 .failure { color: var(--mm-red); }
 .roll-damage { font-size: 1.1rem; color: var(--mm-dark-red); }

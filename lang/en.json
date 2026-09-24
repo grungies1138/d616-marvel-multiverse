@@ -297,7 +297,6 @@
       "CannotJoinCombat": "Couldn't add this character to the combat encounter — ask your GM to add them, then roll Initiative again.",
       "PowerAttack": "{power}",
       "Fantastic": "FANTASTIC!",
-      "Green": "GREEN — Complication",
       "Success": "Success",
       "Failure": "Failure",
       "vs": "vs.",

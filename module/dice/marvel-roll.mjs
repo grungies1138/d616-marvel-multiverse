@@ -4,8 +4,6 @@
  *   - If the Marvel Die shows its marked face (we use a raw roll of 1 to
  *     represent the "Marvel symbol" face), its value counts as 6 AND the
  *     result is FANTASTIC (an extra-good effect).
- *   - If the Marvel Die shows a plain 6, the result is GREEN — even a
- *     success comes with a complication the GM introduces.
  *   Total = die1 + die2 + (translated Marvel Die value) + relevant Ability.
  *
  * Edge/Trouble (book p.15-16): reroll a single d6 of the three and keep the
@@ -27,7 +25,7 @@ export async function rollMarvelDice({ edgeTrouble = "none", stacks = 1 } = {}) 
   const dice = baseRoll.dice; // three separate 1d6 terms
   const [d1, d2, rawDm] = dice.map((d) => d.total);
 
-  const state = { d1, d2, rawMarvel: rawDm, isFantastic: rawDm === 1, isGreen: rawDm === 6 };
+  const state = { d1, d2, rawMarvel: rawDm, isFantastic: rawDm === 1 };
   state.marvelValue = state.isFantastic ? 6 : state.rawMarvel;
 
   if (edgeTrouble === "edge" || edgeTrouble === "trouble") {
@@ -52,7 +50,6 @@ export async function rollMarvelDice({ edgeTrouble = "none", stacks = 1 } = {}) 
     rawMarvel: state.rawMarvel,
     marvelValue: state.marvelValue,
     isFantastic: state.isFantastic,
-    isGreen: state.isGreen,
     isUltimate,
     diceTotal: state.d1 + state.d2 + state.marvelValue
   };
@@ -122,7 +119,6 @@ async function applyEdgeTroubleAdjustment(state, mode) {
     if (target === "marvel") {
       state.rawMarvel = rerollRaw;
       state.isFantastic = rerollRaw === 1;
-      state.isGreen = rerollRaw === 6;
       state.marvelValue = state.isFantastic ? 6 : rerollRaw;
     } else {
       state[target] = rerollRaw;
@@ -175,7 +171,6 @@ export async function applyEdgeTroubleToMessage(message, mode) {
     rawMarvel: data.rawMarvel,
     marvelValue: data.marvelValue,
     isFantastic: data.isFantastic,
-    isGreen: data.isGreen
   };
   const { rerollRaw } = await applyEdgeTroubleAdjustment(state, mode);
 
@@ -203,7 +198,6 @@ export async function applyEdgeTroubleToMessage(message, mode) {
     rawMarvel: state.rawMarvel,
     marvelValue: state.marvelValue,
     isFantastic: state.isFantastic,
-    isGreen: state.isGreen,
     total,
     success,
     damage,
@@ -265,7 +259,6 @@ export function rollCardContext(data, extra = {}) {
     drApplied: data.drApplied,
     success: data.success,
     isFantastic: data.isFantastic,
-    isGreen: data.isGreen,
     damage: data.damage,
     damageType: data.damageType,
     knockbackNote: data.knockbackNote,
@@ -276,7 +269,6 @@ export function rollCardContext(data, extra = {}) {
     damageNotApplied: data.damageNotApplied,
     fantasticEffect: data.fantasticEffect,
     focusCost: data.focusCost,
-    focusRemaining: data.focusRemaining,
     isAttack: data.isAttack,
     edgeTroubleApplied: data.edgeTroubleApplied,
     ...extra
