@@ -25,6 +25,8 @@ class BaseD616ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.system = this.document.system;
     context.editable = this.isEditable;
     context.abilities = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
+    context.sizeChoices = ["microscopic", "miniature", "tiny", "little", "small", "average", "big", "huge", "gigantic", "titanic", "gargantuan"]
+      .map((key) => ({ key, label: game.i18n.localize(`D616.Size.${key}`) }));
     return context;
   }
 }

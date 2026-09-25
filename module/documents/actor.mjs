@@ -1,8 +1,9 @@
-import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor } from "../dice/marvel-roll.mjs";
+import { rollMarvelDice, renderRollCard, resolveSuccess, damageFromRoll, knockbackNoteFor, rollDamageContext } from "../dice/marvel-roll.mjs";
 import { updateAnywhere, toggleStatusAnywhere, applyEdgeTroubleRouted } from "../helpers/gm-relay.mjs";
 import { nonlethalCap } from "../helpers/damage.mjs";
 import { isConcentrationPower, concentratingOn, startConcentration } from "../helpers/concentration.mjs";
 import { computeTN } from "../helpers/tn-calculator.mjs";
+import { deployFromItem } from "../helpers/deployables.mjs";
 
 const ABILITIES = ["melee", "agility", "resilience", "vigilance", "ego", "logic"];
 
@@ -671,7 +672,13 @@ export default class D616Actor extends Actor {
       // Grenades use their own multiplier in place of the attacker's (p.36).
       if (item.type === "gear" && sys.attack.ownMultiplier > 0) multiplier = sys.attack.ownMultiplier;
       const modifier = (this.system.damageModifiers?.[ability] ?? abilityValue ?? 0) + bonusModifier;
-      damageParams = { multiplier, modifier };
+      // How the item deals damage: the book formula, a fixed amount, or a
+      // dice formula rolled from the card (see damageFromRoll).
+      const mode = sys.attack.damageMode ?? "formula";
+      const doubleOnFantastic = /double/i.test(sys.attack.fantasticEffect ?? "");
+      damageParams = mode === "static" ? { mode, amount: sys.attack.staticDamage ?? 0, doubleOnFantastic }
+        : mode === "roll" ? { mode, formula: sys.attack.damageRoll || "1d6", rolled: null, doubleOnFantastic }
+        : { multiplier, modifier };
       if (success === null || success) {
         // Per the book (p.36): Damage Reduction reduces the multiplier
         // itself, before the ability-score add; if that drops the
@@ -701,7 +708,7 @@ export default class D616Actor extends Actor {
     let targetSummary = null;
     let damageNotApplied = false;
     const applied = [];
-    if (dealsDamageFlag && (success === null || success) && damage !== null && (damage || isMultiTarget)) {
+    if (dealsDamageFlag && (success === null || success) && damage !== null && damage !== undefined && (damage || isMultiTarget)) {
       const pool = damageType === "focus" ? "focus" : "health";
       const split = sys.attack.splitDamage ?? true;
       const divisor = isMultiTarget && split && targets.length > 1 ? targets.length : 1;
@@ -762,12 +769,13 @@ export default class D616Actor extends Actor {
       teamRerollNote,
       extraNote,
       canApplyDamage,
+      ...rollDamageContext({ dealsDamageFlag, damageParams, success }),
       damageNotApplied,
       focusCost,
       edgeTroubleApplied: effectiveEdgeTrouble
     });
 
-    return ChatMessage.create({
+    const itemMessage = await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content,
       flags: {
@@ -809,6 +817,10 @@ export default class D616Actor extends Actor {
         }
       }
     });
+
+    // An item that deploys something (Circuit's drone) places it now.
+    if (sys.deploy?.enabled) await deployFromItem(this, item);
+    return itemMessage;
   }
 
   /**
@@ -818,6 +830,7 @@ export default class D616Actor extends Actor {
    */
   async _applyDamageTo(targetActor, amount, pool = "health") {
     if (!targetActor || !amount) return;
+    if (targetActor.type === "deployable" && pool === "focus") return; // no mind to attack
     const path = pool === "focus" ? "system.focus.value" : "system.health.value";
     const current = pool === "focus" ? targetActor.system.focus.value : targetActor.system.health.value;
     await targetActor.update({ [path]: current - amount });

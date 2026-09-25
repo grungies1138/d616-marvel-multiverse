@@ -74,6 +74,19 @@
           <option value="focus" {{#if (eq system.attack.damageType "focus")}}selected{{/if}}>{{localize "D616.Sheet.Focus"}}</option>
         </select>
       </label>
+      <label>{{localize "D616.Sheet.DamageMode"}}
+        <select name="system.attack.damageMode" {{#unless editable}}disabled{{/unless}}>
+          <option value="formula" {{#if (eq system.attack.damageMode "formula")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeFormula"}}</option>
+          <option value="static" {{#if (eq system.attack.damageMode "static")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeStatic"}}</option>
+          <option value="roll" {{#if (eq system.attack.damageMode "roll")}}selected{{/if}}>{{localize "D616.Sheet.DamageModeRoll"}}</option>
+        </select>
+      </label>
+      <label>{{localize "D616.Sheet.StaticDamage"}}
+        <input type="number" name="system.attack.staticDamage" value="{{system.attack.staticDamage}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.DamageRoll"}}
+        <input type="text" name="system.attack.damageRoll" value="{{system.attack.damageRoll}}" placeholder="2d6+3" {{#unless editable}}disabled{{/unless}} />
+      </label>
       <label>{{localize "D616.Sheet.WeaponDamageMultiplierBonus"}}
         <input type="number" name="system.attack.damageMultiplierBonus" value="{{system.attack.damageMultiplierBonus}}" min="0" {{#unless editable}}disabled{{/unless}} />
       </label>
@@ -108,6 +121,37 @@
           <option value="nonlethal" {{#if (eq system.attack.lethality "nonlethal")}}selected{{/if}}>{{localize "D616.Sheet.LethalityNonlethal"}}</option>
         </select>
       </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{localize "D616.Deploy.Legend"}}</legend>
+      <label class="checkbox">
+        <input type="checkbox" name="system.deploy.enabled" {{#if system.deploy.enabled}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        {{localize "D616.Deploy.Enabled"}}
+      </label>
+      <label>{{localize "D616.Deploy.Name"}}
+        <input type="text" name="system.deploy.name" value="{{system.deploy.name}}" placeholder="{{item.name}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Deploy.Img"}}
+        <input type="text" name="system.deploy.img" value="{{system.deploy.img}}" placeholder="{{item.img}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.Health"}}
+        <input type="number" name="system.deploy.health" value="{{system.deploy.health}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Deploy.Defense"}}
+        <input type="number" name="system.deploy.defense" value="{{system.deploy.defense}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>{{localize "D616.Sheet.Size"}}
+        <select name="system.deploy.size" {{#unless editable}}disabled{{/unless}}>
+          {{#each sizeChoices}}
+          <option value="{{this.key}}" {{#if (eq this.key ../system.deploy.size)}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>{{localize "D616.Deploy.Speed"}}
+        <input type="number" name="system.deploy.speed" value="{{system.deploy.speed}}" min="0" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <p class="hint">{{localize "D616.Deploy.Hint"}}</p>
     </fieldset>
 
     <fieldset>

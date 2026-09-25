@@ -1,4 +1,4 @@
-import { damageFromRoll } from "../dice/marvel-roll.mjs";
+import { damageFromRoll, renderRollCard, rollCardContext } from "../dice/marvel-roll.mjs";
 
 /**
  * Chat-card Apply Damage / Undo. A hit only applies itself automatically
@@ -159,4 +159,34 @@ export async function undoDamageFromMessage(message) {
 
   await message.update({ "flags.d616.roll.applied": remaining });
   note(game.i18n.format("D616.Damage.UndoNote", { lines: lines.join(", ") }));
+}
+
+/**
+ * Rolls a rolled-damage item's dice formula from its card (the Roll Damage
+ * button), once per card. The card then shows the damage and its Apply
+ * Damage / Undo buttons, which apply it to targeted or selected tokens.
+ */
+export async function rollDamageFromMessage(message) {
+  const data = message.getFlag("d616", "roll");
+  const p = data?.damageParams;
+  if (!data?.dealsDamageFlag || p?.mode !== "roll" || data.success === false) return;
+  if (p.rolled !== null && p.rolled !== undefined) return;
+  if (!canEditMessage(message)) {
+    ui.notifications.warn(game.i18n.localize("D616.Damage.NoPermissionCard"));
+    return;
+  }
+  const actor = ChatMessage.getSpeakerActor?.(message.speaker) ?? game.actors.get(message.speaker?.actor);
+  let roll;
+  try {
+    roll = await new Roll(p.formula, actor?.getRollData?.() ?? {}).evaluate();
+  } catch (err) {
+    ui.notifications.error(game.i18n.format("D616.Damage.BadFormula", { formula: p.formula }));
+    return;
+  }
+  if (game.dice3d) await game.dice3d.showForRoll(roll, game.user, true);
+  const damageParams = { ...p, rolled: roll.total };
+  const damage = damageFromRoll({ damageParams, isFantastic: data.isFantastic }).damage;
+  const updated = { ...data, damageParams, damage };
+  const content = await renderRollCard(rollCardContext(updated));
+  await message.update({ content, "flags.d616.roll": updated });
 }

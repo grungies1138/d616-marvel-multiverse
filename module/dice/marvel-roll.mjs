@@ -81,6 +81,15 @@ export function computeDamage({ marvelValue, multiplier, modifier, isFantastic }
  * fact, so both land on the same number.
  */
 export function damageFromRoll({ damageParams, drApplied = 0, marvelValue, isFantastic }) {
+  // Static and rolled damage (homebrew items) don't use the multiplier, so
+  // Damage Reduction and knockback don't apply; a Fantastic doubles them
+  // only when the item's Fantastic effect says so. Rolled damage is null
+  // until someone clicks the card's Roll Damage button.
+  if (damageParams.mode === "static" || damageParams.mode === "roll") {
+    const base = damageParams.mode === "static" ? damageParams.amount : damageParams.rolled;
+    if (base === null || base === undefined) return { damage: null, multiplier: 0 };
+    return { damage: isFantastic && damageParams.doubleOnFantastic ? base * 2 : base, multiplier: 0 };
+  }
   const multiplier = damageParams.multiplier - drApplied;
   if (multiplier < 1) return { damage: 0, multiplier };
   return { damage: computeDamage({ marvelValue, multiplier, modifier: damageParams.modifier, isFantastic }), multiplier };
@@ -241,6 +250,20 @@ export async function applyEdgeTroubleToMessage(message, mode) {
  * flags — used when re-rendering a card after the fact so it shows the same
  * lines (target, DR, knockback, Apply/Undo) as when it was first posted.
  */
+/** Card fields for a rolled-damage item: the Roll Damage button until it's rolled, then what was rolled. */
+export function rollDamageContext(data) {
+  const p = data.damageParams;
+  if (!data.dealsDamageFlag || p?.mode !== "roll") return {};
+  const hit = data.success !== false;
+  return {
+    canRollDamage: hit && (p.rolled === null || p.rolled === undefined),
+    damageFormula: p.formula,
+    rolledDamageNote: hit && p.rolled !== null && p.rolled !== undefined
+      ? `${p.formula} = ${p.rolled}${data.isFantastic && p.doubleOnFantastic ? game.i18n.localize("D616.Damage.DoubledFantastic") : ""}`
+      : null
+  };
+}
+
 export function rollCardContext(data, extra = {}) {
   return {
     title: data.title,
@@ -266,6 +289,7 @@ export function rollCardContext(data, extra = {}) {
     extraNote: data.extraNote,
     helperNote: data.helperAction?.done ? data.helperAction.doneNote : null,
     canApplyDamage: !!data.dealsDamageFlag && data.damage !== null && data.damage !== undefined,
+    ...rollDamageContext(data),
     damageNotApplied: data.damageNotApplied,
     fantasticEffect: data.fantasticEffect,
     focusCost: data.focusCost,

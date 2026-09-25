@@ -1,7 +1,8 @@
 {
   "D616": {
     "Actor": {
-      "Character": "Character"
+      "Character": "Character",
+      "Deployable": "Deployable"
     },
     "Item": {
       "Power": "Power",
@@ -156,7 +157,13 @@
       "Lethality": "Lethal / Nonlethal",
       "LethalityAuto": "Book default (weapons lethal, otherwise nonlethal; Heroic attackers hold back)",
       "LethalityLethal": "Lethal (also overrides Heroic holding back)",
-      "LethalityNonlethal": "Nonlethal"
+      "LethalityNonlethal": "Nonlethal",
+      "DamageMode": "Damage",
+      "DamageModeFormula": "Book formula: (Marvel die × multiplier) + modifier",
+      "DamageModeStatic": "Static amount",
+      "DamageModeRoll": "Rolled (dice formula)",
+      "StaticDamage": "Static Damage Amount",
+      "DamageRoll": "Damage Dice Formula"
     },
     "ImageCropper": {
       "Title": "Crop Portrait",
@@ -348,7 +355,11 @@
       "AdjustedLine": "{name} ({from} → {to})",
       "AdjustedNote": "Applied damage updated for the new result: {lines}.",
       "Nonlethal": "Nonlethal",
-      "HoldingBack": "Holding back"
+      "HoldingBack": "Holding back",
+      "RollButton": "Roll Damage",
+      "Rolled": "Damage roll",
+      "BadFormula": "Couldn't roll the damage formula \"{formula}\"; check it on the item sheet.",
+      "DoubledFantastic": ", doubled for a Fantastic"
     },
     "Relay": {
       "NoGM": "That changes a character you don't own, so it needs a GM connected. Nothing was changed.",
@@ -395,6 +406,27 @@
         "Hint": "Outside combat, a helper who can communicate with {name} makes a Challenging Ego check; on a success their Focus returns to 1.",
         "Done": "{name} rallies with 1 Focus."
       }
+    },
+    "Deploy": {
+      "Legend": "Deploys Something",
+      "Enabled": "Using this places a token its user controls (drone, turret, decoy...)",
+      "Name": "Deployed Name",
+      "Img": "Token Image",
+      "Defense": "Defense",
+      "Speed": "Speed",
+      "Hint": "When used, it appears next to the user's token on the current scene, owned by the same players. One at a time: using it again brings it back at full Health. It's removed at 0 Health, or when recalled from the user's sheet.",
+      "DeployedBy": "Deployed by",
+      "Recall": "Recall",
+      "RecallHint": "Click to recall it from the field",
+      "Tag": "Deployed: {name} ({health}/{max})",
+      "NoToken": "{name} needs a token on the current scene to deploy this.",
+      "Destroyed": "{name} is destroyed."
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "deployable": "Deployable"
     }
   }
 }
