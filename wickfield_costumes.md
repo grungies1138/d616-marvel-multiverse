@@ -128,3 +128,14 @@ caps or beanies, sunglasses even at night, the universal shorthand for hired-and
 holstered pistol worn openly rather than concealed — they're not hiding what they do, just doing
 it for a paycheck. Nothing about the look suggests loyalty or belief; it's closer to a work
 uniform for a job nobody's proud of, which is exactly the point.
+
+## Rerun — Theodora "Teddy" Vance
+
+Dressed for a show that stopped airing years ago: a fitted, sequined blazer in faded studio teal with
+big '90s padded shoulders, over a high-necked blouse and tailored slacks, a clip-on lavalier mic still
+pinned to her lapel with its cord trailing into her pocket. Her hair is set in a stiff, camera-ready
+bob that never moves quite the way hair should. The whole outfit is going grainy at the edges, like
+worn videotape: hems and cuffs blur into faint horizontal scan lines, and the colors bleed a little
+past the fabric. When she uses a power, a flicker of tracking static rolls across her from top to
+bottom, and for a split second there are two of her, a half-beat apart. A battered VHS master tape
+hangs from a lanyard at her hip, labelled in marker, "WT — FINAL".

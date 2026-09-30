@@ -98,6 +98,15 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.12.1 — New villain: Rerun
+
+The Adversaries compendium gains **Rerun** (Theodora "Teddy" Vance), a Rank 4 villain for continuing the Wickfield campaign, only loosely tied to the Community Center. She's a former public-access TV host who can rewind, replay and pause small pieces of time.
+
+- Six custom Broadcast Time powers, with Static damage: Snow Crash (18), Laugh Track (15 Focus), Loop, Rewind, Fast-Forward, and the finisher Series Finale (25).
+- Three book powers: Instant Replay, Time-Out and Slow-Motion Dodge.
+- Three traits and a full biography.
+- The Wickfield Eight — Adversaries journal gets her page, with stats and advice on running her, and `wickfield_costumes.md` gets her costume.
+
 ## 1.12.0 — Static and rolled damage on chat cards, and deployables
 
 Power and Gear attacks have a new **Damage** setting, next to Damage Type:
@@ -837,8 +846,15 @@ the same "rolling blackouts closing in on the fundraiser" hook from
   for as many Enforcers as a scene needs), hired muscle armed with a Pistol (a real, working Gear item
   embedded right on its sheet, same as any pregen's gear), meant to be a speed bump rather than a real
   threat to a team of Rank 2 heroes.
+- **Rerun** (Theodora "Teddy" Vance) — Rank 4 villain for continuing the campaign, only loosely tied to
+  the Center. A former public-access TV host whose show taped in the Center's back-room studio, she can
+  rewind, replay and pause small pieces of time, and restages her favorite "episodes" across the city.
+  She controls fights rather than escalating them: Loop costs a hero their next action, Rewind makes an
+  attacker reroll a hit, Laugh Track deals Focus damage, and her finisher, Series Finale, unlocks once
+  she's Looped two different heroes. She also has three book powers: Instant Replay, Time-Out and
+  Slow-Motion Dodge. Her weakness is her old master tapes in the Center's storage room.
 
-Both are built the same way as the Wickfield Eight themselves: full History/Personality on the
+All three are built the same way as the Wickfield Eight themselves: full History/Personality on the
 Biography tab, and their Powers/Traits/Gear pre-populated as real embedded Items. Brownout's Power
 Surge and Full Strength are reference-only entries (like a couple of the heroes' own powers) since a
 scene-cumulative stacking counter isn't something a static sheet field can track — run it by hand.
@@ -1056,7 +1072,7 @@ d616/
 ├── d616_powers_traits_reference.md (every Power + Gear + Trait in the compendiums, one document —
 │                                   source content for the Marvel D616 pack's reference journals and
 │                                   the sheet tooltips)
-├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer)
+├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer, Rerun)
 ├── lang/en.json
 ├── module/
 │   ├── d616.mjs                (entry point: registers everything)
