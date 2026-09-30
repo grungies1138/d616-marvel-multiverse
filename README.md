@@ -98,6 +98,16 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.12.2 — New adversary: Bank Robber
+
+The Adversaries compendium gains a **Bank Robber** henchman template (Rank 1) for a robbery scene.
+
+- Stats: Melee +2, Agility +2, Resilience +1; Health 30.
+- Gear: a Sawed-Off Shotgun (the book's Shotgun: range 6, +1 multiplier, up to two targets with the damage split) and a Crowbar (used like a Club).
+- Traits: In and Out (Trouble on staying to fight once the alarm is going) and Cased the Joint (Edge on knowing the bank's layout).
+- It also works as the crew in Rerun's looped bank-robbery "episode".
+- The Adversaries journal gets its page, and `wickfield_costumes.md` gets its look.
+
 ## 1.12.1 — New villain: Rerun
 
 The Adversaries compendium gains **Rerun** (Theodora "Teddy" Vance), a Rank 4 villain for continuing the Wickfield campaign, only loosely tied to the Community Center. She's a former public-access TV host who can rewind, replay and pause small pieces of time.
@@ -853,8 +863,12 @@ the same "rolling blackouts closing in on the fundraiser" hook from
   attacker reroll a hit, Laugh Track deals Focus damage, and her finisher, Series Finale, unlocks once
   she's Looped two different heroes. She also has three book powers: Instant Replay, Time-Out and
   Slow-Motion Dodge. Her weakness is her old master tapes in the Center's storage room.
+- **Bank Robber** — Rank 1 henchman template for a robbery scene (duplicate the token for a crew of three
+  or four). Armed with a Sawed-Off Shotgun (the book's Shotgun: two targets, split damage) and a Crowbar
+  (used like a Club). Its In and Out trait gives the GM a clean way to end the fight: once the heroes turn
+  it, the crew bolts. It also works as the crew in Rerun's looped bank-robbery "episode".
 
-All three are built the same way as the Wickfield Eight themselves: full History/Personality on the
+All four are built the same way as the Wickfield Eight themselves: full History/Personality on the
 Biography tab, and their Powers/Traits/Gear pre-populated as real embedded Items. Brownout's Power
 Surge and Full Strength are reference-only entries (like a couple of the heroes' own powers) since a
 scene-cumulative stacking counter isn't something a static sheet field can track — run it by hand.
@@ -1072,7 +1086,7 @@ d616/
 ├── d616_powers_traits_reference.md (every Power + Gear + Trait in the compendiums, one document —
 │                                   source content for the Marvel D616 pack's reference journals and
 │                                   the sheet tooltips)
-├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer, Rerun)
+├── wickfield_costumes.md         (costume descriptions: the Eight, Brownout, Kade's Enforcer, Rerun, Bank Robber)
 ├── lang/en.json
 ├── module/
 │   ├── d616.mjs                (entry point: registers everything)
