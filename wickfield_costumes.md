@@ -139,3 +139,13 @@ worn videotape: hems and cuffs blur into faint horizontal scan lines, and the co
 past the fabric. When she uses a power, a flicker of tracking static rolls across her from top to
 bottom, and for a split second there are two of her, a half-beat apart. A battered VHS master tape
 hangs from a lanyard at her hip, labelled in marker, "WT — FINAL".
+
+## Bank Robber
+
+A stick-up crew dressed to be forgotten: dark hoodies and work jackets over whatever they wore that
+morning, cheap latex gloves, and rubber Halloween masks bought as a set from the same drugstore
+bin, so the whole crew is a mismatched gallery of grinning old presidents and cartoon animals. One
+carries a sawed-off shotgun with electrical tape wrapped around the grip; another has a crowbar and
+a pair of empty duffel bags. They check their watches constantly. In Rerun's looped version of the
+robbery, the masks start to glitch like worn videotape, a frame or two out of sync with the faces
+underneath.
