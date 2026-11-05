@@ -138,7 +138,7 @@ All eight have a loose tie to the **Wickfield Community Center**: Amberlight vol
 **Power Set — Power Control (Umbral)**
 - **Umbral Lash** — Standard Action, ranged 4 squares. Ego attack vs. target's Ego Defense. Hit: 12 damage, target has Trouble on their next attack roll. **Fantastic:** target also drops whatever they're holding. *Cost: 0 Focus.*
 - **Veil of Dusk** — Standard Action, touch (self or ally). Target becomes Unseen — can't be targeted by ranged attacks or normal sight — until they act or until the end of your next turn. *Cost: 10 Focus.*
-- **Shadow Snare** — Standard Action, ranged 4 squares. Ego attack vs. target's Resilience Defense. Hit: target is Restrained (Speed 0) until they beat your Ego Defense with an Agility check. *Cost: 20 Focus.*
+- **Shadow Snare** — Standard Action, ranged 4 squares. Ego attack vs. target's Resilience Defense. Hit: target is Restrained (Speed 0) until they beat your Ego Defense with an Agility check. *Cost: 10 Focus (the book's 20, lowered so a Rank 2 character can pay it under the 5 x Rank spend cap).*
 
 *Synergy:* Opens fights by blinding or snaring the biggest threat before it acts. Pairs well with anyone who needs one free round to set up.
 

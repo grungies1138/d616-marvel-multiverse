@@ -98,6 +98,10 @@ publisher — built for homebrew/original characters and personal home-game use.
   mechanical summary (action, duration, cost, Edge/Trouble trigger) and its full
   Effect text on hover, without needing to open the item's own sheet.
 
+## 1.12.3 — Fix: Nightglass can now cast Shadow Snare
+
+Nightglass is Rank 2, so the Focus spending limit (5 x Rank = 10 per use) blocked **Shadow Snare**, which cost the book's 20 Focus. On her pregen it now costs **10 Focus**, with a note in the item's effect text. The Homebrew library item and the powers reference keep the book's 20.
+
 ## 1.12.2 — New adversary: Bank Robber
 
 The Adversaries compendium gains a **Bank Robber** henchman template (Rank 1) for a robbery scene.
